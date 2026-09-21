@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>CHAPTER 10 조합회로 모델링</title>
+<style>
+:root{--bg:#f6f8fb;--paper:#fff;--ink:#172033;--muted:#5c667a;--line:#dfe5ee;--blue:#1769aa;--blue2:#eaf4fc;--code:#101722;--codeink:#eef5ff;--warn:#fff7df;--ok:#eef9f2;--danger:#fff0f0;--dangerline:#b94c4c;--purple:#7154a7;--orange:#b56a10}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.72}header{background:linear-gradient(135deg,#0c4e86,#1887a9);color:#fff;padding:44px 24px}header .wrap,main{max-width:1200px;margin:auto}h1{margin:0 0 10px;font-size:2.35rem;line-height:1.25}.subtitle{opacity:.94;font-size:1.03rem}main{padding:28px 20px 72px}nav,section,.card{background:var(--paper);border:1px solid var(--line);border-radius:14px}nav{padding:20px 24px;margin-bottom:22px}nav a{color:var(--blue);text-decoration:none;margin-right:15px;white-space:nowrap}section{padding:28px 30px;margin:20px 0}h2{margin-top:0;border-bottom:2px solid #dceaf5;padding-bottom:10px;color:#134f7a}h3{margin-top:30px;color:#245b7e}h4{margin-bottom:8px;color:#315f7d}p{margin:.65em 0}ul,ol{padding-left:1.35rem}li{margin:.28em 0}.badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:700;background:var(--blue2);color:#155f93;margin-right:6px}.note,.warn,.tip,.danger,.rtl,.source-note,.verify{border-left:5px solid var(--blue);padding:14px 16px;border-radius:8px;margin:16px 0}.note{background:#f1f7fc}.warn{background:var(--warn);border-color:#d49b17}.tip{background:var(--ok);border-color:#2b8a57}.danger{background:var(--danger);border-color:var(--dangerline)}.rtl{background:#f5f0ff;border-color:var(--purple)}.source-note{background:#f7f8fa;border-color:#6a7684}.verify{background:#fff4e8;border-color:var(--orange)}code{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}pre{background:var(--code);color:var(--codeink);padding:18px;border-radius:10px;overflow:auto;line-height:1.55;font-family:"JetBrains Mono","D2Coding","Consolas",monospace}table{width:100%;border-collapse:collapse;margin:14px 0 18px}th,td{border:1px solid var(--line);padding:10px 12px;vertical-align:top}th{background:#eef5fa;text-align:left}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{padding:16px 18px}.k{font-weight:700;color:#0d5b8c}.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}.flow span{background:#edf5fb;border:1px solid #cfe3f1;border-radius:8px;padding:8px 11px}.flow .arrow{background:none;border:none;padding:0;color:#557}.syntax{background:#f3f7fa;border:1px solid #cbdce8;border-radius:10px;padding:14px 16px;margin:14px 0}.logic{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}.logic .box{min-width:115px;border:2px solid #7fa8c3;background:#f8fbfd;padding:10px 14px;border-radius:12px;text-align:center;font-weight:700}.logic .sig{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}.task{border:1px solid #cfe0e9;border-radius:12px;background:#fbfdff;padding:16px 18px;margin:16px 0}.task .title{font-weight:800;color:#155f93;margin-bottom:8px}.truth{max-width:900px;margin:14px auto}.truth td,.truth th{text-align:center}footer{max-width:1200px;margin:0 auto 50px;padding:0 20px;color:var(--muted);font-size:.9rem}@media(max-width:720px){h1{font-size:1.72rem}section{padding:22px 18px}}@media print{body{background:white}header{padding:28px 20px}nav{display:none}pre{white-space:pre-wrap}}
+
+
+/* 좌측 고정 바로가기 */
+nav.sidebar-nav{
+  position:fixed;
+  left:18px;
+  top:18px;
+  width:258px;
+  max-height:calc(100vh - 36px);
+  overflow:auto;
+  z-index:1000;
+  padding:18px 16px;
+  background:rgba(255,255,255,.98);
+  border:1px solid var(--line,#dfe5ee);
+  border-radius:14px;
+  box-shadow:0 8px 26px rgba(20,50,80,.08);
+}
+nav.sidebar-nav strong{display:block;margin-bottom:8px;color:#183e5b}
+nav.sidebar-nav a{
+  display:block;
+  margin:0;
+  padding:7px 9px;
+  border-radius:7px;
+  color:var(--blue,#1769aa);
+  text-decoration:none;
+  line-height:1.38;
+}
+nav.sidebar-nav a:hover{background:#eef6fb}
+nav.sidebar-nav .home-link{
+  margin-bottom:10px;
+  border-bottom:1px solid var(--line,#dfe5ee);
+  padding-bottom:10px;
+  font-weight:700;
+}
+@media (min-width:1100px){
+  header{margin-left:294px}
+  main{
+    margin-left:312px !important;
+    margin-right:28px !important;
+    max-width:none !important;
+    width:auto !important;
+  }
+}
+@media (max-width:1099px){
+  nav.sidebar-nav{
+    position:static;
+    width:auto;
+    max-height:none;
+    margin:0 0 22px 0;
+    box-shadow:none;
+  }
+  nav.sidebar-nav a{display:inline-block;margin-right:5px}
+}
+
+</style>
+</head>
+<body>
+<header><div class="wrap"><div><span class="badge">CHAPTER 10</span><span class="badge">조합회로 모델링</span></div><h1>조합회로 모델링</h1><div class="subtitle">기본 논리 게이트 · 부울식 · 진리표 · LUT · 멀티플렉서 · 인코더/디코더 · 비교기 · 3상태 버스 · case/if 합성</div></div></header>
+<main>
+<nav class="sidebar-nav"><a class="home-link" href="index.html">← 전체 목차</a><strong>바로가기</strong><br/><a href="#overview">CHAPTER 10 전체 개요</a><a href="#rules">조합회로 모델링의 4가지 핵심 원칙</a><a href="#gate">10.1.1 기본 논리 게이트의 모델링</a><a href="#multibit">10.1.2 멀티비트 논리연산</a><a href="#truth">10.1.3 부울 함수 · 진리표 · LUT</a><a href="#mux">10.2 멀티플렉서</a><a href="#encoder">10.3.1 4:2 이진 인코더</a><a href="#priority">10.3.2 우선순위 인코더</a><a href="#decoder">10.3.3 디코더</a><a href="#comp">10.4 비교기</a><a href="#bus">10.5 3상태 버스</a><a href="#latch">10.6 case 문과 if 문의 합성</a><a href="#multi-if">10.6.2 다중 if 문의 합성</a><a href="#summary">최종 핵심 정리</a></nav>
+<section id="overview">
+<h2>1. CHAPTER 10 전체 개요</h2>
+<p>조합회로(combinational circuit, 현재 입력 조합만으로 출력이 결정되는 회로)는 논리 게이트들의 조합으로 구성되며, 과거 입력이나 이전 출력 상태를 저장하는 latch(래치) 또는 flip-flop(플립플롭)을 포함하지 않는다. 따라서 조합회로 RTL핵심은 <strong>모든 입력 변화와 모든 입력 조건에 대해 출력이 즉시 결정되는가</strong>이다.</p>
+<div class="grid"><div class="card"><span class="k">기본 논리</span><p>AND, OR, XOR, NAND, NOR</p></div><div class="card"><span class="k">선택·변환</span><p>MUX, Encoder, Decoder</p></div><div class="card"><span class="k">연산·판단</span><p>Comparator, Adder, ALU</p></div><div class="card"><span class="k">상수 데이터</span><p>Lookup Table(LUT)</p></div></div>
+<table><thead><tr><th>조합회로</th><th>대표 Verilog HDL 표현</th></tr></thead><tbody><tr><td>기본 논리 게이트</td><td>게이트 프리미티브, 비트/축약 연산자</td></tr><tr><td>멀티플렉서</td><td><code>assign</code>, <code>?:</code>, <code>if</code>, <code>case</code></td></tr><tr><td>인코더·디코더</td><td><code>if</code>, <code>case</code>, <code>for</code></td></tr><tr><td>랜덤 로직·부울 함수</td><td>연속 할당문과 논리/비트 연산자</td></tr><tr><td>비교기</td><td>관계 연산자, if, for</td></tr><tr><td>LUT</td><td>function + case</td></tr></tbody></table>
+<div class="rtl"><strong>Simulation과 Synthesis 구분</strong><br/>테스트벤치에서 사용하는 <code>initial</code>, <code>#delay</code>, <code>$finish</code>는 DUT의 실제 FPGA 기능 회로로 해석하지 않는다. switch primitive, 불확정 반복, wait, force/release, fork/join 등도 일반 조합회로 합성용 구문과 구분한다.</div>
+</section>
+<section id="rules">
+<h2>2. 조합회로 모델링의 4가지 핵심 원칙</h2>
+<h3>2.1 감지신호목록을 완전하게 작성</h3><p><code>always</code> 블록에서 읽는 모든 입력이 감지신호목록에 포함되어야 한다. 누락되면 합성된 회로와 RTL 시뮬레이션의 동작이 달라질 수 있다.</p><div class="tip"><strong>권장 표현</strong><br/>전통 Verilog에서는 <code>always @(*)</code> 또는 <code>always @*</code>를 사용하면 입력 누락 위험을 줄일 수 있다.</div>
+<h3>2.2 모든 조건에서 모든 출력값을 결정</h3><p>if/case의 일부 조건에서 출력이 할당되지 않으면 이전 값을 유지해야 하므로 latch가 추론될 수 있다.</p>
+<h3>2.3 논리 최적화가 쉬운 구조 사용</h3><p>같은 기능도 표현에 따라 논리 깊이와 합성 구조가 달라질 수 있다. 실제 면적과 timing은 합성·구현 보고서로 확인한다.</p>
+<h3>2.4 간결하고 명확한 코드</h3><p>동일 기능을 여러 방식으로 표현할 수 있으므로, 회로 의도가 직접 드러나는 표현을 선택하면 오류와 디버깅 비용을 줄일 수 있다.</p>
+</section>
+<section id="gate">
+<h2>3. 10.1.1 기본 논리 게이트의 모델링</h2>
+<p>3입력 NOR를 네 방식으로 표현한다.</p>
+<h3>3.1 코드 10-1 — 비트 연산자</h3><pre><code>module nor3_bitop (
+    input  [2:0] a,
+    output       out_nor3
+);
+
+assign out_nor3 = ~(a[2] | a[1] | a[0]);
+
+endmodule</code></pre>
+<h3>3.2 코드 10-2 — 축약 NOR 연산자</h3><pre><code>module nor3_redop (
+    input  [2:0] a,
+    output       out_nor3
+);
+
+assign out_nor3 = ~|a;
+
+endmodule</code></pre><div class="note"><strong><code>~|a</code>를 풀어쓰면</strong><br/><code>~(a[2] | a[1] | a[0])</code>과 동일하다.</div>
+<h3>3.3 코드 10-3 — 게이트 프리미티브</h3><pre><code>module nor3_gp (
+    input  [2:0] a,
+    output       out_nor3
+);
+
+nor (out_nor3, a[2], a[1], a[0]);
+
+endmodule</code></pre><div class="tip"><strong>포트 순서</strong><br/>게이트 프리미티브는 출력이 첫 번째이고 그 뒤에 입력이 온다.</div>
+<h3>3.4 코드 10-4 — if 조건문</h3><pre><code>module nor3_if (
+    input  [2:0] a,
+    output       out_nor3
+);
+
+reg out_nor3;
+
+always @(a) begin
+    if (a == 3'b000)
+        out_nor3 = 1'b1;
+    else
+        out_nor3 = 1'b0;
+end
+
+endmodule</code></pre>
+<h3>3.5 코드 10-5 — 테스트벤치</h3><pre><code>module tb_nor3;
+reg [2:0] a;
+integer i;
+
+nor3_bitop U0 (a, out_nor3);
+// nor3_redop U1 (a, out_nor3);
+// nor3_gp    U2 (a, out_nor3);
+// nor3_if    U3 (a, out_nor3);
+
+initial begin
+    for (i = 0; i &lt;= 7; i = i + 1) begin
+        a = i;
+        #10;
+    end
+    #20 $finish;
+end
+endmodule</code></pre>
+<div class="task"><div class="title">설계과제 10-1</div><p>3입력 NAND를 비트 연산자, 축약 연산자, 게이트 프리미티브, if 조건문의 네 방법으로 모델링하고 검증한다.</p></div>
+</section>
+<section id="multibit">
+<h2>4. 10.1.2 멀티비트 논리연산</h2>
+<p>4비트 <code>a</code>와 <code>b</code>의 XOR는 실제 회로에서 2입력 XOR 게이트 4개가 병렬로 존재하는 구조이다.</p>
+<h3>4.1 코드 10-6 — 프리미티브 배열</h3><pre><code>module xor4b_gp (
+    input  [3:0] a,
+    input  [3:0] b,
+    output [3:0] xor4b
+);
+
+xor U0 [3:0] (xor4b, a, b);
+
+endmodule</code></pre>
+<h3>4.2 코드 10-7 — 벡터 비트 연산</h3><pre><code>module xor4b_bitop (
+    input  [3:0] a,
+    input  [3:0] b,
+    output [3:0] xor4b
+);
+
+assign xor4b = a ^ b;
+
+// 비트별로 풀어쓰면
+// xor4b[0] = a[0] ^ b[0]
+// xor4b[1] = a[1] ^ b[1]
+// xor4b[2] = a[2] ^ b[2]
+// xor4b[3] = a[3] ^ b[3]
+
+endmodule</code></pre>
+<h3>4.3 코드 10-8 — for 반복문</h3><pre><code>module xor4b_for (
+    input  [3:0] a,
+    input  [3:0] b,
+    output [3:0] xor4b
+);
+
+reg [3:0] xor4b;
+integer i;
+
+always @(a or b) begin
+    for (i = 0; i &lt; 4; i = i + 1)
+        xor4b[i] = a[i] ^ b[i];
+end
+
+endmodule</code></pre><div class="rtl"><strong>for의 합성 의미</strong><br/>4클록 동안 반복하는 구조가 아니라, 고정 반복 횟수만큼 병렬 XOR 논리가 전개된다.</div>
+<h3>4.4 코드 10-9 — 테스트벤치</h3><pre><code>module tb_xor4b;
+reg  [3:0] a, b;
+wire [3:0] out_xor4b;
+
+xor4b_gp U0 (a, b, out_xor4b);
+// xor4b_bitop U1 (a, b, out_xor4b);
+// xor4b_for   U2 (a, b, out_xor4b);
+
+initial begin
+    a = 4'b0000; b = 4'b0000;
+    #10 a = 4'b1010; b = 4'b0101;
+    #10 a = 4'b1100; b = 4'b1100;
+    #10 a = 4'b1011; b = 4'b0000;
+    #10 a = 4'b1001; b = 4'b1000;
+    #10 a = 4'b1111; b = 4'b0000;
+    #10 a = 4'b0010; b = 4'b0111;
+    #10 a = 4'b1101; b = 4'b0101;
+    #10 a = 4'b0000; b = 4'b1101;
+    #10 a = 4'b1111; b = 4'b1111;
+    #10 a = 4'b0111; b = 4'b0100;
+    #20 $finish;
+end
+endmodule</code></pre>
+<div class="task"><div class="title">설계과제 10-2</div><p>4비트 NAND를 비트 연산자, 프리미티브 배열, for문으로 모델링한다.</p></div>
+</section>
+<section id="truth">
+<h2>5. 10.1.3 부울 함수 · 진리표 · LUT</h2>
+<h3>5.1 부울 함수 — 코드 10-10</h3><pre><code>module comb_gate (
+    input  a, b, c, d, e,
+    output y
+);
+
+assign y = ~((a &amp; b | c &amp; d) &amp; e);
+
+endmodule</code></pre>
+<div class="flow"><span>a&amp;b</span><span class="arrow">+</span><span>c&amp;d</span><span class="arrow">→ OR</span><span class="arrow">→ &amp;e</span><span class="arrow">→ NOT</span><span>y</span></div>
+<div class="task"><div class="title">설계과제 10-3</div><p>부울식을 Verilog HDL로 모델링하고 테스트벤치로 동작을 확인한다.</p></div>
+<h3>5.2 binary-to-gray 진리표</h3><table class="truth"><thead><tr><th>bin</th><th>gray</th><th>bin</th><th>gray</th></tr></thead><tbody><tr><td>0000</td><td>0000</td><td>1000</td><td>1100</td></tr><tr><td>0001</td><td>0001</td><td>1001</td><td>1101</td></tr><tr><td>0010</td><td>0011</td><td>1010</td><td>1111</td></tr><tr><td>0011</td><td>0010</td><td>1011</td><td>1110</td></tr><tr><td>0100</td><td>0110</td><td>1100</td><td>1010</td></tr><tr><td>0101</td><td>0111</td><td>1101</td><td>1011</td></tr><tr><td>0110</td><td>0101</td><td>1110</td><td>1001</td></tr><tr><td>0111</td><td>0100</td><td>1111</td><td>1000</td></tr></tbody></table>
+<h3>5.3 코드 10-11 — case 진리표</h3><pre><code>module bin2gray (
+    input  [3:0] bin,
+    output [3:0] gray
+);
+reg [3:0] gray;
+
+always @(bin) begin
+    case (bin)
+        4'h0: gray = 4'b0000;
+        4'h1: gray = 4'b0001;
+        4'h2: gray = 4'b0011;
+        4'h3: gray = 4'b0010;
+        4'h4: gray = 4'b0110;
+        4'h5: gray = 4'b0111;
+        4'h6: gray = 4'b0101;
+        4'h7: gray = 4'b0100;
+        4'h8: gray = 4'b1100;
+        4'h9: gray = 4'b1101;
+        4'ha: gray = 4'b1111;
+        4'hb: gray = 4'b1110;
+        4'hc: gray = 4'b1010;
+        4'hd: gray = 4'b1011;
+        4'he: gray = 4'b1001;
+        4'hf: gray = 4'b1000;
+    endcase
+end
+endmodule</code></pre>
+<h3>5.4 코드 10-12 — 테스트벤치</h3><pre><code>module tb_bin2gray;
+reg [3:0] bin;
+wire [3:0] gray;
+integer i;
+
+bin2gray u0 (bin, gray);
+
+initial begin
+    for (i = 0; i &lt; 16; i = i + 1) begin
+        bin = i;
+        #10;
+    end
+    #10 $finish;
+end
+endmodule</code></pre>
+<h3>5.5 코드 10-13 — 16×8 LUT 함수</h3><pre><code>function [7:0] data_line1;
+input [3:0] address;
+begin
+    case (address)
+        4'd0 : data_line1 = 8'h20; // space
+        4'd1 : data_line1 = 8'h44; // D
+        4'd2 : data_line1 = 8'h69; // i
+        4'd3 : data_line1 = 8'h67; // g
+        4'd4 : data_line1 = 8'h69; // i
+        4'd5 : data_line1 = 8'h74; // t
+        4'd6 : data_line1 = 8'h61; // a
+        4'd7 : data_line1 = 8'h6C; // l
+        4'd8 : data_line1 = 8'h20; // space
+        4'd9 : data_line1 = 8'h44; // D
+        4'd10: data_line1 = 8'h65; // e
+        4'd11: data_line1 = 8'h73; // s
+        4'd12: data_line1 = 8'h69; // i
+        4'd13: data_line1 = 8'h67; // g
+        4'd14: data_line1 = 8'h6E; // n
+        4'd15: data_line1 = 8'h20; // space
+        default: data_line1 = 8'h20;
+    endcase
+end
+endfunction</code></pre><div class="note"><strong>주소 폭과 용량</strong><br/>n비트 주소는 최대 2^n개의 항목을 선택할 수 있다. 이 예는 4비트 주소이므로 최대 16개 항목이다.</div>
+<div class="task"><div class="title">설계과제 10-4</div><p>4비트 BCD 입력을 8비트 FND 데이터로 변환하는 진리표를 모델링하고 검증한다.</p></div>
+</section>
+<section id="mux">
+<h2>6. 10.2 멀티플렉서</h2><p>4개의 4비트 입력 중 하나를 2비트 <code>sel</code>로 선택한다. if, 조건 연산자, case 세 표현이 같은 MUX로 합성되는 것을 보여준다.</p>
+<h3>6.1 코드 10-14 — if</h3><pre><code>module mux4to1_if (
+    input [3:0] a, b, c, d,
+    input [1:0] sel,
+    output [3:0] mux_out
+);
+reg [3:0] mux_out;
+always @(sel or a or b or c or d) begin
+    if      (sel == 2'b00) mux_out = a;
+    else if (sel == 2'b01) mux_out = b;
+    else if (sel == 2'b10) mux_out = c;
+    else if (sel == 2'b11) mux_out = d;
+    else                    mux_out = 4'bx;
+end
+endmodule</code></pre>
+<h3>6.2 코드 10-15 — 조건 연산자</h3><pre><code>module mux4to1_conop (
+    input [3:0] a, b, c, d,
+    input [1:0] sel,
+    output [3:0] mux_out
+);
+assign mux_out =
+    (sel == 0) ? a :
+    (sel == 1) ? b :
+    (sel == 2) ? c :
+    (sel == 3) ? d : 4'bx;
+endmodule</code></pre>
+<h3>6.3 코드 10-16 — case</h3><pre><code>module mux4to1_case (
+    input [3:0] a, b, c, d,
+    input [1:0] sel,
+    output [3:0] mux_out
+);
+reg [3:0] mux_out;
+always @(sel or a or b or c or d) begin
+    case (sel)
+        0: mux_out = a;
+        1: mux_out = b;
+        2: mux_out = c;
+        3: mux_out = d;
+        default: mux_out = 4'bx;
+    endcase
+end
+endmodule</code></pre>
+<h3>6.4 코드 10-17 — 테스트벤치</h3><pre><code>module tb_mux41;
+
+reg  [3:0] a, b, c, d;
+reg  [1:0] sel;
+wire [3:0] mux_if;
+wire [3:0] mux_case;
+wire [3:0] mux_conop;
+
+mux4to1_if u0 (
+    a, b, c, d, sel, mux_if
+);
+
+mux4to1_case u1 (
+    a, b, c, d, sel, mux_case
+);
+
+mux4to1_conop u2 (
+    a, b, c, d, sel, mux_conop
+);
+
+initial begin
+    a = 4'b0001;
+    b = 4'b0010;
+    c = 4'b0100;
+    d = 4'b1000;
+    sel = 2'b00;
+
+    #80;
+    a = 4'b1100;
+    b = 4'b0011;
+    c = 4'b0110;
+    d = 4'b1001;
+
+    #80 $finish;
+end
+
+always
+    #20 sel = sel + 1'b1;
+
+always @(*) begin
+    if ((mux_if !== mux_case) ||
+        (mux_if !== mux_conop))
+        $display(
+            "MUX mismatch: t=%0t sel=%b if=%h case=%h conop=%h",
+            $time, sel, mux_if, mux_case, mux_conop
+        );
+end
+
+endmodule</code></pre>
+<div class="task"><div class="title">설계과제 10-5</div><p>8비트 입력 벡터 중 한 비트를 3비트 sel로 선택하는 8:1 MUX를 case로 완성한다.</p></div>
+</section>
+<section id="encoder">
+<h2>7. 10.3.1 4:2 이진 인코더</h2>
+<table class="truth"><thead><tr><th>enc_in[3:0]</th><th>enc_out[1:0]</th></tr></thead><tbody><tr><td>0001</td><td>00</td></tr><tr><td>0010</td><td>01</td></tr><tr><td>0100</td><td>10</td></tr><tr><td>1000</td><td>11</td></tr></tbody></table>
+<h3>7.1 코드 10-19 — case</h3><pre><code>module enc_4to2_case (
+    input [3:0] enc_in,
+    output [1:0] enc_out
+);
+reg [1:0] enc_out;
+always @(enc_in) begin
+    case (enc_in)
+        4'b0001: enc_out = 2'b00;
+        4'b0010: enc_out = 2'b01;
+        4'b0100: enc_out = 2'b10;
+        4'b1000: enc_out = 2'b11;
+        default: enc_out = 2'bxx;
+    endcase
+end
+endmodule</code></pre>
+<h3>7.2 코드 10-20 — if</h3><pre><code>module enc_4to2_if (
+    input [3:0] enc_in,
+    output [1:0] enc_out
+);
+reg [1:0] enc_out;
+always @(enc_in) begin
+    if      (enc_in == 4'b0001) enc_out = 2'b00;
+    else if (enc_in == 4'b0010) enc_out = 2'b01;
+    else if (enc_in == 4'b0100) enc_out = 2'b10;
+    else if (enc_in == 4'b1000) enc_out = 2'b11;
+    else                         enc_out = 2'bxx;
+end
+endmodule</code></pre>
+<h3>7.3 코드 10-21 — for</h3><pre><code>module enc_4to2_for (
+    input [3:0] enc_in,
+    output [1:0] enc_out
+);
+reg [1:0] enc_out;
+reg [3:0] temp;
+integer n;
+always @(enc_in) begin
+    temp = 4'b0001;
+    enc_out = 2'bxx;
+    for (n = 0; n &lt; 4; n = n + 1) begin
+        if (enc_in == temp) enc_out = n;
+        temp = temp &lt;&lt; 1;
+    end
+end
+endmodule</code></pre>
+<h3>7.4 코드 10-22 — 테스트벤치</h3><pre><code>module tb_enc_4to2;
+reg [3:0] in;
+wire [1:0] out;
+enc_4to2_case U0 (.enc_in(in), .enc_out(out));
+initial begin
+    in = 4'b0001;
+    #20 in = 4'b0010;
+    #20 in = 4'b0100;
+    #20 in = 4'b1000;
+    #20 in = 4'b0000;
+    #20 in = 4'b1111;
+    #20 $finish;
+end
+endmodule</code></pre>
+<div class="task"><div class="title">설계과제 10-6</div><p>active-low enable을 갖는 4:2 인코더를 case / if / for로 구현한다.</p></div>
+</section>
+<section id="priority">
+<h2>8. 10.3.2 우선순위 인코더</h2>
+<p>여러 입력이 동시에 1일 수 있고, MSB인 <code>enc_in[3]</code>이 가장 높은 우선순위를 갖는다. <code>valid</code>는 입력에 최소 한 개의 1이 존재할 때 1이다.</p>
+<table class="truth"><thead><tr><th>enc_in</th><th>enc_out</th><th>valid</th></tr></thead><tbody><tr><td>1xxx</td><td>11</td><td>1</td></tr><tr><td>01xx</td><td>10</td><td>1</td></tr><tr><td>001x</td><td>01</td><td>1</td></tr><tr><td>0001</td><td>00</td><td>1</td></tr><tr><td>0000</td><td>xx</td><td>0</td></tr></tbody></table>
+<h3>8.1 코드 10-23 — if</h3><pre><code>module pri_enc_4to2_if (
+    input [3:0] enc_in,
+    output valid,
+    output [1:0] enc_out
+);
+reg valid;
+reg [1:0] enc_out;
+always @(enc_in) begin
+    valid = 1'b1;
+    if      (enc_in[3]) enc_out = 2'b11;
+    else if (enc_in[2]) enc_out = 2'b10;
+    else if (enc_in[1]) enc_out = 2'b01;
+    else if (enc_in[0]) enc_out = 2'b00;
+    else begin
+        valid = 1'b0;
+        enc_out = 2'bxx;
+    end
+end
+endmodule</code></pre>
+<h3>8.2 코드 10-24 — casex</h3><pre><code>module pri_enc_4to2_case (
+    input [3:0] enc_in,
+    output valid,
+    output [1:0] enc_out
+);
+reg valid;
+reg [1:0] enc_out;
+always @(enc_in) begin
+    valid = 1'b1;
+    casex (enc_in)
+        4'b1xxx: enc_out = 2'b11;
+        4'b01xx: enc_out = 2'b10;
+        4'b001x: enc_out = 2'b01;
+        4'b0001: enc_out = 2'b00;
+        default: begin
+            valid = 1'b0;
+            enc_out = 2'bxx;
+        end
+    endcase
+end
+endmodule</code></pre>
+<h3>8.3 코드 10-25 — for + disable</h3><pre><code>module pri_enc_4to2_for (
+    input [3:0] enc_in,
+    output valid,
+    output [1:0] enc_out
+);
+reg valid;
+reg [1:0] enc_out;
+integer n;
+always @(enc_in) begin : Loop
+    valid = 0;
+    enc_out = 2'bxx;
+    for (n = 3; n &gt;= 0; n = n - 1)
+        if (enc_in[n]) begin
+            valid = 1;
+            enc_out = n;
+            disable Loop;
+        end
+end
+endmodule</code></pre>
+<h3>8.4 코드 10-26 — 테스트벤치</h3><pre><code>module tb_pri_enc_4to2;
+reg [3:0] in;
+wire [1:0] out;
+wire valid;
+integer i;
+pri_enc_4to2_case U0 (.enc_in(in), .valid(valid), .enc_out(out));
+initial begin
+    for (i = 0; i &lt;= 15; i = i + 1) begin
+        in = i;
+        #10;
+    end
+    #10 $finish;
+end
+endmodule</code></pre>
+<div class="task"><div class="title">설계과제 10-7</div><p>active-high enable을 갖는 4:2 우선순위 인코더를 case / if / for로 구현한다.</p></div>
+</section>
+<section id="decoder">
+<h2>9. 10.3.3 디코더</h2>
+<table class="truth"><thead><tr><th>dec_in</th><th>dec_out</th></tr></thead><tbody><tr><td>00</td><td>0001</td></tr><tr><td>01</td><td>0010</td></tr><tr><td>10</td><td>0100</td></tr><tr><td>11</td><td>1000</td></tr></tbody></table>
+<h3>9.1 코드 10-27 — case</h3><pre><code>module dec_2to4_case (
+    input [1:0] dec_in,
+    output [3:0] dec_out
+);
+reg [3:0] dec_out;
+always @(dec_in) begin
+    case (dec_in)
+        0: dec_out = 4'b0001;
+        1: dec_out = 4'b0010;
+        2: dec_out = 4'b0100;
+        3: dec_out = 4'b1000;
+        default: dec_out = 4'bxxxx;
+    endcase
+end
+endmodule</code></pre>
+<h3>9.2 코드 10-28 — if</h3><pre><code>module dec_2to4_if (
+    input [1:0] dec_in,
+    output [3:0] dec_out
+);
+reg [3:0] dec_out;
+always @(dec_in) begin
+    if      (dec_in == 0) dec_out = 4'b0001;
+    else if (dec_in == 1) dec_out = 4'b0010;
+    else if (dec_in == 2) dec_out = 4'b0100;
+    else if (dec_in == 3) dec_out = 4'b1000;
+    else                  dec_out = 4'bxxxx;
+end
+endmodule</code></pre>
+<h3>9.3 코드 10-29 — for</h3><pre><code>module dec_2to4_for (
+    input [1:0] dec_in,
+    output [3:0] dec_out
+);
+reg [3:0] dec_out;
+integer n;
+always @(dec_in) begin
+    for (n = 0; n &lt;= 3; n = n + 1) begin
+        if (dec_in == n) dec_out[n] = 1'b1;
+        else             dec_out[n] = 1'b0;
+    end
+end
+endmodule</code></pre>
+<h3>9.4 코드 10-30 — 테스트벤치</h3><pre><code>module tb_dec_2to4;
+reg [1:0] dec_in;
+wire [3:0] dec_out;
+dec_2to4_case U0 (dec_in, dec_out);
+initial begin
+    dec_in = 2'b00;
+    #20 dec_in = 2'b01;
+    #20 dec_in = 2'b10;
+    #20 dec_in = 2'b11;
+    #20 $finish;
+end
+endmodule</code></pre>
+<div class="task"><div class="title">설계과제 10-8</div><p>active-high enable을 갖는 3:6 디코더를 if 방식과 <code>{en,dec_in}</code> 결합 case 방식으로 구현한다.</p></div>
+<h3>9.5 코드 10-31 — 파라미터화된 디코더</h3><pre><code>module dec_param (
+    input en,
+    input [IN_WIDTH-1:0] dec_in,
+    output [OUT_WIDTH-1:0] dec_out
+);
+parameter IN_WIDTH = 3, OUT_WIDTH = 8;
+reg [OUT_WIDTH-1:0] dec_out;
+integer n;
+always @(en, dec_in) begin
+    if (!en)
+        dec_out = 0;
+    else if (dec_in &gt; OUT_WIDTH - 1)
+        for (n = 0; n &lt;= OUT_WIDTH - 1; n = n + 1)
+            dec_out[n] = 1'bx;
+    else begin
+        for (n = 0; n &lt;= OUT_WIDTH - 1; n = n + 1)
+            if (dec_in == n) dec_out[n] = 1'b1;
+            else             dec_out[n] = 1'b0;
+    end
+end
+endmodule</code></pre>
+<h3>9.6 코드 10-32 — 3:6 인스턴스</h3><pre><code>module dec_3to6_param (
+    input en,
+    input [2:0] addr,
+    output [5:0] dec_addr
+);
+
+dec_param #(3, 6) decoder_3to6 (
+    en, addr, dec_addr
+);
+
+endmodule</code></pre>
+</section>
+<section id="comp">
+<h2>10. 10.4 비교기</h2>
+<h3>10.1 코드 10-33 — 관계 연산자</h3><pre><code>module comp_assign (
+    input [3:0] a,
+    input [3:0] b,
+    output aeqb,
+    output agtb,
+    output altb
+);
+assign aeqb = (a == b);
+assign agtb = (a &gt; b);
+assign altb = (a &lt; b);
+endmodule</code></pre>
+<h3>10.2 코드 10-34 — if</h3><pre><code>module comp_if (
+    input [3:0] a,
+    input [3:0] b,
+    output aeqb,
+    output agtb,
+    output altb
+);
+reg aeqb, agtb, altb;
+always @(a or b) begin
+    aeqb = 1'b0;
+    agtb = 1'b0;
+    altb = 1'b0;
+    if (a == b)      aeqb = 1'b1;
+    else if (a &gt; b) agtb = 1'b1;
+    else             altb = 1'b1;
+end
+endmodule</code></pre>
+<div class="note"><strong>래치 방지</strong><br/>세 출력에 기본값 0을 먼저 주고 조건에서 필요한 출력만 1로 덮어쓴다.</div>
+<h3>10.3 코드 10-35 — MSB 우선 for 비교</h3><pre><code>module comp_for (
+    input [SIZE-1:0] a,
+    input [SIZE-1:0] b,
+    output aeqb,
+    output agtb,
+    output altb
+);
+parameter SIZE = 4;
+reg aeqb, agtb, altb;
+integer i;
+always @(a or b) begin : Loop_Comp
+    aeqb = 1'b1;
+    agtb = 1'b0;
+    altb = 1'b0;
+    for (i = SIZE-1; i &gt;= 0; i = i - 1) begin
+        if (a[i] != b[i]) begin
+            agtb = a[i];
+            altb = ~a[i];
+            aeqb = 1'b0;
+            disable Loop_Comp;
+        end
+    end
+end
+endmodule</code></pre>
+<h3>10.4 코드 10-36 — 테스트벤치</h3><pre><code>module tb_comp;
+reg [3:0] a, b;
+wire aeqb, agtb, altb;
+comp_assign U0 (a, b, aeqb, agtb, altb);
+initial begin
+    a = 4'b0001; b = 4'b1001;
+    #10 a = 4'b0010; b = 4'b0000;
+    #10 a = 4'b1100; b = 4'b1101;
+    #10 a = 4'b1001; b = 4'b1001;
+    #10 a = 4'b0111; b = 4'b0100;
+    #10 a = 4'b1111; b = 4'b1111;
+    #10 a = 4'b1101; b = 4'b1001;
+    #10 a = 4'b0000; b = 4'b0000;
+    #10 a = 4'b1010; b = 4'b1010;
+    #10 a = 4'b0001; b = 4'b1011;
+    #20 $finish;
+end
+endmodule</code></pre>
+</section>
+<section id="bus">
+<h2>11. 10.5 3상태 버스</h2>
+<p>여러 신호원이 공통 버스를 공유할 때 선택되지 않은 드라이버는 high-impedance(<code>z</code>) 상태가 되어 버스에서 격리되어야 한다.</p>
+<h3>11.1 코드 10-37 — 조건 연산자</h3><pre><code>module bus_driver_conop (
+    input [7:0] data_A,
+    input enA,
+    input [7:0] data_B,
+    input enB,
+    output [7:0] bus_data
+);
+assign bus_data =
+    enA ? data_A :
+    enB ? data_B : 8'hzz;
+endmodule</code></pre><div class="note"><strong>우선순위</strong><br/>enA와 enB가 동시에 1이면 이 코드에서는 data_A가 선택된다.</div>
+<h3>11.2 코드 10-38 — bufif1 배열</h3><pre><code>module bus_driver_gp (
+    input [7:0] data_A,
+    input enA,
+    input [7:0] data_B,
+    input enB,
+    output [7:0] bus_data
+);
+bufif1 bf1 [7:0] (bus_data, data_A, enA);
+bufif1 bf2 [7:0] (bus_data, data_B, enB);
+endmodule</code></pre><div class="warn"><strong>복수 드라이버 충돌</strong><br/>두 enable이 동시에 활성되고 data가 다르면 공유 net에 충돌이 발생할 수 있으므로 상호 배타적 제어가 필요하다.</div>
+<h3>11.3 코드 10-39 — 테스트벤치</h3><pre><code>module tb_bus_driver;
+reg enA, enB;
+reg [7:0] data_A, data_B;
+wire [7:0] bus_data;
+bus_driver_conop U0 (data_A, enA, data_B, enB, bus_data);
+initial begin
+    enA = 1'b0; enB = 1'b0;
+    #5 data_A = 8'h33; data_B = 8'h88;
+    #5  enA = 1'b1;
+    #20 enA = 1'b0;
+    #20 enB = 1'b1;
+    #20 enB = 1'b0;
+    #10 data_A = 8'h2a; data_B = 8'hff;
+    #5  enA = 1'b1;
+    #20 enA = 1'b0;
+    #20 enB = 1'b1;
+    #20 enB = 1'b0;
+    #10 $finish;
+end
+endmodule</code></pre>
+<h3>11.4 코드 10-40 — 양방향 버스</h3><pre><code>module bidir_bus (
+    input send,
+    input [7:0] data_to_bus,
+    input rcv,
+    output [7:0] data_from_bus,
+    inout [7:0] bus_data
+);
+assign data_from_bus = rcv ? bus_data : 8'hzz;
+assign bus_data = send ? data_to_bus : 8'hzz;
+endmodule</code></pre>
+<h3>11.5 코드 10-41 — 테스트벤치</h3><pre><code>module tb_bidir_bus;
+reg send, rcv;
+reg [7:0] data_to_bus;
+wire [7:0] data_from_bus, bus_data;
+bidir_bus U0 (send, data_to_bus, rcv, data_from_bus, bus_data);
+initial begin
+    send = 1'b0; rcv = 1'b0;
+    #5 data_to_bus = 8'h55;
+    #5  send = 1'b1;
+    #20 send = 1'b0;
+    #20 rcv = 1'b1;
+    #20 rcv = 1'b0;
+    #10 data_to_bus = 8'h87;
+    #5  send = 1'b1;
+    #20 send = 1'b0;
+    #20 rcv = 1'b1;
+    #20 rcv = 1'b0;
+    #20 $finish;
+end
+endmodule</code></pre>
+<div class="task"><div class="title">설계과제 10-9 — Multiplexed Bus Driver</div><p>10-18처럼 MUX로 신호원을 선택한 뒤 하나의 버스 드라이버를 사용하여 버스 부하를 줄이는 구조를 조건 연산자로 모델링한다.</p></div>
+</section>
+<section id="latch">
+<h2>12. 10.6 case 문과 if 문의 합성</h2>
+<p>조합회로에서 일부 입력 조건에 대한 출력 할당이 빠지면 이전 값을 유지해야 하므로 latch가 합성된다.</p>
+<h3>12.1 코드 10-42 — 불완전한 case</h3><pre><code>module case_latch (
+    input [1:0] sel,
+    input [7:0] in1,
+    input [7:0] in2,
+    output [7:0] out
+);
+reg [7:0] out;
+always @(sel, in1, in2) begin
+    case (sel)
+        2'b01: out = in1;
+        2'b10: out = in2;
+    endcase
+end
+endmodule</code></pre><div class="flow"><span>sel=01 → in1</span><span>sel=10 → in2</span><span>sel=00/11 → 할당 없음</span><span class="arrow">→</span><span>이전값 유지 → latch</span></div>
+<h3>12.2 코드 10-43 — else가 없는 if</h3><pre><code>module if_latch (
+    input [1:0] sel,
+    input [7:0] in1,
+    input [7:0] in2,
+    output [7:0] out
+);
+reg [7:0] out;
+always @(sel, in1, in2) begin
+    if (sel == 2'b01) out = in1;
+    else if (sel == 2'b10) out = in2;
+end
+endmodule</code></pre>
+<h3>12.3 코드 10-44 — default로 완전 할당</h3><pre><code>module case_no_latch (
+    input [1:0] sel,
+    input [7:0] in1,
+    input [7:0] in2,
+    output [7:0] out
+);
+reg [7:0] out;
+always @(sel, in1, in2) begin
+    case (sel)
+        2'b01: out = in1;
+        2'b10: out = in2;
+        default: out = 8'hxx;
+    endcase
+end
+endmodule</code></pre>
+<h3>12.4 코드 10-45 — full_case 속성</h3><pre><code>module case_latch_attr (
+    input [1:0] sel,
+    input [7:0] in1,
+    input [7:0] in2,
+    output [7:0] out
+);
+reg [7:0] out;
+always @(sel, in1, in2) begin
+    (* full_case *)
+    case (sel)
+        2'b01: out = in1;
+        2'b10: out = in2;
+    endcase
+end
+endmodule</code></pre><div class="warn"><strong>속성 의존성</strong><br/><code>full_case</code>는 도구 의존적인 합성 힌트다. RTL 시뮬레이션에서 빠진 조건이 자동으로 해결되는 것은 아니므로 explicit default/기본값 방식이 더 명확할 수 있다.</div>
+<h3>12.5 코드 10-46 — case 앞 기본값</h3><pre><code>module case_init (
+    input [1:0] sel,
+    input [7:0] in1,
+    input [7:0] in2,
+    output [7:0] out
+);
+reg [7:0] out;
+always @(sel, in1, in2) begin
+    out = 8'h00;
+    case (sel)
+        2'b01: out = in1;
+        2'b10: out = in2;
+    endcase
+end
+endmodule</code></pre>
+<h3>12.6 코드 10-47 — if 앞 기본값</h3><pre><code>module if_init (
+    input mode,
+    input [7:0] in1,
+    input [7:0] in2,
+    output [7:0] out
+);
+reg [7:0] out;
+always @(mode, in1, in2) begin
+    out = in1;
+    if (mode) out = in2;
+end
+endmodule</code></pre>
+<h3>12.7 코드 10-48 — else가 있어도 latch가 생기는 예</h3><pre><code>module if_latch2 (
+    input mode,
+    input [7:0] in1,
+    input [7:0] in2,
+    output [7:0] out1,
+    output [7:0] out2
+);
+reg [7:0] out1, out2;
+always @(mode, in1, in2) begin
+    if (mode) out1 = in1;
+    else      out2 = in2;
+end
+endmodule</code></pre><div class="danger"><strong>핵심</strong><br/>mode=1일 때 out2는 할당되지 않고, mode=0일 때 out1은 할당되지 않는다. 따라서 각 출력별로 모든 경로에서 할당되는지 확인해야 한다.</div>
+</section>
+<section id="multi-if">
+<h2>13. 10.6.2 다중 if 문의 합성</h2>
+<h3>13.1 코드 10-49 — 독립 if의 연속 사용</h3><pre><code>module if_if (
+    input selA, selB, selC, selD,
+    input [3:0] dinA, dinB, dinC, dinD, dinE,
+    output [3:0] dout
+);
+reg [3:0] dout;
+always @(*) begin
+    dout = dinE;
+    if (selA) dout = dinA;
+    if (selB) dout = dinB;
+    if (selC) dout = dinC;
+    if (selD) dout = dinD;
+end
+endmodule</code></pre><div class="note"><strong>기능 우선순위</strong><br/>여러 sel이 동시에 1이면 뒤의 할당이 앞의 값을 덮어쓰므로 기능적으로 <code>selD &gt; selC &gt; selB &gt; selA</code> 순의 우선순위를 갖는다.</div>
+<h3>13.2 코드 10-50 — if-else-if</h3><pre><code>module if_else_if (
+    input selA, selB, selC, selD,
+    input [3:0] dinA, dinB, dinC, dinD, dinE,
+    output [3:0] dout
+);
+reg [3:0] dout;
+always @(*) begin
+    if      (selA) dout = dinA;
+    else if (selB) dout = dinB;
+    else if (selC) dout = dinC;
+    else if (selD) dout = dinD;
+    else           dout = dinE;
+end
+endmodule</code></pre><div class="note"><strong>기능 우선순위</strong><br/>앞 조건이 참이면 뒤 조건은 선택되지 않으므로 <code>selA &gt; selB &gt; selC &gt; selD</code> 순이다.</div>
+<div class="rtl"><strong>Timing 관점</strong><br/>우선순위 구조는 MUX 체인의 논리 깊이에 영향을 줄 수 있다. 하지만 실제 합성기는 논리 최적화를 수행하므로 최종 critical path는 Synthesis/Implementation 결과와 Timing Report로 확인해야 한다.</div>
+</section>
+<section id="summary">
+<h2>15. 최종 핵심 정리</h2>
+<table><thead><tr><th>회로</th><th>대표 표현</th><th>합성 의미</th></tr></thead><tbody><tr><td>기본 게이트</td><td>비트/축약 연산자, primitive</td><td>논리 게이트</td></tr><tr><td>멀티비트 논리</td><td>벡터 연산, 배열, for</td><td>비트별 병렬 논리</td></tr><tr><td>진리표·LUT</td><td>case, function</td><td>주소/조건 기반 선택 논리</td></tr><tr><td>MUX</td><td>if, case, <code>?:</code></td><td>선택기</td></tr><tr><td>Encoder/Decoder</td><td>case, if, for</td><td>코드 변환·one-hot</td></tr><tr><td>Comparator</td><td>관계 연산자, if, for</td><td>동등·대소 판단</td></tr><tr><td>3-state Bus</td><td><code>?:</code>, bufif1</td><td>선택적 버스 구동</td></tr><tr><td>불완전 if/case</td><td>일부 경로 할당 없음</td><td>원치 않는 latch</td></tr><tr><td>완전한 조합 코딩</td><td>default/else 또는 기본값 선할당</td><td>latch 없는 조합논리</td></tr></tbody></table>
+<div class="note"><strong>CHAPTER 10 체크리스트</strong><br/>① 출력은 현재 입력만으로 결정되는가?<br/>② 감지신호가 빠짐없이 들어갔는가?<br/>③ 모든 출력이 모든 조건에서 할당되는가?<br/>④ 조건이 상호 배타적인가, 우선순위가 필요한가?<br/>⑤ for는 고정 반복으로 합성 가능한가?<br/>⑥ 공유 버스의 복수 드라이버가 동시에 활성되지 않는가?<br/>⑦ 최종 면적·논리 깊이·Timing은 실제 보고서로 확인했는가?</div>
+<div class="rtl"><strong>Digital Design → Verilog RTL → RTL Synthesis</strong><br/>조합회로의 본질은 저장하지 않고 현재 입력을 논리적으로 변환하는 것이다. 같은 기능을 operator, assign, if, case, for, function, module instance 등으로 표현할 수 있고 합성기는 이를 MUX, Comparator, Encoder/Decoder, Gate Network로 변환한다. 반대로 일부 조건에서 출력이 할당되지 않으면 저장 기능이 필요해져 latch가 생긴다.</div>
+<div class="flow"><span>Input</span><span class="arrow">→</span><span>Combinational Logic</span><span class="arrow">→</span><span>Output</span></div>
+<div class="flow"><span>완전한 감지신호</span><span class="arrow">+</span><span>모든 조건의 완전한 출력 할당</span><span class="arrow">→</span><span>Latch 없는 조합회로</span></div>
+</section>
+</main>
+</body>
+</html>

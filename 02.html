@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>CHAPTER 02 자료형과 연산자</title>
+<style>
+:root{
+  --bg:#f6f8fb; --paper:#ffffff; --ink:#172033; --muted:#5c667a;
+  --line:#dfe5ee; --blue:#1769aa; --blue2:#eaf4fc; --teal:#0b7a75;
+  --code:#101722; --codeink:#eef5ff; --warn:#fff7df; --ok:#eef9f2;
+  --violet:#6d55a3; --soft:#f8fbfd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  line-height:1.72
+}
+header{
+  background:linear-gradient(135deg,#0c4e86,#1887a9);
+  color:#fff;padding:44px 24px
+}
+header .wrap, main{max-width:1120px;margin:auto}
+h1{margin:0 0 10px;font-size:2.25rem;line-height:1.25}
+.subtitle{opacity:.92;font-size:1.03rem}
+main{padding:28px 20px 72px}
+nav,section,.card{background:var(--paper);border:1px solid var(--line);border-radius:14px}
+nav{padding:20px 24px;margin-bottom:22px}
+nav a{color:var(--blue);text-decoration:none;margin-right:16px;white-space:nowrap}
+section{padding:28px 30px;margin:20px 0}
+h2{margin-top:0;border-bottom:2px solid #dceaf5;padding-bottom:10px;color:#134f7a}
+h3{margin-top:30px;color:#245b7e}
+h4{margin-bottom:8px;color:#315f7d}
+p{margin:.65em 0}
+ul,ol{padding-left:1.3rem}
+li{margin:.28em 0}
+.badge{
+  display:inline-block;border-radius:999px;padding:3px 9px;
+  font-size:.78rem;font-weight:700;background:var(--blue2);
+  color:#155f93;margin-right:6px
+}
+.note,.warn,.tip{
+  border-left:5px solid var(--blue);padding:14px 16px;
+  border-radius:8px;margin:16px 0
+}
+.note{background:#f1f7fc}
+.warn{background:var(--warn);border-color:#d49b17}
+.tip{background:var(--ok);border-color:#2b8a57}
+code{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+pre{
+  background:var(--code);color:var(--codeink);padding:18px;
+  border-radius:10px;overflow:auto;line-height:1.55;
+  font-family:"JetBrains Mono","D2Coding","Consolas",monospace
+}
+table{width:100%;border-collapse:collapse;margin:14px 0 18px}
+th,td{border:1px solid var(--line);padding:10px 12px;vertical-align:top}
+th{background:#eef5fa;text-align:left}
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:12px
+}
+.card{padding:16px 18px}
+.k{font-weight:700;color:#0d5b8c}
+.example-title{
+  font-size:.92rem;color:#376b8d;font-weight:700;
+  margin:18px 0 8px
+}
+.flow{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0
+}
+.flow span{
+  background:#edf5fb;border:1px solid #cfe3f1;
+  border-radius:8px;padding:8px 11px
+}
+.flow .arrow{
+  background:none;border:none;padding:0;color:#557
+}
+.logic-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0
+}
+.logic-box{
+  border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center;background:var(--soft)
+}
+.logic-value{font-size:1.6rem;font-weight:800;color:#0e5c8c}
+.compare td:first-child{font-weight:700;color:#245b7e;width:22%}
+.syntax{
+  background:#f3f7fa;border:1px solid #cbdce8;border-radius:10px;
+  padding:14px 16px;margin:14px 0
+}
+.syntax code{color:#193f5b}
+.path{
+  display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:12px 0
+}
+.path span{
+  border:1px solid #cfe0ec;background:#f8fbfd;padding:8px 10px;border-radius:8px
+}
+.path .arrow{border:none;background:none;padding:0;color:#52697a}
+.mono{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+.small{font-size:.92rem;color:var(--muted)}
+footer{
+  max-width:1120px;margin:0 auto 50px;padding:0 20px;
+  color:var(--muted);font-size:.9rem
+}
+@media(max-width:720px){
+  h1{font-size:1.7rem}
+  section{padding:22px 18px}
+  .logic-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media print{
+  body{background:white}
+  header{padding:28px 20px}
+  nav{display:none}
+  section{break-inside:avoid;box-shadow:none}
+}
+
+
+/* 좌측 고정 바로가기 */
+nav.sidebar-nav{
+  position:fixed;
+  left:18px;
+  top:18px;
+  width:258px;
+  max-height:calc(100vh - 36px);
+  overflow:auto;
+  z-index:1000;
+  padding:18px 16px;
+  background:rgba(255,255,255,.98);
+  border:1px solid var(--line,#dfe5ee);
+  border-radius:14px;
+  box-shadow:0 8px 26px rgba(20,50,80,.08);
+}
+nav.sidebar-nav strong{display:block;margin-bottom:8px;color:#183e5b}
+nav.sidebar-nav a{
+  display:block;
+  margin:0;
+  padding:7px 9px;
+  border-radius:7px;
+  color:var(--blue,#1769aa);
+  text-decoration:none;
+  line-height:1.38;
+}
+nav.sidebar-nav a:hover{background:#eef6fb}
+nav.sidebar-nav .home-link{
+  margin-bottom:10px;
+  border-bottom:1px solid var(--line,#dfe5ee);
+  padding-bottom:10px;
+  font-weight:700;
+}
+@media (min-width:1100px){
+  header{margin-left:294px}
+  main{
+    margin-left:312px !important;
+    margin-right:28px !important;
+    max-width:none !important;
+    width:auto !important;
+  }
+}
+@media (max-width:1099px){
+  nav.sidebar-nav{
+    position:static;
+    width:auto;
+    max-height:none;
+    margin:0 0 22px 0;
+    box-shadow:none;
+  }
+  nav.sidebar-nav a{display:inline-block;margin-right:5px}
+}
+
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div>
+<span class="badge">CHAPTER 02</span>
+</div>
+<h1>자료형과 연산자</h1>
+<div class="subtitle">net · variable · vector · array · parameter · 산술/논리/비트/시프트/조건 연산자</div>
+<span class="badge">SECTION 2.1 · 자료형</span><span class="badge">SECTION 2.2 · 연산자</span></div>
+</header>
+<main>
+<nav class="sidebar-nav"><a class="home-link" href="index.html">← 전체 목차</a><strong>바로가기</strong><br/><a href="#intro">CHAPTER 02 개요</a><a href="#logic">2.1.1 논리값</a><a href="#net">2.1.2 net 자료형</a><a href="#wired">wired net — wand, wor, triand, t…</a><a href="#trireg">trireg · tri0 · tri1 · supply0 ·…</a><a href="#variable">2.1.3 variable 자료형</a><a href="#reg">reg 자료형</a><a href="#other">integer · real · time · realtime</a><a href="#vector">2.1.4 벡터와 배열</a><a href="#parameter">2.1.5 parameter</a><a href="#summary">최종 핵심 정리</a><a href="#overview">Verilog 연산자 전체 개요</a><a href="#priority">연산자 우선순위</a><a href="#integer">수식 안의 정수 해석</a><a href="#arith">2.2.1 산술 연산자</a><a href="#rel">2.2.2 관계 연산자</a><a href="#eq">2.2.3 등가 연산자</a><a href="#logic">2.2.4 논리 연산자</a><a href="#bit">2.2.5 비트 연산자</a><a href="#reduction">2.2.6 축약 연산자</a><a href="#shift">2.2.7 시프트 연산자</a><a href="#cond">2.2.8 조건 연산자</a><a href="#concat">2.2.9 결합 및 반복 연산자</a><a href="#summary">최종 핵심 정리</a></nav>
+<section id="intro">
+<h2>1. CHAPTER 02 개요</h2>
+<p>
+Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)은 일반적인 소프트웨어 프로그래밍 언어와 유사하게
+자료형과 연산자를 제공하지만, 자료형은 단순히 “값을 담는 형식”만 의미하지 않는다.
+<strong>신호가 어떤 방식으로 구동되고, 값이 어떻게 유지되며, 어떤 하드웨어 구조를 표현하는지</strong>와 직접 연결된다.
+</p>
+<div class="grid">
+<div class="card">
+<span class="k">net 자료형</span>
+<p><code>wire</code>, <code>tri</code>, <code>wand</code>, <code>wor</code> 등</p>
+<p>회로 소자와 모듈 사이의 <strong>연결</strong>을 모델링한다.</p>
+</div>
+<div class="card">
+<span class="k">variable 자료형</span>
+<p><code>reg</code>, <code>integer</code>, <code>real</code>, <code>time</code>, <code>realtime</code></p>
+<p><code>always</code>, <code>initial</code> 등의 절차형 할당에서 값을 받는다.</p>
+</div>
+</div>
+<div class="note">
+<strong>이 장핵심 관점</strong><br/>
+같은 “신호”처럼 보여도 <code>wire</code>와 <code>reg</code>는
+값을 받는 방식과 의미가 다르다.
+Verilog 소스는 논리합성(logic synthesis, 로직 신서시스)을 통해 실제 회로로 변환되므로
+자료형과 연산자를 코드 문법이 아니라 <strong>회로 구조</strong>와 연결해서 이해해야 한다.
+</div>
+<table>
+<thead><tr><th>그룹</th><th>대표 자료형</th><th>핵심 역할</th></tr></thead>
+<tbody>
+<tr><td>net</td><td><code>wire, tri, wand, wor ...</code></td><td>회로 요소 사이의 물리적 연결</td></tr>
+<tr><td>variable</td><td><code>reg, integer, real, time, realtime</code></td><td>절차형 블록에서 값을 할당받고 다음 할당까지 유지</td></tr>
+</tbody>
+</table>
+</section>
+<section id="logic">
+<h2>2. 2.1.1 논리값</h2>
+<p>
+Verilog HDL은 디지털 회로를 표현하기 위해
+<strong>0, 1, x, z</strong>의 4가지 논리값을 지원한다.
+각 비트는 독립적으로 이 네 값 중 하나를 가질 수 있다.
+</p>
+<div class="logic-grid">
+<div class="logic-box">
+<div class="logic-value">0</div>
+<strong>논리 0</strong><br/> false(거짓)<br/> 접지/Low 상태 </div>
+<div class="logic-box">
+<div class="logic-value">1</div>
+<strong>논리 1</strong><br/> true(참)<br/> 전원/High 상태 </div>
+<div class="logic-box">
+<div class="logic-value">x</div>
+<strong>unknown</strong><br/> 0인지 1인지<br/> 확정할 수 없음 </div>
+<div class="logic-box">
+<div class="logic-value">z</div>
+<strong>high-impedance</strong><br/> 구동자가 없는<br/> 고임피던스 상태 </div>
+</div>
+<h3>2.1 하드웨어적으로 무엇을 의미하는가</h3>
+<div class="path">
+<span>두 구동자가 서로 다른 값</span>
+<span class="arrow">→</span>
+<span>충돌</span>
+<span class="arrow">→</span>
+<span><strong>x</strong></span>
+</div>
+<div class="path">
+<span>구동자가 없음</span>
+<span class="arrow">→</span>
+<span>출력을 강제로 0/1로 만들지 않음</span>
+<span class="arrow">→</span>
+<span><strong>z</strong></span>
+</div>
+<div class="note">
+<strong>설명</strong><br/>
+0과 1은 서로 논리적 보수 관계이다.
+일반적인 논리 연산에서 <code>z</code>가 입력에 포함되면 대부분 <code>x</code>와 유사한 영향을 줄 수 있으나,
+MOS 스위치 모델에서는 예외적으로 <code>z</code>가 그대로 전달될 수 있다.
+</div>
+</section>
+<section id="net">
+<h2>3. 2.1.2 net 자료형</h2>
+<p>
+net 자료형은 논리 게이트나 모듈과 같은 하드웨어 요소 사이의
+<strong>물리적인 연결(physical connection)</strong>을 추상화한 자료형이다.
+</p>
+<h3>3.1 Verilog의 주요 net 자료형</h3>
+<table>
+<thead><tr><th>자료형</th><th>용도</th><th>특징</th></tr></thead>
+<tbody>
+<tr><td><code>wire</code></td><td>일반 연결</td><td>가장 기본적인 net. 별도 기능 없음</td></tr>
+<tr><td><code>tri</code></td><td>3상태 연결</td><td><code>wire</code>와 유사하나 z 상태를 포함하는 연결을 명확히 표현</td></tr>
+<tr><td><code>wand</code></td><td>wired-AND</td><td>다중 구동자를 AND 방식으로 결합</td></tr>
+<tr><td><code>wor</code></td><td>wired-OR</td><td>다중 구동자를 OR 방식으로 결합</td></tr>
+<tr><td><code>triand</code></td><td>3상태 wired-AND</td><td><code>wand</code>와 유사</td></tr>
+<tr><td><code>trior</code></td><td>3상태 wired-OR</td><td><code>wor</code>와 유사</td></tr>
+<tr><td><code>supply0</code></td><td>접지</td><td>전원 모델링용 global net</td></tr>
+<tr><td><code>supply1</code></td><td>전원</td><td>전원 모델링용 global net</td></tr>
+<tr><td><code>tri0</code></td><td>pull-down 연결</td><td>구동이 없으면 0</td></tr>
+<tr><td><code>tri1</code></td><td>pull-up 연결</td><td>구동이 없으면 1</td></tr>
+<tr><td><code>trireg</code></td><td>전하 저장 노드</td><td>이전 구동 값을 유지하는 특수 net</td></tr>
+</tbody>
+</table>
+<div class="tip">
+<strong>net핵심</strong><br/>
+일반적인 net는 스스로 값을 저장하지 않는다.
+게이트 프리미티브나 연속 할당문 등의 <strong>구동자(driver)</strong>가 만든 값이
+net에 연속적으로 전달된다.
+구동자가 없으면 일반 net의 기본값은 <code>z</code>이다.
+</div>
+<h3>3.2 net 선언 문법</h3>
+<div class="syntax">
+<code>net_type [signed] [range] [#(delay)] net_name [array] {, net_name [array]};</code><br/>
+<code>net_type [signed] [range] [#(delay)] net_name = continuous_assignment;</code>
+</div>
+<div class="example-title">예시 2-1: net 자료형 선언</div>
+<pre><code>wire w1, w2;
+wire [7:0] bus;
+wire enable = 1'b0;
+wand w3;
+tri [15:0] busa;</code></pre>
+<table>
+<thead><tr><th>선언</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td><code>wire w1, w2;</code></td><td>1비트 wire 두 개</td></tr>
+<tr><td><code>wire [7:0] bus;</code></td><td>8비트 wire 벡터</td></tr>
+<tr><td><code>wire enable = 1'b0;</code></td><td>선언과 함께 연속 할당되는 1비트 wire</td></tr>
+<tr><td><code>wand w3;</code></td><td>1비트 wired-AND net</td></tr>
+<tr><td><code>tri [15:0] busa;</code></td><td>16비트 tri net</td></tr>
+</tbody>
+</table>
+<h3>3.3 wire와 tri</h3>
+<p>
+<code>wire</code>와 <code>tri</code>는 문법과 기본 기능이 유사하다.
+둘의 구분을 하드웨어에서 3상태(tri-state, 트라이스테이트)를
+명확히 나타내기 위한 표현상의 차이로 설명한다.
+</p>
+<div class="note">
+<strong>다중 구동자 충돌</strong><br/>
+같은 강도의 두 구동자가 같은 값을 내면 그 값으로 결정된다.
+한쪽이 0이고 다른 쪽이 1이면 충돌하므로 결과는 <code>x</code>가 된다.
+<code>z</code>는 해당 구동자가 사실상 선로를 구동하지 않는 상태로 해석된다.
+</div>
+</section>
+<section id="wired">
+<h2>4. wired net — wand, wor, triand, trior</h2>
+<p>
+다중 구동자를 갖는 wired 논리를 모델링하기 위해
+<code>wand</code>, <code>wor</code>, <code>triand</code>, <code>trior</code>가 제공된다.
+</p>
+<div class="grid">
+<div class="card">
+<span class="k">wand / triand</span>
+<p>wired-AND 구성</p>
+<p>구동자 중 하나 이상이 0이면 결과는 0</p>
+</div>
+<div class="card">
+<span class="k">wor / trior</span>
+<p>wired-OR 구성</p>
+<p>구동자 중 하나 이상이 1이면 결과는 1</p>
+</div>
+</div>
+<div class="warn">
+<strong>기술적 배경</strong><br/>
+wired-AND는 open-collector 로직,
+wired-OR는 emitter-coupled 로직과 연계해서 설명되며,
+최신 CMOS 구현에서는 이러한 물리적 구조가 일반적이지 않다고 언급한다.
+</div>
+<div class="example-title">코드 2-1: wire와 wand 자료형의 차이</div>
+<pre><code>module wand_ex;
+
+reg a, b, c;
+
+wire w_nor, w_buf, w_wire;
+wand w_wand;
+
+initial begin
+    a = 0; b = 0; c = 0;
+    #50 a = 1; b = 1;
+end
+
+nor (w_nor, a, b);
+buf (w_buf, c);
+
+nor (w_wire, a, b);
+buf (w_wire, c);
+
+nor (w_wand, a, b);
+buf (w_wand, c);
+
+endmodule</code></pre>
+<h3>4.1 같은 다중 구동이라도 결과가 다르다</h3>
+<div class="path">
+<span>wire</span>
+<span class="arrow">→</span>
+<span>0과 1 충돌</span>
+<span class="arrow">→</span>
+<span><strong>x</strong></span>
+</div>
+<div class="path">
+<span>wand</span>
+<span class="arrow">→</span>
+<span>wired-AND 규칙 적용</span>
+<span class="arrow">→</span>
+<span><strong>0 또는 1</strong></span>
+</div>
+<div class="note">
+<strong>시뮬레이션</strong><br/>
+<code>w_wire</code>와 <code>w_wand</code>가
+동일한 두 구동자를 갖더라도 자료형의 결정 규칙 때문에
+서로 다른 결과를 갖는 점을 보여준다.
+</div>
+</section>
+<section id="trireg">
+<h2>5. trireg · tri0 · tri1 · supply0 · supply1</h2>
+<h3>5.1 trireg</h3>
+<p>
+<code>trireg</code>는 물리적인 전하 저장 노드(charge storage node)를 모델링하기 위한 net이다.
+일반 net와 달리 모든 구동자가 <code>z</code>가 되더라도 마지막 값을 유지할 수 있다.
+</p>
+<table>
+<thead><tr><th>상태</th><th>조건</th><th>동작</th></tr></thead>
+<tbody>
+<tr>
+<td>구동 상태(driven state)</td>
+<td>하나 이상의 구동자가 0, 1, x를 출력</td>
+<td>결정값이 trireg에 전달되어 현재 값이 됨</td>
+</tr>
+<tr>
+<td>정전용량 상태(capacitive state)</td>
+<td>모든 구동자가 z</td>
+<td>마지막으로 구동된 값을 유지</td>
+</tr>
+</tbody>
+</table>
+<h3>5.2 tri0 / tri1</h3>
+<table>
+<thead><tr><th>자료형</th><th>구동자가 없을 때</th><th>하드웨어 의미</th></tr></thead>
+<tbody>
+<tr><td><code>tri0</code></td><td>0</td><td>저항성 pull-down이 연결된 net</td></tr>
+<tr><td><code>tri1</code></td><td>1</td><td>저항성 pull-up이 연결된 net</td></tr>
+</tbody>
+</table>
+<h3>5.3 supply0 / supply1</h3>
+<p>
+<code>supply0</code>와 <code>supply1</code>은 각각 접지와 전원 연결을 모델링하는 net이며,
+이들이 supply 강도를 갖는다고 설명한다.
+</p>
+<h3>5.4 신호강도</h3>
+<p>
+net에서 charge strength와 drive strength를 설명하며,
+특히 <code>trireg</code>의 charge strength를
+<code>small</code>, <code>medium</code>, <code>large</code>로 지정할 수 있다고 설명한다.
+</p>
+<div class="example-title">예시 2-2: 신호강도 지정</div>
+<pre><code>trireg a;
+trireg (large) #(0,0,50) cap1;
+trireg (small) signed [3:0] cap2;</code></pre>
+<div class="warn">
+<strong>RTL 관점의 주의</strong><br/>
+신호강도가 대부분의 합성 툴에서 지원되지 않으므로
+RTL 수준 모델링에는 사용하지 않는 것이 좋다고 설명한다.
+즉, 이 부분은 주로 시뮬레이션 모델과 라이브러리 수준에서 이해하는 편이 적절하다.
+</div>
+</section>
+<section id="variable">
+<h2>6. 2.1.3 variable 자료형</h2>
+<p>
+Verilog HDL의 <code>reg</code>, <code>integer</code>, <code>real</code>,
+<code>time</code>, <code>realtime</code>은 variable 자료형에 속한다.
+variable절차형 할당문이 실행될 때 값이 바뀌며,
+다음 할당이 일어날 때까지 그 값을 유지한다.
+</p>
+<table>
+<thead><tr><th>자료형</th><th>기본 초기값</th><th>핵심 용도</th></tr></thead>
+<tbody>
+<tr><td><code>reg</code></td><td>x</td><td>절차형 블록에서 비트/벡터 값 저장</td></tr>
+<tr><td><code>integer</code></td><td>x</td><td>정수형 범용 변수</td></tr>
+<tr><td><code>time</code></td><td>x</td><td>시뮬레이션 시간 저장</td></tr>
+<tr><td><code>real</code></td><td>0.0</td><td>실수형 변수</td></tr>
+<tr><td><code>realtime</code></td><td>0.0</td><td>실수 형태의 시간값</td></tr>
+</tbody>
+</table>
+<h3>6.1 variable 선언 문법</h3>
+<div class="syntax">
+<code>variable_type [signed] [range] variable_name [array] {, variable_name [array]};</code><br/>
+<code>variable_type [signed] [range] variable_name = initial_value;</code>
+</div>
+<div class="note">
+<strong>부호 해석</strong><br/>
+variable에는 음의 값을 넣을 수 있지만,
+부호를 유지해서 해석하려면 <code>signed reg</code>, <code>integer</code>,
+<code>real</code>, <code>realtime</code>처럼 signed 성격을 갖는 자료형을 사용해야 한다.
+unsigned reg와 time을 unsigned 값으로 취급한다고 설명한다.
+</div>
+</section>
+<section id="reg">
+<h2>7. reg 자료형</h2>
+<p>
+<code>reg</code>는 <code>always</code>나 <code>initial</code> 블록 내부의
+절차형 할당문에 의해 값을 받는 variable 자료형이다.
+할당과 할당 사이에서 값을 유지한다.
+</p>
+<div class="example-title">예시 2-3: reg 선언</div>
+<pre><code>reg a;
+reg [3:0] b;
+reg signed [3:0] signed_reg;
+reg [-1:4] c;
+reg [4:0] x, y, z;</code></pre>
+<table>
+<thead><tr><th>선언</th><th>비트 폭 / 의미</th></tr></thead>
+<tbody>
+<tr><td><code>reg a;</code></td><td>1비트 reg</td></tr>
+<tr><td><code>reg [3:0] b;</code></td><td>4비트 reg</td></tr>
+<tr><td><code>reg signed [3:0] signed_reg;</code></td><td>4비트 signed, 범위 -8 ~ 7</td></tr>
+<tr><td><code>reg [-1:4] c;</code></td><td>6비트 reg</td></tr>
+<tr><td><code>reg [4:0] x, y, z;</code></td><td>각각 5비트 reg</td></tr>
+</tbody>
+</table>
+<h3>7.1 reg라고 해서 모두 플립플롭은 아니다</h3>
+<p>
+이 부분을 매우 중요하게 설명한다.
+<code>reg</code>는 플립플롭이나 래치 같은 저장소자를 모델링할 때 사용할 수 있지만,
+조합회로의 출력 변수에도 사용될 수 있다.
+따라서 <strong>reg 선언 자체가 하드웨어 레지스터를 의미하지 않는다.</strong>
+</p>
+<div class="grid">
+<div class="card">
+<span class="k">순차회로 예: D 플립플롭</span>
+<pre><code>module dff (
+    input  clk,
+    input  d,
+    output qout
+);
+
+reg qout;
+
+always @(posedge clk) begin
+    qout &lt;= d;
+end
+
+endmodule</code></pre>
+<p><code>qout</code>은 클록 상승에지에서 값을 저장하므로 실제 저장소자에 대응한다.</p>
+</div>
+<div class="card">
+<span class="k">조합회로 예: 2:1 MUX</span>
+<pre><code>module mux21_if (
+    input  [1:0] a,
+    input  [1:0] b,
+    input        sel,
+    output [1:0] out
+);
+
+reg [1:0] out;
+
+always @(a or b or sel) begin
+    if (sel == 1'b0)
+        out = a;
+    else
+        out = b;
+end
+
+endmodule</code></pre>
+<p><code>out</code>은 reg로 선언되지만 회로는 조합논리 멀티플렉서다.</p>
+</div>
+</div>
+<div class="tip">
+<strong>회로 판단 기준</strong><br/>
+자료형 이름이 아니라 <strong>할당이 언제 일어나는지</strong>를 본다.<br/>
+<code>posedge clk</code>에서 값이 저장되면 순차회로이고,
+모든 입력 변화에 즉시 다시 계산되면 조합회로이다.
+</div>
+</section>
+<section id="other">
+<h2>8. integer · real · time · realtime</h2>
+<h3>8.1 integer</h3>
+<p>
+<code>integer</code>는 하드웨어 레지스터 자체를 표현하기보다
+범용 정수 변수로 사용된다.
+signed reg처럼 취급되며 연산 결과가 2의 보수 형태가 된다고 설명한다.
+</p>
+<h3>8.2 time</h3>
+<p>
+<code>time</code>은 시뮬레이션 시간을 저장하거나 타이밍을 확인하는 데 사용되며,
+주로 시스템 태스크 <code>$time</code>과 함께 사용된다.
+64비트 unsigned reg와 유사하게 동작한다고 설명한다.
+</p>
+<h3>8.3 real / realtime</h3>
+<p>
+<code>real</code>실수값을 저장하며,
+<code>realtime</code>은 real과 동일하게 취급되어 상호 교환 가능하다고 설명한다.
+다만 일부 연산은 real에 사용할 수 없으며,
+비트 선택이나 부분 선택도 사용할 수 없다.
+</p>
+<div class="example-title">예시 2-4</div>
+<pre><code>integer a;
+real float;
+time last_change;
+realtime rtime;</code></pre>
+<div class="warn">
+<strong>real 사용 제한</strong><br/>
+real 변수에 대해 edge 지시자를 사용할 수 없고,
+비트 참조(bit select)나 부분 참조(part select)를 할 수 없다고 설명한다.
+또한 실수값이 정수형으로 변환될 때 가장 가까운 정수로 반올림된다.
+</div>
+</section>
+<section id="vector">
+<h2>9. 2.1.4 벡터와 배열</h2>
+<h3>9.1 벡터(vector)</h3>
+<p>
+범위가 없는 net 또는 reg는 기본적으로 1비트이다.
+여러 비트 신호를 만들 때는 자료형 뒤가 아니라
+<strong>변수 이름 앞에 비트 범위 <code>[msb:lsb]</code></strong>를 지정한다.
+</p>
+<div class="syntax">
+<code>data_type [msb:lsb] identifier;</code>
+</div>
+<div class="example-title">예시 2-5: 벡터 선언</div>
+<pre><code>reg  [7:0]  rega;
+wire [15:0] d_out;</code></pre>
+<table>
+<thead><tr><th>선언</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td><code>reg [7:0] rega;</code></td><td>8비트 reg 벡터</td></tr>
+<tr><td><code>wire [15:0] d_out;</code></td><td>16비트 wire 벡터</td></tr>
+</tbody>
+</table>
+<div class="note">
+<strong>벡터는 하나의 다비트 신호</strong><br/>
+예를 들어 <code>reg [7:0] rega</code>는
+8개의 독립된 배열 원소가 아니라 <strong>8비트 폭을 가진 하나의 벡터</strong>이다.
+따라서 단일 할당문으로 전체 값을 받을 수 있다.
+</div>
+<h3>9.2 배열(array)</h3>
+<p>
+배열은 특정 자료형의 원소들을 여러 개 묶는 구조이며,
+변수 이름 <strong>뒤쪽</strong>에 주소 범위를 작성한다.
+</p>
+<div class="syntax">
+<code>data_type identifier [Uaddr:Laddr];</code><br/>
+<code>data_type identifier [Uaddr1:Laddr1][Uaddr2:Laddr2];</code><br/>
+<code>data_type [msb:lsb] identifier [Uaddr:Laddr];</code>
+</div>
+<h3>9.3 벡터와 배열의 위치 차이</h3>
+<pre><code>reg [7:0] mem_A [0:255];</code></pre>
+<div class="path">
+<span><code>[7:0]</code></span>
+<span class="arrow">→</span>
+<span>각 원소의 비트 폭 = 8비트</span>
+</div>
+<div class="path">
+<span><code>[0:255]</code></span>
+<span class="arrow">→</span>
+<span>배열 원소 개수 = 256개</span>
+</div>
+<div class="tip">
+<strong>즉</strong><br/>
+<code>reg [7:0] mem_A [0:255];</code>는
+<strong>8비트 워드 256개</strong>로 구성된 메모리 구조를 표현한다.
+</div>
+<h3>9.4 배열 선언 예</h3>
+<div class="example-title">예시 2-6</div>
+<pre><code>reg [7:0] mem_A [0:255];
+reg array_B [7:0][0:255];
+wire w_array [7:0][5:0];
+integer int_A [1:64];
+time chng_hist [1:1000];</code></pre>
+<table>
+<thead><tr><th>선언</th><th>의미</th></tr></thead>
+<tbody>
+<tr>
+<td><code>reg [7:0] mem_A [0:255]</code></td>
+<td>8비트 reg 256개로 구성된 1차원 메모리</td>
+</tr>
+<tr>
+<td><code>reg array_B [7:0][0:255]</code></td>
+<td>1비트 reg로 구성된 8 × 256 2차원 배열</td>
+</tr>
+<tr>
+<td><code>wire w_array [7:0][5:0]</code></td>
+<td>1비트 wire로 구성된 8 × 6 2차원 배열</td>
+</tr>
+<tr>
+<td><code>integer int_A [1:64]</code></td>
+<td>integer 64개 배열</td>
+</tr>
+<tr>
+<td><code>time chng_hist [1:1000]</code></td>
+<td>time 값 1,000개 배열</td>
+</tr>
+</tbody>
+</table>
+<h3>9.5 배열 전체와 원소 할당의 차이</h3>
+<div class="example-title">예시 2-7</div>
+<pre><code>mem_A = 0;                  // 오류: 배열 전체에 단일 할당
+array_B[1] = 0;             // 오류: 여러 배열 원소를 한 번에 할당
+array_B[1][12:31] = 0;      // 오류: 배열 일부 원소 묶음 할당
+
+mem_A[1] = 0;               // 가능: 두 번째 워드에 0 할당
+array_B[1][0] = 0;          // 가능: 특정 원소 하나에 할당
+int_A[4] = 33559;           // 가능
+chng_hist[t_index] = $time; // 가능</code></pre>
+<div class="warn">
+<strong>벡터와 배열을 혼동하지 말 것</strong><br/>
+벡터는 하나의 다비트 객체라서 전체 할당이 가능하지만,
+Verilog 배열은 <strong>워드 단위 또는 개별 원소 단위</strong>로 접근한다.
+</div>
+<h3>9.6 메모리 선언 예</h3>
+<div class="example-title">예시 2-8</div>
+<pre><code>reg [1:n] Reg_A;
+reg Mem_A [1:n];
+
+wire [7:0] Array_2D [0:255][0:255];
+wire Array_3D [0:255][0:255][7:0];
+
+assign Array_2D[14][1][3:0] = 4'b1100;
+assign Array_2D[1][3][6]    = 1'b1;</code></pre>
+<div class="note">
+<strong>핵심 비교</strong><br/>
+<code>reg [1:n] Reg_A;</code>는 n비트 벡터이고,
+<code>reg Mem_A [1:n];</code>는 1비트 원소 n개로 구성된 메모리다.
+대괄호의 위치가 회로 데이터 구조의 의미를 바꾼다.
+</div>
+</section>
+<section id="parameter">
+<h2>10. 2.1.5 parameter</h2>
+<p>
+<code>parameter</code>는 variable이나 net에 속하지 않는
+<strong>상수값</strong>이다.
+시뮬레이션 실행 중에는 값을 변경할 수 없지만,
+모듈 parameter는 컴파일/인스턴스화 과정에서 값을 덮어써서
+같은 RTL 구조를 여러 설정으로 재사용할 수 있다.
+</p>
+<h3>10.1 선언 형식</h3>
+<div class="syntax">
+<code>localparam [signed] [range] parameter_name = value;</code><br/>
+<code>localparam constant_type parameter_name = value;</code><br/>
+<code>parameter [signed] [range] parameter_name = value;</code><br/>
+<code>parameter constant_type parameter_name = value;</code>
+</div>
+<p>
+<code>constant_type</code>은
+<code>integer</code>, <code>time</code>, <code>real</code>, <code>realtime</code> 중 하나이다.
+</p>
+<h3>10.2 parameter와 localparam</h3>
+<table>
+<thead><tr><th>항목</th><th>parameter</th><th>localparam</th></tr></thead>
+<tbody>
+<tr>
+<td>상수인가?</td><td>예</td><td>예</td>
+</tr>
+<tr>
+<td>시뮬레이션 도중 변경</td><td>불가</td><td>불가</td>
+</tr>
+<tr>
+<td>모듈 인스턴스에서 값 변경</td><td>가능</td><td>불가</td>
+</tr>
+<tr>
+<td>주요 목적</td><td>재사용 가능한 설정값</td><td>모듈 내부 고정 상수</td>
+</tr>
+</tbody>
+</table>
+<div class="tip">
+<strong>회로 설계에서의 의미</strong><br/>
+parameter는 비트 폭, 카운터 범위, 지연값처럼
+<strong>회로의 구조를 결정하는 설정 상수</strong>로 자주 사용된다.
+같은 모듈을 여러 비트 폭으로 재사용할 수 있다는 점에서 매우 중요하다.
+</div>
+<h3>10.3 parameter 선언 예</h3>
+<div class="example-title">예시 2-9</div>
+<pre><code>parameter msb = 7;
+parameter e = 25, f = 9;
+parameter r = 5.7;
+
+parameter byte_size = 8;
+parameter byte_mask = byte_size - 1;
+
+parameter average_delay = (r + f) / 2;
+
+parameter p1 = 13'h7e;
+parameter [31:0] dec_const = 1'b1;
+
+parameter newconst1 = 3'h4;
+parameter newconst2 = 4;</code></pre>
+<table>
+<thead><tr><th>예</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td><code>parameter msb = 7;</code></td><td>상수 7 정의</td></tr>
+<tr><td><code>parameter e = 25, f = 9;</code></td><td>하나의 문장에서 두 parameter 정의</td></tr>
+<tr><td><code>parameter r = 5.7;</code></td><td>실수 parameter</td></tr>
+<tr><td><code>byte_mask = byte_size - 1</code></td><td>다른 parameter를 이용해 상수 계산</td></tr>
+<tr><td><code>parameter [31:0] dec_const = 1'b1;</code></td><td>1비트 값을 32비트 범위에 맞춰 변환</td></tr>
+</tbody>
+</table>
+<div class="note">
+<strong>범위/부호 규칙</strong><br/>
+parameter는 선언 시 자료형과 범위를 명시했는지,
+signed로 선언했는지,
+최종 덮어쓰기 값이 sized인지 unsized인지에 따라
+최종 비트 폭과 signed/unsigned 해석이 달라질 수 있다.
+</div>
+</section>
+<section id="summary">
+<h2>11. 최종 핵심 정리</h2>
+<table>
+<thead><tr><th>항목</th><th>핵심 내용</th></tr></thead>
+<tbody>
+<tr><td>논리값</td><td><code>0, 1, x, z</code>의 4상태 논리</td></tr>
+<tr><td>net</td><td>하드웨어 요소 사이의 연결을 표현하며 일반적으로 값을 저장하지 않음</td></tr>
+<tr><td>wire</td><td>가장 기본적인 연결 net</td></tr>
+<tr><td>tri</td><td>3상태 연결을 명확히 표현</td></tr>
+<tr><td>wand / wor</td><td>다중 구동자를 wired-AND / wired-OR 방식으로 결합</td></tr>
+<tr><td>trireg</td><td>모든 구동자가 z가 되면 마지막 구동값을 유지할 수 있는 전하 저장 net</td></tr>
+<tr><td>variable</td><td>절차형 할당에서 값을 받고 다음 할당까지 유지</td></tr>
+<tr><td>reg</td><td>절차형 블록용 변수. reg 자체가 반드시 플립플롭을 의미하지는 않음</td></tr>
+<tr><td>integer</td><td>범용 signed 정수 변수</td></tr>
+<tr><td>time</td><td>시뮬레이션 시간 저장용</td></tr>
+<tr><td>real / realtime</td><td>실수값 처리용</td></tr>
+<tr><td>벡터</td><td>하나의 다비트 신호, 변수 이름 앞에 <code>[msb:lsb]</code></td></tr>
+<tr><td>배열</td><td>여러 원소를 묶은 구조, 변수 이름 뒤에 주소 범위</td></tr>
+<tr><td>메모리</td><td>reg 자료형 원소를 갖는 1차원 배열</td></tr>
+<tr><td>parameter</td><td>회로의 비트 폭·설정값 등을 정의하는 상수</td></tr>
+</tbody>
+</table>
+<div class="note">
+<strong>이 장에서 가장 중요한 구분</strong><br/>
+<code>wire</code>와 <code>reg</code>를 단순히 “입력/출력용 자료형”으로 외우지 말고,
+<strong>누가 값을 구동하는가?</strong>,
+<strong>언제 값이 바뀌는가?</strong>,
+<strong>그 결과 어떤 회로가 합성되는가?</strong>를 기준으로 이해해야 한다.
+</div>
+<div class="flow">
+<span>자료형 선언</span>
+<span class="arrow">→</span>
+<span>값이 전달/저장되는 방식 결정</span>
+<span class="arrow">→</span>
+<span>RTL 의미 형성</span>
+<span class="arrow">→</span>
+<span>합성 시 회로 구조로 연결</span>
+</div>
+</section>
+<section id="overview">
+<h2>12. Verilog 연산자 전체 개요</h2>
+<p>
+Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)의 연산자는 C 언어와 비슷한 형태가 많지만,
+결과가 실제 논리회로로 합성될 수 있다는 점에서 단순한 프로그램 연산과는 다르게 보아야 한다.
+결합·반복, 산술, 관계, 논리, 등가, 비트, 축약, 시프트, 조건, event 관련 연산자들을 제시한다.
+</p>
+<div class="opgrid">
+<div class="opcard"><strong>결합·반복</strong><br/><span class="op">{ }, {{ }}</span></div>
+<div class="opcard"><strong>산술</strong><br/><span class="op">+ - * / % **</span></div>
+<div class="opcard"><strong>관계</strong><br/><span class="op">&lt; &lt;= &gt; &gt;=</span></div>
+<div class="opcard"><strong>논리</strong><br/><span class="op">! &amp;&amp; ||</span></div>
+<div class="opcard"><strong>등가</strong><br/><span class="op">== != === !==</span></div>
+<div class="opcard"><strong>비트</strong><br/><span class="op">~ &amp; | ^ ~^ ^~</span></div>
+<div class="opcard"><strong>축약</strong><br/><span class="op">&amp; ~&amp; | ~| ^ ~^ ^~</span></div>
+<div class="opcard"><strong>시프트</strong><br/><span class="op">&lt;&lt; &gt;&gt; &lt;&lt;&lt; &gt;&gt;&gt;</span></div>
+<div class="opcard"><strong>조건</strong><br/><span class="op">? :</span></div>
+</div>
+<div class="note">
+<strong>핵심 관점</strong><br/>
+연산자를 볼 때는 “계산 결과가 무엇인가?”뿐 아니라
+<strong>비트 폭, signed/unsigned, x/z 포함 여부, 합성 시 만들어지는 회로</strong>까지 함께 봐야 한다.
+</div>
+<h3>1.1 실수형 피연산자</h3>
+<p>
+일부 연산자만 real(실수형) 피연산자를 지원한다고 설명한다.
+실수형 값이 논리 또는 관계 연산자에 사용되면 결과는 1비트 값이 된다.
+</p>
+<table>
+<thead><tr><th>실수형에 사용 가능한 대표 연산</th><th>기능</th></tr></thead>
+<tbody>
+<tr><td><code>+ - * / **</code></td><td>산술</td></tr>
+<tr><td><code>&gt; &gt;= &lt; &lt;=</code></td><td>관계</td></tr>
+<tr><td><code>== !=</code></td><td>논리 등가/부등</td></tr>
+<tr><td><code>!</code></td><td>논리 부정</td></tr>
+<tr><td><code>&amp;&amp;</code></td><td>논리 AND</td></tr>
+<tr><td><code>||</code></td><td>논리 OR</td></tr>
+<tr><td><code>?:</code></td><td>조건</td></tr>
+</tbody>
+</table>
+</section><section id="priority">
+<h2>13. 연산자 우선순위</h2>
+<p>
+같은 수식에 여러 연산자가 섞여 있으면 우선순위가 높은 연산부터 계산된다.
+동일 우선순위에서는 조건 연산자 <code>?:</code>를 제외하고 일반적으로 왼쪽에서 오른쪽으로 연산된다.
+</p>
+<div class="prec">
+<div class="row"><div class="rank">높음</div><div class="ops">+ - ! ~ &amp; ~&amp; | ~| ^ ~^ ^~ (단항)</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">**</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">* / %</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">+ - (이항)</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">&lt;&lt; &gt;&gt; &lt;&lt;&lt; &gt;&gt;&gt;</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">&lt; &lt;= &gt; &gt;=</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">== != === !==</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">&amp; ~&amp;</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">^ ~^ ^~</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">| ~|</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">&amp;&amp;</div></div>
+<div class="row"><div class="rank">↓</div><div class="ops">||</div></div>
+<div class="row"><div class="rank">낮음</div><div class="ops">? :</div></div>
+</div>
+<div class="grid">
+<div class="card">
+<span class="k">예 1</span>
+<div class="equation">A + B - C</div>
+<p><code>A+B</code>가 먼저 계산되고 그 결과에서 <code>C</code>를 뺀다.</p>
+</div>
+<div class="card">
+<span class="k">예 2</span>
+<div class="equation">A + B * C</div>
+<p><code>B*C</code>가 먼저 계산되고 그 결과가 <code>A</code>에 더해진다.</p>
+</div>
+</div>
+<div class="tip">
+<strong>권장 방식</strong><br/>
+우선순위를 외우는 것보다 괄호를 사용해 의도를 명확히 표현하는 것이 좋다.
+복잡한 RTL에서는 가독성과 오해 방지를 위해 괄호를 적극적으로 사용하는 것이 안전하다.
+</div>
+</section><section id="integer">
+<h2>14. 수식 안의 정수 해석</h2>
+<p>
+수식에 들어가는 정수는 크게 다음 세 형태로 표현된다.
+</p>
+<ul>
+<li>unsized, unbased 정수: <code>12</code></li>
+<li>unsized, based 정수: <code>'d12</code>, <code>'sd12</code></li>
+<li>sized, based 정수: <code>16'd12</code>, <code>16'sd12</code></li>
+</ul>
+<p>
+밑수 지정자가 없는 정수를 signed로, 밑수만 지정한 정수를 unsigned로,
+<code>s</code>가 함께 지정된 경우 signed로 해석하는 차이를 강조한다.
+</p>
+<div class="example-title">예시 2-10: 수식에서 정수형 수의 처리</div>
+<pre><code>integer IntA, IntB, IntC, IntD;
+
+IntA = -12 / 4;
+IntB = -'d12 / 4;
+IntC = -'sd12 / 4;
+IntD = -4'sd12 / 4;</code></pre>
+<table>
+<thead><tr><th>수식</th><th>결과</th><th>핵심 이유</th></tr></thead>
+<tbody>
+<tr><td><code>-12 / 4</code></td><td>-3</td><td>unsized, unbased 정수는 signed</td></tr>
+<tr><td><code>-'d12 / 4</code></td><td>1073741821</td><td>밑수만 지정되어 unsigned로 해석</td></tr>
+<tr><td><code>-'sd12 / 4</code></td><td>-3</td><td><code>s</code>가 있어 signed로 해석</td></tr>
+<tr><td><code>-4'sd12 / 4</code></td><td>1</td><td>4비트 signed <code>1100</code>은 -4이고, 앞의 단항 -가 적용되어 +4가 됨</td></tr>
+</tbody>
+</table>
+<div class="warn">
+<strong>중요</strong><br/>
+비트패턴이 같아도 signed/unsigned 해석이 달라지면 산술 결과가 크게 달라질 수 있다.
+RTL에서 상수 표기법은 단순한 문법 문제가 아니라 실제 연산 결과와 회로 동작에 직접 영향을 준다.
+</div>
+</section><section id="arith">
+<h2>15. 2.2.1 산술 연산자</h2>
+<table>
+<thead><tr><th>연산자</th><th>기능</th></tr></thead>
+<tbody>
+<tr><td><code>+</code></td><td>더하기</td></tr>
+<tr><td><code>-</code></td><td>빼기</td></tr>
+<tr><td><code>*</code></td><td>곱하기</td></tr>
+<tr><td><code>/</code></td><td>나누기, 몫</td></tr>
+<tr><td><code>%</code></td><td>나머지</td></tr>
+<tr><td><code>**</code></td><td>거듭제곱</td></tr>
+</tbody>
+</table>
+<div class="note">
+<strong>x/z가 포함되면</strong><br/>
+산술 연산의 피연산자 비트에 <code>x</code> 또는 <code>z</code>가 포함되어 있으면
+결과를 <code>x</code>로 설명한다.
+</div>
+<h3>4.1 나누기와 나머지</h3>
+<ul>
+<li>정수 나눗셈은 소수점 이하를 버린다.</li>
+<li>0으로 나누면 결과는 <code>x</code>가 된다.</li>
+<li><code>a % b</code>의 결과 부호는 첫 번째 피연산자 <code>a</code>의 부호를 따른다.</li>
+</ul>
+<table>
+<thead><tr><th>수식</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td><code>10 % 3</code></td><td>1</td></tr>
+<tr><td><code>11 % 3</code></td><td>2</td></tr>
+<tr><td><code>12 % 3</code></td><td>0</td></tr>
+<tr><td><code>-10 % 3</code></td><td>-1</td></tr>
+<tr><td><code>11 % -3</code></td><td>2</td></tr>
+</tbody>
+</table>
+<h3>4.2 자료형에 따른 해석</h3>
+<table>
+<thead><tr><th>자료형</th><th>해석</th></tr></thead>
+<tbody>
+<tr><td>unsigned net</td><td>unsigned</td></tr>
+<tr><td>signed net</td><td>signed, 2의 보수</td></tr>
+<tr><td>unsigned reg</td><td>unsigned</td></tr>
+<tr><td>integer</td><td>signed, 2의 보수</td></tr>
+<tr><td>time</td><td>unsigned</td></tr>
+<tr><td>real, realtime</td><td>signed, floating-point</td></tr>
+</tbody>
+</table>
+<div class="example-title">예시 2-11: integer와 reg의 차이</div>
+<pre><code>integer intA, intB, intC;
+reg [15:0] regA, regB, regC;
+reg signed [15:0] regS, regT;
+
+intA = -4'd12;
+regA = intA / 3;
+regB = -4'd12;
+intB = regA / 3;
+intC = -4'd12 / 3;
+regC = -12 / 3;
+regS = -12 / 3;
+regT = -4'sd12 / 3;</code></pre>
+<div class="tip">
+<strong>회로 관점</strong><br/>
+<code>+</code>는 가산기, <code>-</code>는 감산기,
+곱셈·나눗셈은 더 큰 조합논리 구조 또는 전용 하드웨어 자원으로 합성될 수 있다.
+실제 자원 사용량은 합성 결과를 확인해야 하며, 코드만으로 임의 단정하면 안 된다.
+</div>
+</section><section id="rel">
+<h2>16. 2.2.2 관계 연산자</h2>
+<p>
+관계 연산자는 두 피연산자의 크기를 비교하며 결과는 1비트의 참(1) 또는 거짓(0)이다.
+피연산자에 <code>x</code>나 <code>z</code>가 포함되면 결과는 <code>x</code>가 될 수 있다.
+</p>
+<table>
+<thead><tr><th>연산자</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td><code>a &lt; b</code></td><td>a가 b보다 작다</td></tr>
+<tr><td><code>a &gt; b</code></td><td>a가 b보다 크다</td></tr>
+<tr><td><code>a &lt;= b</code></td><td>a가 b보다 작거나 같다</td></tr>
+<tr><td><code>a &gt;= b</code></td><td>a가 b보다 크거나 같다</td></tr>
+</tbody>
+</table>
+<div class="example-title">예시 2-12</div>
+<pre><code>// A = 9, B = 4
+// D = 4'b1001, E = 4'b1100, F = 4'b1xxx
+
+A &lt;= B   // 0
+A &gt;  B   // 1
+E &gt;= D   // 1
+E &lt;  F   // x</code></pre>
+<h3>5.1 signed 비교 조건</h3>
+<ul>
+<li>두 피연산자가 모두 signed integer 계열이면 signed 값으로 비교한다.</li>
+<li>한쪽이 real이면 다른 쪽도 실수형으로 변환한 뒤 비교한다.</li>
+<li>그 외의 경우 unsigned 비교로 설명한다.</li>
+</ul>
+<h3>5.2 산술 연산자와의 우선순위</h3>
+<pre><code>a &lt; b - 1
+
+// 명확하게 표현
+a &lt; (b - 1)</code></pre>
+<div class="note">
+관계 연산자는 산술 연산자보다 우선순위가 낮으므로
+산술 계산 후 비교가 이루어지는 형태가 일반적이다.
+</div>
+</section><section id="eq">
+<h2>17. 2.2.3 등가 연산자</h2>
+<table>
+<thead><tr><th>연산자</th><th>의미</th><th>x/z 포함 시</th></tr></thead>
+<tbody>
+<tr><td><code>==</code></td><td>같다</td><td>결과가 x가 될 수 있음</td></tr>
+<tr><td><code>!=</code></td><td>같지 않다</td><td>결과가 x가 될 수 있음</td></tr>
+<tr><td><code>===</code></td><td>case equality</td><td>x/z도 값으로 포함하여 비교</td></tr>
+<tr><td><code>!==</code></td><td>case inequality</td><td>x/z도 값으로 포함하여 비교</td></tr>
+</tbody>
+</table>
+<div class="example-title">예시 2-14</div>
+<pre><code>// A = 9, B = 4
+// D = 4'b1001, E = 4'b1100
+// F = 4'b1xxz, G = 4'b1xxz, H = 4'b1xxx
+
+A === B   // 0
+D != E    // 1
+D == F    // x
+F === G   // 1
+F === H   // 0
+G !== H   // 1</code></pre>
+<div class="warn">
+<strong>RTL 합성 주의</strong><br/>
+<code>===</code>, <code>!==</code>가 일부 EDA 툴에서 논리합성이 지원되지 않을 수 있으므로,
+합성용 RTL 수준 모델링에는 사용하지 않는 것이 좋다고 설명한다.
+테스트벤치에서는 x/z 상태까지 정확히 비교할 때 유용하다.
+</div>
+</section><section id="logic">
+<h2>18. 2.2.4 논리 연산자</h2>
+<p>
+논리 연산자는 피연산자를 “참인가, 거짓인가”의 관점에서 판단한다.
+결과는 1비트이다.
+</p>
+<table>
+<thead><tr><th>연산자</th><th>기능</th></tr></thead>
+<tbody>
+<tr><td><code>!</code></td><td>논리 NOT</td></tr>
+<tr><td><code>&amp;&amp;</code></td><td>논리 AND</td></tr>
+<tr><td><code>||</code></td><td>논리 OR</td></tr>
+</tbody>
+</table>
+<div class="example-title">예시 2-15</div>
+<pre><code>if (!reset)
+// if (reset == 1'b0)과 같은 의미</code></pre>
+<div class="example-title">예시 2-16</div>
+<pre><code>// A = 3, B = 0, C = 2'b0x, D = 2'b10
+
+A &amp;&amp; B   // 0
+A || B     // 1
+!A         // 0
+!B         // 1
+C &amp;&amp; D   // x</code></pre>
+<div class="tip">
+<strong>논리 연산자와 비트 연산자를 구분</strong><br/>
+<code>&amp;&amp;</code>와 <code>||</code>는 전체 피연산자를 참/거짓으로 판단하고 결과가 1비트다.
+반면 <code>&amp;</code>, <code>|</code>는 각 비트끼리 계산한다.
+</div>
+<div class="example-title">예시 2-18: 우선순위를 명확히 표현</div>
+<pre><code>a &lt; size-1 &amp;&amp; b != c &amp;&amp; index != last_one
+
+// 권장 표현
+(a &lt; size-1) &amp;&amp; (b != c) &amp;&amp; (index != last_one)</code></pre>
+</section><section id="bit">
+<h2>19. 2.2.5 비트 연산자</h2>
+<p>
+비트 연산자는 피연산자의 각 비트에 개별적으로 적용된다.
+따라서 n비트 입력 두 개를 연산하면 일반적으로 n비트 결과가 만들어진다.
+</p>
+<table>
+<thead><tr><th>연산자</th><th>기능</th></tr></thead>
+<tbody>
+<tr><td><code>~</code></td><td>비트 NOT</td></tr>
+<tr><td><code>&amp;</code></td><td>비트 AND</td></tr>
+<tr><td><code>|</code></td><td>비트 OR</td></tr>
+<tr><td><code>^</code></td><td>비트 XOR</td></tr>
+<tr><td><code>~^</code>, <code>^~</code></td><td>비트 XNOR</td></tr>
+</tbody>
+</table>
+<div class="example-title">예시 2-19</div>
+<pre><code>// D = 4'b1001
+// E = 4'b1101
+// F = 4'b10x1
+
+~D      // 4'b0110
+D &amp; E   // 4'b1001
+D | E   // 4'b1101
+D ^ E   // 4'b0100
+D ~^ E  // 4'b1011
+D &amp; F   // 4'b1001</code></pre>
+<h3>8.1 비트별 동작 예</h3>
+<div class="bitrow">
+<span class="bit">D</span>
+<span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span>
+</div>
+<div class="bitrow">
+<span class="bit">E</span>
+<span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span>
+</div>
+<div class="bitrow">
+<span class="bit">D^E</span>
+<span class="bit result">0</span><span class="bit result">1</span><span class="bit result">0</span><span class="bit result">0</span>
+</div>
+</section><section id="reduction">
+<h2>20. 2.2.6 축약 연산자</h2>
+<p>
+축약 연산자는 하나의 벡터 피연산자 전체를 한 비트 결과로 줄인다.
+즉, 벡터 내부의 여러 비트를 순차적으로 같은 연산으로 묶어 하나의 결과를 만든다.
+</p>
+<table>
+<thead><tr><th>연산자</th><th>기능</th></tr></thead>
+<tbody>
+<tr><td><code>&amp;a</code></td><td>축약 AND</td></tr>
+<tr><td><code>~&amp;a</code></td><td>축약 NAND</td></tr>
+<tr><td><code>|a</code></td><td>축약 OR</td></tr>
+<tr><td><code>~|a</code></td><td>축약 NOR</td></tr>
+<tr><td><code>^a</code></td><td>축약 XOR</td></tr>
+<tr><td><code>~^a</code>, <code>^~a</code></td><td>축약 XNOR</td></tr>
+</tbody>
+</table>
+<div class="example-title">예시 2-20: 4비트 parity</div>
+<pre><code>wire [3:0] cnt;
+wire parity;
+
+assign parity = ^cnt;
+
+// 위 코드는 다음과 동일한 의미
+assign parity = cnt[3] ^ cnt[2] ^ cnt[1] ^ cnt[0];</code></pre>
+<div class="flow">
+<span>cnt[3]</span><span class="arrow">^</span>
+<span>cnt[2]</span><span class="arrow">^</span>
+<span>cnt[1]</span><span class="arrow">^</span>
+<span>cnt[0]</span><span class="arrow">→</span>
+<span>1비트 parity</span>
+</div>
+<h3>9.1 4입력 NAND 게이트</h3>
+<div class="example-title">코드 2-3</div>
+<pre><code>module nand4_op1 (
+    input  [3:0] a,
+    output       y
+);
+
+assign y = ~(a[0] &amp; a[1] &amp; a[2] &amp; a[3]);
+
+endmodule
+
+
+module nand4_op2 (
+    input  [3:0] a,
+    output       y
+);
+
+assign y = ~&amp;a;
+
+endmodule</code></pre>
+<div class="tip">
+<strong>두 코드는 같은 회로 의미</strong><br/>
+첫 번째는 비트 AND를 모두 풀어서 쓴 표현이고,
+두 번째는 축약 NAND로 같은 기능을 짧게 표현한 것이다.
+</div>
+<h3>9.2 4비트 2입력 NOR</h3>
+<div class="example-title">코드 2-4</div>
+<pre><code>module nor_op (
+    input  [3:0] a,
+    input  [3:0] b,
+    output [3:0] y
+);
+
+assign y = ~(a | b);
+
+endmodule</code></pre>
+<p>
+이 코드는 각 비트 위치마다 OR 후 NOT을 수행하므로,
+4개의 2입력 NOR 게이트가 병렬로 존재하는 구조에 대응한다.
+</p>
+</section><section id="shift">
+<h2>21. 2.2.7 시프트 연산자</h2>
+<table>
+<thead><tr><th>연산자</th><th>의미</th><th>빈 비트 처리</th></tr></thead>
+<tbody>
+<tr><td><code>&lt;&lt;</code></td><td>논리 왼쪽 시프트</td><td>0 채움</td></tr>
+<tr><td><code>&gt;&gt;</code></td><td>논리 오른쪽 시프트</td><td>0 채움</td></tr>
+<tr><td><code>&lt;&lt;&lt;</code></td><td>산술 왼쪽 시프트</td><td>0 채움</td></tr>
+<tr><td><code>&gt;&gt;&gt;</code></td><td>산술 오른쪽 시프트</td><td>signed이면 부호비트, unsigned이면 0</td></tr>
+</tbody>
+</table>
+<div class="example-title">예시 2-21</div>
+<pre><code>// A = 4'b1100
+
+B = A &gt;&gt; 1;   // 0110
+C = A &lt;&lt; 1;   // 1000
+D = A &lt;&lt; 2;   // 0000</code></pre>
+<h3>10.1 왼쪽 논리 시프트</h3>
+<div class="example-title">코드 2-5</div>
+<pre><code>module shift;
+
+reg [3:0] start, result;
+
+initial begin
+    start  = 1;
+    result = (start &lt;&lt; 2);   // 0100
+end
+
+endmodule</code></pre>
+<div class="flow">
+<span>0001</span><span class="arrow">← 2비트</span><span>0100</span>
+</div>
+<h3>10.2 오른쪽 산술 시프트</h3>
+<div class="example-title">코드 2-6</div>
+<pre><code>module Arith_shift;
+
+reg signed [3:0] start, result;
+
+initial begin
+    start  = 4'b1000;
+    result = (start &gt;&gt;&gt; 2);   // 1110
+end
+
+endmodule</code></pre>
+<div class="flow">
+<span>1000</span><span class="arrow">→ 2비트</span><span>1110</span>
+</div>
+<div class="note">
+<strong>왜 1110인가?</strong><br/>
+<code>start</code>가 signed이고 MSB가 1이므로,
+산술 오른쪽 시프트는 비어 있는 상위 비트를 부호 비트 1로 채운다.
+</div>
+</section><section id="cond">
+<h2>22. 2.2.8 조건 연산자</h2>
+<p>
+조건 연산자 <code>?:</code>는 3개의 피연산자를 사용하는 3항 연산자이다.
+</p>
+<div class="syntax">
+<code>sel ? a : b</code>
+</div>
+<table>
+<thead><tr><th>sel 평가</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>참</td><td><code>a</code> 선택</td></tr>
+<tr><td>거짓(0)</td><td><code>b</code> 선택</td></tr>
+<tr><td>x 또는 z</td><td>a와 b를 비트별 비교하여 각 비트의 결과 결정</td></tr>
+</tbody>
+</table>
+<div class="tip">
+<strong>회로로 보면 MUX</strong><br/>
+<code>sel ? a : b</code>는 일반적으로
+<code>sel</code>이 선택신호인 2:1 멀티플렉서 구조로 연결해 이해할 수 있다.
+</div>
+<h3>11.1 3상태 출력 버스 예</h3>
+<div class="example-title">예시 2-22</div>
+<pre><code>wire [15:0] busa, data;
+
+assign busa = drive_busa ? data : 16'bz;</code></pre>
+<div class="flow">
+<span>drive_busa = 1</span>
+<span class="arrow">→</span>
+<span>busa = data</span>
+</div>
+<div class="flow">
+<span>그 외</span>
+<span class="arrow">→</span>
+<span>busa = z</span>
+</div>
+<p class="small">
+drive_busa가 x일 때 조건의 모호성 때문에 busa의 각 비트가 비교 규칙에 따라 결정된다고 설명한다.
+</p>
+</section><section id="concat">
+<h2>23. 2.2.9 결합 및 반복 연산자</h2>
+<h3>12.1 결합(concatenation) 연산자</h3>
+<p>
+중괄호 <code>{ }</code> 안에 여러 피연산자를 나열하면
+왼쪽부터 순서대로 비트를 이어 붙인다.
+</p>
+<div class="example-title">예시 2-23</div>
+<pre><code>wire [15:0] addr_bus;
+wire [7:0] addr_h, addr_l;
+
+assign addr_bus = {addr_h, addr_l};</code></pre>
+<div class="flow">
+<span>addr_h[7:0]</span>
+<span class="arrow">+</span>
+<span>addr_l[7:0]</span>
+<span class="arrow">→</span>
+<span>addr_bus[15:0]</span>
+</div>
+<div class="note">
+<strong>비트 폭</strong><br/>
+8비트 + 8비트를 결합하므로 결과는 16비트다.
+결합 연산자는 각 피연산자의 크기를 알 수 있어야 하므로 unsized 상수의 사용을 허용하지 않는다고 설명한다.
+</div>
+<h3>12.2 결합 연산자를 좌변에 사용</h3>
+<div class="example-title">예시 2-24</div>
+<pre><code>wire [3:0] a, b, sum;
+wire carry;
+
+assign {carry, sum} = a + b;</code></pre>
+<div class="flow">
+<span>a[3:0] + b[3:0]</span>
+<span class="arrow">→</span>
+<span>5비트 결과</span>
+<span class="arrow">→</span>
+<span>{carry, sum[3:0]}</span>
+</div>
+<div class="tip">
+<strong>회로 구조</strong><br/>
+4비트 + 4비트 가산 결과의 최상위 비트를 carry로,
+하위 4비트를 sum으로 분리하는 구조를 한 줄로 표현한다.
+</div>
+<h3>12.3 반복(replication) 연산자</h3>
+<p>
+<code>{a{b}}</code> 형식은 <code>b</code>를 <code>a</code>번 반복한다.
+반복 횟수는 상수여야 한다.
+</p>
+<div class="example-title">예시 2-25</div>
+<pre><code>{4{w}}
+
+// 위 표현은 다음과 동일
+{w, w, w, w}</code></pre>
+<div class="example-title">예시 2-26: 결합 + 반복</div>
+<pre><code>{4'b0011, {3{4'b0101}}}
+
+// 결과
+16'b0011_0101_0101_0101</code></pre>
+<div class="path">
+<span>4'b0011</span>
+<span class="arrow">+</span>
+<span>4'b0101 × 3회</span>
+<span class="arrow">→</span>
+<span>16비트</span>
+</div>
+</section><section id="summary">
+<h2>24. 최종 핵심 정리</h2>
+<table>
+<thead><tr><th>연산자 그룹</th><th>결과핵심</th><th>회로/RTL 관점</th></tr></thead>
+<tbody>
+<tr><td>산술</td><td>수치 연산</td><td>가산기·감산기 등 연산 회로</td></tr>
+<tr><td>관계</td><td>1비트 비교 결과</td><td>Comparator(비교기)</td></tr>
+<tr><td>등가</td><td>같음/다름 판정</td><td>동등 비교 논리</td></tr>
+<tr><td>논리</td><td>전체 피연산자를 참/거짓으로 판단</td><td>조건 판단</td></tr>
+<tr><td>비트</td><td>각 비트를 병렬 연산</td><td>비트별 AND/OR/XOR 게이트 배열</td></tr>
+<tr><td>축약</td><td>벡터 전체를 1비트로 축약</td><td>다입력 게이트 또는 parity 논리</td></tr>
+<tr><td>시프트</td><td>비트 위치 이동</td><td>배선 재배치 또는 시프터 구조</td></tr>
+<tr><td>조건</td><td>두 값 중 하나 선택</td><td>2:1 MUX</td></tr>
+<tr><td>결합</td><td>여러 비트열을 이어 붙임</td><td>버스 구성/분해</td></tr>
+<tr><td>반복</td><td>동일 비트패턴 반복</td><td>비트 확장·패턴 생성</td></tr>
+</tbody>
+</table>
+<div class="note">
+<strong>이 절에서 가장 중요한 질문</strong><br/>
+1) 피연산자는 몇 비트인가?<br/>
+2) signed인가 unsigned인가?<br/>
+3) x 또는 z가 들어올 수 있는가?<br/>
+4) 연산 결과의 비트 폭은 얼마인가?<br/>
+5) 이 표현은 실제로 어떤 하드웨어 구조가 되는가?
+</div>
+<div class="flow">
+<span>Verilog 연산자</span>
+<span class="arrow">→</span>
+<span>비트/부호 규칙 적용</span>
+<span class="arrow">→</span>
+<span>수식 결과</span>
+<span class="arrow">→</span>
+<span>RTL 구조</span>
+<span class="arrow">→</span>
+<span>합성 회로</span>
+</div>
+</section></main>
+</body>
+</html>

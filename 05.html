@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>CHAPTER 05 행위수준 모델링</title>
+<style>
+:root{
+  --bg:#f6f8fb; --paper:#ffffff; --ink:#172033; --muted:#5c667a;
+  --line:#dfe5ee; --blue:#1769aa; --blue2:#eaf4fc; --teal:#0b7a75;
+  --code:#101722; --codeink:#eef5ff; --warn:#fff7df; --ok:#eef9f2;
+  --danger:#fff0f0; --dangerline:#b94c4c; --soft:#f8fbfd;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  line-height:1.72
+}
+header{
+  background:linear-gradient(135deg,#0c4e86,#1887a9);
+  color:#fff;padding:44px 24px
+}
+header .wrap, main{max-width:1160px;margin:auto}
+h1{margin:0 0 10px;font-size:2.3rem;line-height:1.25}
+.subtitle{opacity:.94;font-size:1.03rem}
+main{padding:28px 20px 72px}
+nav,section,.card{background:var(--paper);border:1px solid var(--line);border-radius:14px}
+nav{padding:20px 24px;margin-bottom:22px}
+nav a{color:var(--blue);text-decoration:none;margin-right:15px;white-space:nowrap}
+section{padding:28px 30px;margin:20px 0}
+h2{margin-top:0;border-bottom:2px solid #dceaf5;padding-bottom:10px;color:#134f7a}
+h3{margin-top:30px;color:#245b7e}
+h4{margin-bottom:8px;color:#315f7d}
+p{margin:.65em 0}
+ul,ol{padding-left:1.35rem}
+li{margin:.28em 0}
+.badge{
+  display:inline-block;border-radius:999px;padding:3px 9px;
+  font-size:.78rem;font-weight:700;background:var(--blue2);
+  color:#155f93;margin-right:6px
+}
+.note,.warn,.tip,.danger,.rtl{
+  border-left:5px solid var(--blue);padding:14px 16px;
+  border-radius:8px;margin:16px 0
+}
+.note{background:#f1f7fc}
+.warn{background:var(--warn);border-color:#d49b17}
+.tip{background:var(--ok);border-color:#2b8a57}
+.danger{background:var(--danger);border-color:var(--dangerline)}
+.rtl{background:#f5f0ff;border-color:#7456a6}
+code{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+pre{
+  background:var(--code);color:var(--codeink);padding:18px;
+  border-radius:10px;overflow:auto;line-height:1.55;
+  font-family:"JetBrains Mono","D2Coding","Consolas",monospace
+}
+table{width:100%;border-collapse:collapse;margin:14px 0 18px}
+th,td{border:1px solid var(--line);padding:10px 12px;vertical-align:top}
+th{background:#eef5fa;text-align:left}
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:12px
+}
+.card{padding:16px 18px}
+.k{font-weight:700;color:#0d5b8c}
+.example-title{
+  font-size:.92rem;color:#376b8d;font-weight:700;
+  margin:18px 0 8px
+}
+.flow,.path{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0
+}
+.flow span,.path span{
+  background:#edf5fb;border:1px solid #cfe3f1;
+  border-radius:8px;padding:8px 11px
+}
+.flow .arrow,.path .arrow{
+  background:none;border:none;padding:0;color:#557
+}
+.syntax{
+  background:#f3f7fa;border:1px solid #cbdce8;border-radius:10px;
+  padding:14px 16px;margin:14px 0
+}
+.syntax code{color:#193f5b}
+.compare td:first-child{font-weight:700;color:#245b7e;width:23%}
+.logic{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  flex-wrap:wrap;margin:18px 0
+}
+.logic .box{
+  min-width:110px;border:2px solid #7fa8c3;background:#f8fbfd;
+  padding:10px 14px;border-radius:12px;text-align:center;font-weight:700
+}
+.logic .sig{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+.timeline{
+  border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+  background:#fafcfe;margin:14px 0;overflow:auto
+}
+.timeline table{margin:0;min-width:680px}
+.timeline th,.timeline td{text-align:center}
+.step{
+  border:1px solid #d7e4ee;border-radius:10px;background:#fbfdff;
+  padding:12px 14px;margin:10px 0
+}
+.step strong{color:#155f93}
+.operator{
+  display:inline-block;font-family:"JetBrains Mono","D2Coding","Consolas",monospace;
+  font-weight:800;color:#0d5b8c;background:#eaf4fc;border-radius:6px;padding:2px 7px
+}
+.small{font-size:.92rem;color:var(--muted)}
+.chip{
+  display:inline-block;background:#f0f4f7;border:1px solid #d2dde5;
+  border-radius:999px;padding:2px 8px;margin:2px;font-size:.84rem
+}
+footer{
+  max-width:1160px;margin:0 auto 50px;padding:0 20px;
+  color:var(--muted);font-size:.9rem
+}
+@media(max-width:720px){
+  h1{font-size:1.72rem}
+  section{padding:22px 18px}
+}
+@media print{
+  body{background:white}
+  header{padding:28px 20px}
+  nav{display:none}
+  section{break-inside:auto;box-shadow:none}
+  pre{white-space:pre-wrap}
+}
+
+
+/* 좌측 고정 바로가기 */
+nav.sidebar-nav{
+  position:fixed;
+  left:18px;
+  top:18px;
+  width:258px;
+  max-height:calc(100vh - 36px);
+  overflow:auto;
+  z-index:1000;
+  padding:18px 16px;
+  background:rgba(255,255,255,.98);
+  border:1px solid var(--line,#dfe5ee);
+  border-radius:14px;
+  box-shadow:0 8px 26px rgba(20,50,80,.08);
+}
+nav.sidebar-nav strong{display:block;margin-bottom:8px;color:#183e5b}
+nav.sidebar-nav a{
+  display:block;
+  margin:0;
+  padding:7px 9px;
+  border-radius:7px;
+  color:var(--blue,#1769aa);
+  text-decoration:none;
+  line-height:1.38;
+}
+nav.sidebar-nav a:hover{background:#eef6fb}
+nav.sidebar-nav .home-link{
+  margin-bottom:10px;
+  border-bottom:1px solid var(--line,#dfe5ee);
+  padding-bottom:10px;
+  font-weight:700;
+}
+@media (min-width:1100px){
+  header{margin-left:294px}
+  main{
+    margin-left:312px !important;
+    margin-right:28px !important;
+    max-width:none !important;
+    width:auto !important;
+  }
+}
+@media (max-width:1099px){
+  nav.sidebar-nav{
+    position:static;
+    width:auto;
+    max-height:none;
+    margin:0 0 22px 0;
+    box-shadow:none;
+  }
+  nav.sidebar-nav a{display:inline-block;margin-right:5px}
+}
+
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div>
+<span class="badge">CHAPTER 05</span>
+<span class="badge">행위수준 모델링</span>
+</div>
+<h1>행위수준 모델링</h1>
+<div class="subtitle"> always · initial · blocking/nonblocking · if · case/casez/casex · 반복문 · 타이밍 제어 · named event · wait · intra-assignment · begin-end · fork-join </div>
+</div>
+</header>
+<main>
+<nav class="sidebar-nav"><a class="home-link" href="index.html">← 전체 목차</a><strong>바로가기</strong><br/><a href="#overview">CHAPTER 05 전체 개요</a><a href="#always">5.1 always 구문과 initial 구문</a><a href="#sensitivity">조합회로와 감지신호목록</a><a href="#initial">zero-delay 무한루프와 initial 구문</a><a href="#procedural">5.2 절차형 할당문</a><a href="#blocking">5.2.1 blocking 할당문</a><a href="#nonblocking">5.2.2 nonblocking 할당문</a><a href="#if">5.3 if 조건문</a><a href="#case">5.4 case 문</a><a href="#casex">5.4.1 don’t-care를 갖는 case 문</a><a href="#loop">5.5 반복문</a><a href="#timing">5.6 절차형 할당의 타이밍 제어</a><a href="#event">5.6.3 named event와 event or</a><a href="#wait">5.6.5 wait와 5.6.6 intra-assignme…</a><a href="#block">5.7 블록문</a><a href="#summary">최종 핵심 정리</a></nav>
+<section id="overview">
+<h2>1. CHAPTER 05 전체 개요</h2>
+<p>
+앞 장의 게이트 프리미티브, 연속 할당문, 구조적 모델링은
+회로의 <strong>구조</strong>를 직접 표현하는 성격이 강하다.
+반면 행위수준 모델링(behavioral modeling, 비헤이비어럴 모델링)은
+회로가 “어떻게 동작해야 하는가”를 조건, 이벤트, 반복, 순차적 문장으로 표현한다.
+</p>
+<div class="grid">
+<div class="card">
+<span class="k">조합회로</span>
+<p><code>always @(*)</code>, <code>if</code>, <code>case</code> 등을 사용해 입력 조건과 출력 동작을 기술한다.</p>
+</div>
+<div class="card">
+<span class="k">순차회로</span>
+<p><code>always @(posedge clk)</code>처럼 클록 에지에서 상태를 갱신한다.</p>
+</div>
+<div class="card">
+<span class="k">테스트벤치</span>
+<p><code>initial</code>, <code>forever</code>, <code>#delay</code>, event 등을 이용해 파형과 검증 시나리오를 만든다.</p>
+</div>
+</div>
+<div class="note">
+<strong>가장 중요한 구분</strong><br/>
+모듈 내부의 여러 <code>always</code>/<code>initial</code> 블록은 서로 독립적으로 병렬 동작한다.
+그러나 <strong>각 블록 내부의 절차형 문장</strong>은 blocking/nonblocking의 규칙과 문장 순서에 따라
+실행 결과가 달라질 수 있다.
+</div>
+<div class="rtl">
+<strong>RTL 해석 보강</strong><br/>
+Verilog를 C 언어처럼 소스 전체가 위에서 아래로 한 줄씩 실행된다고 보면 안 된다.
+하드웨어에서는 여러 <code>always</code> 블록이 동시에 존재하며,
+클록·입력·이벤트가 조건을 만족하는 순간 각 블록이 독립적으로 활성화된다.
+</div>
+<h3>1.1 이 장의 전체 흐름</h3>
+<div class="flow">
+<span>always / initial</span>
+<span class="arrow">→</span>
+<span>절차형 할당</span>
+<span class="arrow">→</span>
+<span>if / case</span>
+<span class="arrow">→</span>
+<span>반복문</span>
+<span class="arrow">→</span>
+<span>타이밍 제어</span>
+<span class="arrow">→</span>
+<span>begin-end / fork-join</span>
+</div>
+</section>
+<section id="always">
+<h2>2. 5.1 always 구문과 initial 구문</h2>
+<h3>2.1 always 구문</h3>
+<p>
+<code>always</code>는 행위수준 모델링의 대표적인 구문이다.
+조합회로, 순차회로, 테스트벤치에 폭넓게 사용할 수 있으며
+시뮬레이션 동안 반복적으로 실행되는 구조라고 설명한다.
+</p>
+<div class="syntax">
+<code>always [@(sensitivity_list)] begin
+    blocking_or_nonblocking statements;
+end</code>
+</div>
+<ul>
+<li><code>@(...)</code> 안에는 블록 실행을 트리거할 감지신호목록(sensitivity list)이 들어간다.</li>
+<li>감지신호에 event가 발생하면 <code>begin-end</code> 내부 문장이 실행된다.</li>
+<li>블록 내부는 절차형 문장들로 구성된다.</li>
+<li>blocking/nonblocking의 선택에 따라 시뮬레이션과 합성 의미가 달라질 수 있다.</li>
+</ul>
+<h3>2.2 조합회로 예 — 2입력 OR</h3>
+<div class="example-title">코드 5-1</div>
+<pre><code>module or2 (
+    input  a,
+    input  b,
+    output out
+);
+
+reg out;
+
+always @(a or b) begin
+    if (a == 1'b1 || b == 1'b1)
+        out = 1'b1;
+    else
+        out = 1'b0;
+end
+
+endmodule</code></pre>
+<div class="logic">
+<span class="sig">a,b 변화</span>
+<span>→</span>
+<div class="box">always 실행</div>
+<span>→</span>
+<div class="box">if 판단</div>
+<span>→</span>
+<span class="sig">out 갱신</span>
+</div>
+<div class="rtl">
+<strong>합성 후 회로</strong><br/>
+이 코드는 상태를 저장하지 않는다.
+입력 <code>a</code>, <code>b</code>가 바뀔 때마다 출력이 다시 계산되므로
+실제 합성 결과는 2입력 OR 조합논리에 대응한다.
+</div>
+<h3>2.3 순차회로 예 — D 플립플롭</h3>
+<div class="example-title">코드 5-2</div>
+<pre><code>module dff (
+    input  clk,
+    input  din,
+    output qout
+);
+
+reg qout;
+
+always @(posedge clk)
+    qout &lt;= din;
+
+endmodule</code></pre>
+<div class="flow">
+<span>현재 din</span>
+<span class="arrow">→</span>
+<span>posedge clk</span>
+<span class="arrow">→</span>
+<span>qout 레지스터 저장</span>
+</div>
+<div class="rtl">
+<strong>Clock 기준 해석</strong><br/>
+<code>din</code>이 아무리 많이 변해도 <code>clk</code> 상승에지가 오기 전에는
+<code>qout</code>이 갱신되지 않는다.
+즉, 코드핵심은 “값”보다 <strong>언제 저장되는가</strong>이다.
+</div>
+</section>
+<section id="sensitivity">
+<h2>3. 조합회로와 감지신호목록</h2>
+<p>
+조합회로를 <code>always</code> 블록으로 기술할 때는
+블록 내부에서 참조되는 모든 입력이 감지신호목록에 들어가야 한다.
+일부 입력이 빠지면 RTL 시뮬레이션에서 해당 신호 변화가 블록 실행을 트리거하지 않아
+의도한 조합회로와 다른 파형이 나올 수 있다.
+</p>
+<div class="example-title">코드 5-3: sel이 감지신호목록에서 빠진 경우</div>
+<pre><code>module mux21_omit_sel (
+    input  [1:0] a,
+    input  [1:0] b,
+    input        sel,
+    output [1:0] out
+);
+
+reg [1:0] out;
+
+always @(a or b) begin   // sel이 없음
+    if (sel == 1'b0)
+        out = a;
+    else
+        out = b;
+end
+
+endmodule</code></pre>
+<div class="danger">
+<strong>문제점</strong><br/>
+<code>sel</code>만 바뀌고 <code>a</code>, <code>b</code>는 그대로라면
+<code>always</code>가 다시 실행되지 않는다.
+따라서 RTL 시뮬레이션에서 출력이 즉시 바뀌지 않는다.
+이 경우 합성 전 RTL 시뮬레이션과 합성 후 결과가 달라질 수 있음을 지적한다.
+</div>
+<h3>3.1 @(*) 사용</h3>
+<pre><code>always @(*) begin
+    y = (a &amp; b) | (c &amp; d);
+end</code></pre>
+<p>
+<code>@(*)</code> 또는 <code>@*</code>는 블록에서 읽는 관련 신호들을
+감지신호목록에 자동으로 포함시키는 함축적 표현이다.
+</p>
+<div class="tip">
+<strong>조합회로 기본 습관</strong><br/>
+전통 Verilog에서 조합회로를 <code>always</code>로 기술할 때는
+수동 감지신호 목록보다 <code>always @(*)</code>를 사용하는 편이
+누락 위험을 줄이는 데 유리하다.
+</div>
+</section>
+<section id="initial">
+<h2>4. zero-delay 무한루프와 initial 구문</h2>
+<h3>4.1 zero-delay infinite loop</h3>
+<pre><code>always clk = ~clk;</code></pre>
+<p>
+위 코드는 시간 진행을 일으키는 지연이나 이벤트 제어가 없다.
+따라서 같은 시뮬레이션 시간에서 무한히 반복되어
+시뮬레이션이 진행되지 않는 zero-delay 무한루프가 발생한다.
+</p>
+<h3>4.2 20ns 주기의 클록 생성</h3>
+<div class="example-title">코드 5-4</div>
+<pre><code>module clk_gen;
+
+reg clk;
+
+initial
+    clk = 1'b0;
+
+always
+    #10 clk = ~clk;
+
+endmodule</code></pre>
+<div class="flow">
+<span>clk=0</span>
+<span class="arrow">10ns</span>
+<span>clk=1</span>
+<span class="arrow">10ns</span>
+<span>clk=0</span>
+<span class="arrow">→</span>
+<span>주기 20ns</span>
+</div>
+<div class="note">
+<strong>왜 초기화가 필요한가?</strong><br/>
+<code>reg</code>의 시뮬레이션 초기값은 기본적으로 <code>x</code>이다.
+<code>~x</code> 역시 <code>x</code>이므로,
+초기화하지 않으면 클록이 계속 unknown 상태를 유지할 수 있다.
+</div>
+<h3>4.3 initial 구문</h3>
+<div class="syntax">
+<code>initial begin
+    blocking_or_nonblocking statements;
+end</code>
+</div>
+<p>
+<code>initial</code>을 시뮬레이션 동안 한 번 실행되는 구문으로 설명하며,
+테스트벤치에서 초기화와 입력 파형 생성에 사용한다.
+</p>
+<div class="example-title">예시 5-3: 초기화</div>
+<pre><code>initial begin
+    areg = 0;
+
+    for (index = 0; index &lt; size; index = index + 1)
+        memory[index] = 0;
+end</code></pre>
+<div class="example-title">예시 5-4: 입력 벡터 생성</div>
+<pre><code>initial begin
+    din = 6'b000000;
+    #10 din = 6'b011001;
+    #10 din = 6'b011011;
+    #10 din = 6'b011000;
+    #10 din = 6'b001000;
+end</code></pre>
+<div class="warn">initial은 테스트벤치의 초기화와 입력 파형 생성에 사용하는 시뮬레이션 구문으로 다룬다.</div>
+<h3>4.4 서로 다른 주기의 두 신호</h3>
+<div class="example-title">코드 5-5</div>
+<pre><code>module periodic_sig_gen;
+
+reg a, b;
+
+initial begin
+    a = 1'b1;
+    b = 1'b0;
+end
+
+always
+    #50 a = ~a;
+
+always
+    #100 b = ~b;
+
+endmodule</code></pre>
+<table>
+<thead><tr><th>신호</th><th>초기값</th><th>반전 간격</th><th>주기</th></tr></thead>
+<tbody>
+<tr><td><code>a</code></td><td>1</td><td>50ns</td><td>100ns</td></tr>
+<tr><td><code>b</code></td><td>0</td><td>100ns</td><td>200ns</td></tr>
+</tbody>
+</table>
+<div class="rtl">
+<strong>병렬성</strong><br/>
+하나의 <code>initial</code>과 두 개의 <code>always</code> 블록은
+시뮬레이션 시작 시 서로 독립적으로 활성화된다.
+코드에 위아래로 적혀 있어도 세 블록이 순차적으로 “호출”되는 것이 아니다.
+</div>
+</section>
+<section id="procedural">
+<h2>5. 5.2 절차형 할당문</h2>
+<p>
+절차형 할당문은 <code>reg</code>, <code>integer</code>, <code>time</code>,
+<code>real</code>, <code>realtime</code>과 같은 variable의 값을 갱신한다.
+</p>
+<table>
+<thead><tr><th>연속 할당</th><th>절차형 할당</th></tr></thead>
+<tbody>
+<tr>
+<td>우변 값 변화가 발생하면 net을 계속 구동</td>
+<td>프로시저 실행 흐름이 해당 문장에 도달했을 때 variable 갱신</td>
+</tr>
+<tr>
+<td>하드웨어적 연속 구동 특성</td>
+<td>블록 내부에서는 문장 실행 순서가 의미를 가짐</td>
+</tr>
+<tr>
+<td><code>assign</code></td>
+<td>blocking <code>=</code>, nonblocking <code>&lt;=</code></td>
+</tr>
+</tbody>
+</table>
+<h3>5.1 절차형 할당의 대상</h3>
+<ul>
+<li>variable 전체</li>
+<li>단일 비트</li>
+<li>연속된 일부 비트(part select)</li>
+<li>메모리의 단일 word</li>
+<li>결합(concatenation)에 의한 여러 좌변</li>
+</ul>
+<div class="note">
+우변 비트 수가 좌변보다 작고 우변이 signed이면,
+좌변 폭에 맞춰 sign extension(부호 확장)이 이루어진다고 설명한다.
+</div>
+</section>
+<section id="blocking">
+<h2>6. 5.2.1 blocking 할당문</h2>
+<p>
+blocking 할당은 현재 문장의 실행이 끝난 뒤 다음 문장으로 넘어가는
+순차적 실행 흐름을 갖는다.
+할당 기호는 <span class="operator">=</span>이다.
+</p>
+<div class="syntax">
+<code>reg_lvalue = [delay_or_event_control] expression;</code>
+</div>
+<div class="example-title">예시 5-5</div>
+<pre><code>initial begin
+    rega = 0;
+    regb[3] = 1;
+    regc[3:5] = 7;
+    mema[address] = 8'hff;
+    {carry, acc} = rega + regb;
+end</code></pre>
+<div class="flow">
+<span>문장 1 완료</span>
+<span class="arrow">→</span>
+<span>문장 2 완료</span>
+<span class="arrow">→</span>
+<span>문장 3 완료</span>
+<span class="arrow">→</span>
+<span>...</span>
+</div>
+</section>
+<section id="nonblocking">
+<h2>7. 5.2.2 nonblocking 할당문</h2>
+<p>
+nonblocking 할당은 우변을 평가한 뒤 좌변 갱신을 스케줄하며,
+현재 문장의 좌변 갱신이 끝날 때까지 다음 문장을 막지 않는다.
+할당 기호는 <span class="operator">&lt;=</span>이다.
+</p>
+<div class="syntax">
+<code>reg_lvalue &lt;= [delay_or_event_control] expression;</code>
+</div>
+<div class="tip">
+<strong>순차회로에서 중요한 이유</strong><br/>
+여러 레지스터가 같은 클록 에지에서 동시에 이전 값을 샘플링하는 동작을
+자연스럽게 표현할 수 있다.
+시프트 레지스터처럼 각 단계가 이전 단계의 “클록 직전 값”을 받아야 하는 회로에 특히 중요하다.
+</div>
+<h3>7.1 blocking과 nonblocking 비교</h3>
+<div class="example-title">코드 5-6(a): blocking</div>
+<pre><code>module blk;
+
+reg clk, a, b;
+
+initial begin
+    a = 0;
+    b = 1;
+    clk = 0;
+end
+
+always
+    clk = #5 ~clk;
+
+always @(posedge clk) begin
+    a = b;
+    b = a;
+end
+
+endmodule</code></pre>
+<div class="flow">
+<span>클록 직전 a=0, b=1</span>
+<span class="arrow">→</span>
+<span>a=b 실행 → a=1</span>
+<span class="arrow">→</span>
+<span>b=a 실행 → b=1</span>
+<span class="arrow">→</span>
+<span>최종 a=1,b=1</span>
+</div>
+<div class="example-title">코드 5-6(b): nonblocking</div>
+<pre><code>module non_blk;
+
+reg clk, a, b;
+
+initial begin
+    a = 0;
+    b = 1;
+    clk = 0;
+end
+
+always
+    clk = #5 ~clk;
+
+always @(posedge clk) begin
+    a &lt;= b;
+    b &lt;= a;
+end
+
+endmodule</code></pre>
+<div class="step"><strong>1단계 — 우변 평가</strong><br/>
+클록 에지 직전 값 <code>a=0</code>, <code>b=1</code>을 사용하므로
+<code>a</code>에 예약되는 값은 1, <code>b</code>에 예약되는 값은 0이다.
+</div>
+<div class="step"><strong>2단계 — 좌변 갱신</strong><br/>
+스케줄된 갱신이 적용되면서 최종적으로 <code>a=1</code>, <code>b=0</code>이 된다.
+</div>
+<div class="rtl">
+<strong>회로 구조로 보면</strong><br/>
+nonblocking 예는 두 레지스터가 같은 클록 에지에서 서로의 이전 값을 교환하는 구조와 대응한다.
+반면 blocking 예는 첫 번째 할당으로 바뀐 값이 두 번째 문장에 즉시 사용되므로
+시뮬레이션 동작이 다르다.
+</div>
+<h3>7.2 지연이 포함된 blocking / nonblocking</h3>
+<div class="example-title">코드 5-7</div>
+<pre><code>module blk_nonblk_delay;
+
+reg blk_a, blk_b, blk_c;
+reg nblk_a, nblk_b, nblk_c;
+
+initial begin
+    blk_a = #15 1'b1;
+    blk_b = #5  1'b0;
+    blk_c = #10 1'b1;
+    #50 $finish;
+end
+
+initial begin
+    nblk_a &lt;= #15 1'b1;
+    nblk_b &lt;= #5  1'b0;
+    nblk_c &lt;= #10 1'b1;
+    #50 $finish;
+end
+
+endmodule</code></pre>
+<table>
+<thead><tr><th>형태</th><th>값이 반영되는 시각</th><th>이유</th></tr></thead>
+<tbody>
+<tr>
+<td>blocking</td>
+<td>blk_a: 15ns, blk_b: 20ns, blk_c: 30ns</td>
+<td>각 문장이 이전 문장 완료 뒤 시작되므로 지연이 누적</td>
+</tr>
+<tr>
+<td>nonblocking</td>
+<td>nblk_b: 5ns, nblk_c: 10ns, nblk_a: 15ns</td>
+<td>우변 평가 뒤 각각의 갱신 시점이 독립적으로 예약</td>
+</tr>
+</tbody>
+</table>
+<h3>7.3 동일 변수에 여러 nonblocking 할당</h3>
+<div class="example-title">코드 5-8</div>
+<pre><code>module multiple_nblk;
+
+reg a;
+
+initial
+    a = 1'b1;
+
+initial begin
+    a &lt;= #5 1'b1;
+    a &lt;= #5 1'b0;
+
+    #20 $stop;
+end
+
+endmodule</code></pre>
+<p>
+두 문장이 동일한 지연 <code>#5</code>를 가지므로
+같은 시각에 같은 변수로 두 갱신이 예약되며,
+문장 순서에 의해 최종적으로 <code>a=0</code>이 된다고 설명한다.
+</p>
+</section>
+<section id="if">
+<h2>8. 5.3 if 조건문</h2>
+<div class="syntax">
+<code>if (expression)
+    statement_true;
+else
+    statement_false;</code>
+</div>
+<p>
+조건이 0이 아닌 알려진 값이면 참으로,
+0 또는 x/z이면 거짓 쪽으로 처리된다.
+<code>else</code>는 생략할 수 있다.
+</p>
+<div class="danger">
+<strong>조합회로에서 else 생략 주의</strong><br/>
+조합회로를 모델링하면서 어떤 조건에서 출력에 값이 할당되지 않으면
+이전 값을 유지해야 하므로 latch(래치)가 합성될 수 있다.
+</div>
+<h3>8.1 nested if와 dangling else</h3>
+<pre><code>if (index &gt; 0)
+    if (rega &gt; regb)
+        result = rega;
+    else
+        result = regb;</code></pre>
+<p>
+<code>else</code>는 일반적으로 가장 가까운 앞의 <code>if</code>와 결합된다.
+첫 번째 <code>if</code>와 묶으려면 <code>begin-end</code>를 사용해 범위를 명확히 한다.
+</p>
+<pre><code>if (index &gt; 0) begin
+    if (rega &gt; regb)
+        result = rega;
+end
+else
+    result = regb;</code></pre>
+<h3>8.2 if-else-if</h3>
+<pre><code>if (expression1)
+    statement1;
+else if (expression2)
+    statement2;
+else
+    default_statement;</code></pre>
+<p>
+조건을 위에서부터 순서대로 평가하며,
+처음으로 참이 되는 조건의 문장을 실행한다.
+</p>
+<h3>8.3 2:1 멀티플렉서</h3>
+<div class="example-title">코드 5-9</div>
+<pre><code>module mux21_if (
+    input  [1:0] a,
+    input  [1:0] b,
+    input        sel,
+    output [1:0] out
+);
+
+reg [1:0] out;
+
+always @(a or b or sel) begin
+    if (sel == 1'b0)
+        out = a;
+    else
+        out = b;
+end
+
+endmodule</code></pre>
+<div class="logic">
+<span class="sig">a</span>
+<span>↘</span>
+<div class="box">2:1 MUX<br/>sel</div>
+<span>→</span>
+<span class="sig">out</span>
+<span>↗</span>
+<span class="sig">b</span>
+</div>
+<h3>8.4 비동기 active-low set/reset D 플립플롭</h3>
+<div class="example-title">코드 5-10</div>
+<pre><code>module dff_async_sr (
+    input  clk,
+    input  d,
+    input  rb,
+    input  sb,
+    output q,
+    output qb
+);
+
+reg q;
+
+always @(posedge clk or negedge rb or negedge sb) begin
+    if (rb == 0)
+        q &lt;= 0;
+    else if (sb == 0)
+        q &lt;= 1;
+    else
+        q &lt;= d;
+end
+
+assign qb = ~q;
+
+endmodule</code></pre>
+<table>
+<thead><tr><th>이벤트/조건</th><th>q 동작</th></tr></thead>
+<tbody>
+<tr><td><code>rb</code>가 0</td><td>클록과 무관하게 q를 0으로 reset</td></tr>
+<tr><td><code>sb</code>가 0</td><td>클록과 무관하게 q를 1로 set</td></tr>
+<tr><td>rb=1, sb=1, posedge clk</td><td>d를 q에 저장</td></tr>
+</tbody>
+</table>
+<div class="rtl">
+<strong>왜 reset/set을 감지신호목록에 넣는가?</strong><br/>
+비동기 신호는 클록 에지를 기다리지 않고 즉시 q를 바꿔야 하므로
+<code>negedge rb</code>, <code>negedge sb</code> 자체가 블록 실행 조건이 되어야 한다.
+</div>
+</section>
+<section id="case">
+<h2>9. 5.4 case 문</h2>
+<div class="syntax">
+<code>case (expression)
+    case_item : statement;
+    ...
+    default   : statement;
+endcase</code>
+</div>
+<p>
+<code>case</code>는 하나의 조건식과 여러 case item을 비교하여
+일치하는 항의 문장을 실행한다.
+일치 항이 없고 <code>default</code>가 없으면
+해당 variable은 이전 값을 유지할 수 있다.
+</p>
+<div class="example-title">코드 5-11: case를 이용한 2:1 MUX</div>
+<pre><code>module mux21_case (
+    input  [1:0] a,
+    input  [1:0] b,
+    input        sel,
+    output [1:0] out
+);
+
+reg [1:0] out;
+
+always @(a or b or sel) begin
+    case (sel)
+        0: out = a;
+        1: out = b;
+    endcase
+end
+
+endmodule</code></pre>
+<div class="warn">
+<strong>default가 없는 조합회로</strong><br/>
+모든 가능한 입력 조건이 case item에 포함되지 않으면
+출력이 어떤 조건에서 할당되지 않아 이전 값을 유지할 수 있으므로
+래치 추론 가능성을 검토해야 한다.
+</div>
+<h3>9.1 8비트 입력에 따른 10비트 출력</h3>
+<div class="example-title">예시 5-9</div>
+<pre><code>wire [7:0] din;
+reg  [9:0] result;
+
+always @(din) begin
+    case (din)
+        8'd0: result = 10'b0111111111;
+        8'd1: result = 10'b1011111111;
+        8'd2: result = 10'b1101111111;
+        8'd3: result = 10'b1110111111;
+        8'd4: result = 10'b1111011111;
+        8'd5: result = 10'b1111101111;
+        8'd6: result = 10'b1111110111;
+        8'd7: result = 10'b1111111011;
+        8'd8: result = 10'b1111111101;
+        8'd9: result = 10'b1111111110;
+        default: result = 10'bx;
+    endcase
+end</code></pre>
+<h3>9.2 x와 z의 정확한 비교</h3>
+<p>
+기본 <code>case</code>는 0, 1뿐 아니라 x, z도
+비트 단위로 정확히 일치해야 같은 항으로 판단한다.
+</p>
+<div class="example-title">예시 5-10</div>
+<pre><code>case (select[2:1])
+    2'b00: result = 0;
+    2'b01: result = flaga;
+
+    2'b0x, 2'b0z:
+        result = flaga ? 'bx : 0;
+
+    2'b10: result = flagb;
+
+    2'bx0, 2'bz0:
+        result = flagb ? 'bx : 0;
+
+    default:
+        result = 'bx;
+endcase</code></pre>
+<div class="example-title">예시 5-11: x/z 검출</div>
+<pre><code>case (sig)
+    1'bz:    $display("signal is floating");
+    1'bx:    $display("signal is unknown");
+    default: $display("signal is %b", sig);
+endcase</code></pre>
+</section>
+<section id="casex">
+<h2>10. 5.4.1 don’t-care를 갖는 case 문</h2>
+<table>
+<thead><tr><th>구문</th><th>don’t-care 처리</th></tr></thead>
+<tbody>
+<tr><td><code>casez</code></td><td>z를 don’t-care로 취급</td></tr>
+<tr><td><code>casex</code></td><td>x와 z를 don’t-care로 취급</td></tr>
+</tbody>
+</table>
+<p>
+<code>casez</code>에서는 <code>?</code>도 don’t-care 비트로 사용할 수 있다.
+</p>
+<h3>10.1 casez 명령어 디코더 형태</h3>
+<div class="example-title">예시 5-12</div>
+<pre><code>reg [7:0] ir;
+
+casez (ir)
+    8'b1???_????: instruction1(ir);
+    8'b01??_????: instruction2(ir);
+    8'b0001_0???: instruction3(ir);
+    8'b0000_01??: instruction4(ir);
+endcase</code></pre>
+<p>
+MSB 쪽에서 먼저 1이 나타나는 위치에 따라
+서로 다른 명령 처리 task를 선택하는 구조이다.
+</p>
+<h3>10.2 casex 우선순위 인코더</h3>
+<div class="example-title">코드 5-12</div>
+<pre><code>module pri_enc_casex (
+    input  [3:0] encode,
+    output [1:0] enc
+);
+
+reg [1:0] enc;
+
+always @(encode) begin
+    casex (encode)
+        4'b1xxx: enc = 2'b11;
+        4'b01xx: enc = 2'b10;
+        4'b001x: enc = 2'b01;
+        4'b0001: enc = 2'b00;
+    endcase
+end
+
+endmodule</code></pre>
+<div class="rtl">
+<strong>회로 구조</strong><br/>
+<code>encode[3]</code>이 1이면 나머지 비트를 보지 않고 3을 선택하고,
+그렇지 않으면 bit 2, bit 1, bit 0 순으로 검사한다.
+즉, 상위 비트가 더 높은 우선순위를 갖는 priority encoder(우선순위 인코더)이다.
+</div>
+<h3>10.3 case(1) 형태의 우선순위 인코더</h3>
+<div class="example-title">코드 5-13</div>
+<pre><code>module pri_enc_case (
+    input  [3:0] encode,
+    output [1:0] enc
+);
+
+reg [1:0] enc;
+
+always @(encode) begin
+    case (1)
+        encode[3]: enc = 2'b11;
+        encode[2]: enc = 2'b10;
+        encode[1]: enc = 2'b01;
+        encode[0]: enc = 2'b00;
+        default:
+            $display("Error: One of the bits expected ON");
+    endcase
+end
+
+endmodule</code></pre>
+</section>
+<section id="loop">
+<h2>11. 5.5 반복문</h2>
+<table>
+<thead><tr><th>반복문</th><th>동작</th><th>합성 관점</th></tr></thead>
+<tbody>
+<tr><td><code>forever</code></td><td>무한 반복</td><td>테스트벤치 전용으로 설명</td></tr>
+<tr><td><code>repeat(N)</code></td><td>N회 반복</td><td>반복 횟수가 결정됨</td></tr>
+<tr><td><code>while</code></td><td>조건이 참인 동안 반복</td><td>반복 횟수가 불명확하면 합성 실패 가능</td></tr>
+<tr><td><code>for</code></td><td>초기화-조건-갱신 구조</td><td>고정 반복 구조에 적합</td></tr>
+</tbody>
+</table>
+<div class="rtl">
+<strong>합성 관점 보강</strong><br/>
+RTL의 반복문은 소프트웨어처럼 동일한 하드웨어가 시간에 따라 반복 실행된다는 뜻이 아닐 수 있다.
+조합회로 블록에서 반복 횟수가 정적으로 결정되면
+합성기는 반복문을 여러 단계의 하드웨어로 <strong>전개(unroll)</strong>할 수 있다.
+</div>
+<h3>11.1 repeat를 이용한 shift-add 곱셈기</h3>
+<div class="example-title">코드 5-14</div>
+<pre><code>module multiplier_8b #(
+    parameter SIZE = 8,
+    parameter LongSize = 2*SIZE
+)(
+    input  [SIZE-1:0] opa,
+    input  [SIZE-1:0] opb,
+    output [LongSize-1:0] result
+);
+
+reg [LongSize-1:0] result;
+reg [LongSize-1:0] shift_opa;
+reg [LongSize-1:0] shift_opb;
+
+always @(opa or opb) begin
+    shift_opa = opa;
+    shift_opb = opb;
+    result = 0;
+
+    repeat (SIZE) begin
+        if (shift_opb[0])
+            result = result + shift_opa;
+
+        shift_opa = shift_opa &lt;&lt; 1;
+        shift_opb = shift_opb &gt;&gt; 1;
+    end
+end
+
+endmodule</code></pre>
+<h4>알고리즘 흐름</h4>
+<div class="flow">
+<span>승수 LSB 확인</span>
+<span class="arrow">→</span>
+<span>1이면 부분곱 가산</span>
+<span class="arrow">→</span>
+<span>피승수 &lt;&lt; 1</span>
+<span class="arrow">→</span>
+<span>승수 &gt;&gt; 1</span>
+<span class="arrow">→</span>
+<span>SIZE회 반복</span>
+</div>
+<div class="rtl">
+<strong>중요한 회로 해석</strong><br/>
+이 예는 클록이 없는 <code>always</code> 블록 안에서 repeat를 수행한다.
+따라서 “8클록에 걸쳐 계산”하는 순차 곱셈기로 자동 해석하면 안 된다.
+합성 시에는 반복 단계들이 조합논리 경로로 전개될 가능성을 고려해야 하며,
+실제 구조와 타이밍은 합성 결과에서 확인해야 한다.
+</div>
+<h3>11.2 while을 이용한 1의 개수 계수</h3>
+<div class="example-title">코드 5-15</div>
+<pre><code>module count_ones (
+    input  [7:0] din,
+    output [3:0] count
+);
+
+reg [3:0] count;
+reg [7:0] temp;
+
+always @(din) begin
+    count = 0;
+    temp  = din;
+
+    while (temp) begin
+        if (temp[0])
+            count = count + 1;
+
+        temp = temp &gt;&gt; 1;
+    end
+end
+
+endmodule</code></pre>
+<p>
+<code>temp</code>를 오른쪽으로 한 비트씩 이동하면서
+LSB가 1일 때 <code>count</code>를 증가시킨다.
+</p>
+<div class="warn">
+<strong>Vivado 합성 예</strong><br/>
+이 형태가 반복 횟수를 합성 시점에 명확히 확정하기 어려워
+Vivado에서 loop convergence 오류로 합성 실패할 수 있다고 설명한다.
+</div>
+<h3>11.3 반복 횟수를 명확히 한 형태</h3>
+<div class="example-title">코드 5-16</div>
+<pre><code>module count_ones_syn (
+    input  [7:0] din,
+    output [3:0] count
+);
+
+reg [3:0] count, k;
+reg [7:0] temp;
+
+always @(din) begin
+    count = 0;
+    temp  = din;
+    k     = 0;
+
+    while (k &lt; 8) begin
+        if (temp[0])
+            count = count + 1;
+
+        temp = temp &gt;&gt; 1;
+        k = k + 1;
+    end
+end
+
+endmodule</code></pre>
+<h3>11.4 for 우선순위 인코더</h3>
+<div class="example-title">코드 5-17</div>
+<pre><code>module pri_enc_for (
+    input  [7:0] din,
+    output [2:0] enc_out
+);
+
+reg [2:0] enc_out;
+integer i;
+
+always @(din) begin : LOOP
+    enc_out = 0;
+
+    for (i = 7; i &gt;= 0; i = i - 1) begin
+        if (din[i]) begin
+            enc_out = i;
+            disable LOOP;
+        end
+    end
+end
+
+endmodule</code></pre>
+<p>
+MSB부터 검사하여 처음 발견되는 1의 위치를 출력하고,
+<code>disable LOOP</code>으로 현재 named block을 종료한다.
+</p>
+<h3>11.5 forever를 이용한 테스트벤치 파형</h3>
+<div class="example-title">코드 5-18</div>
+<pre><code>module tb_dff;
+
+reg clk, din;
+
+dff U1 (clk, din, q);
+
+initial begin
+    clk = 1'b0;
+
+    forever
+        #10 clk = ~clk;
+end
+
+initial begin
+    din = 1'b0;
+
+    forever begin
+        #15 din = 1'b1;
+        #20 din = 1'b0;
+        #30 din = 1'b1;
+        #20 din = 1'b0;
+    end
+end
+
+endmodule</code></pre>
+<table>
+<thead><tr><th>신호</th><th>특징</th></tr></thead>
+<tbody>
+<tr><td><code>clk</code></td><td>10ns마다 반전 → 주기 20ns</td></tr>
+<tr><td><code>din</code></td><td>15 + 20 + 30 + 20 = 85ns 패턴 반복</td></tr>
+</tbody>
+</table>
+</section>
+<section id="timing">
+<h2>12. 5.6 절차형 할당의 타이밍 제어</h2>
+<p>
+절차형 문장 실행을 제어하는 방법으로
+지연 제어(<code>#</code>), 이벤트 제어(<code>@</code>), <code>wait</code>를 설명한다.
+</p>
+<div class="grid">
+<div class="card"><span class="k"># delay</span><p>지정한 시간만큼 실행을 지연</p></div>
+<div class="card"><span class="k">@ event</span><p>특정 값 변화 또는 에지를 기다림</p></div>
+<div class="card"><span class="k">wait()</span><p>조건이 특정 level을 만족할 때까지 기다림</p></div>
+</div>
+<h3>12.1 지연 제어</h3>
+<pre><code>#10 rega = regb;
+
+#d rega = regb;
+
+#((d + e) / 2)
+rega = regb;</code></pre>
+<p>
+<code>#</code>은 해당 문장의 실행을 지정 시간만큼 늦춘다.
+parameter나 수식으로 지연값을 표현할 수도 있다고 설명한다.
+</p>
+<h3>12.2 이벤트 제어</h3>
+<div class="syntax">
+<code>@event_identifier
+@(event_expression)
+@*
+@(*)</code>
+</div>
+<p>
+이벤트 식에는 여러 신호를 <code>or</code> 또는 콤마로 연결할 수 있고,
+<code>posedge</code>, <code>negedge</code>로 에지 방향을 지정할 수 있다.
+</p>
+<h3>12.3 posedge / negedge</h3>
+<table>
+<thead><tr><th>변화</th><th>이벤트</th></tr></thead>
+<tbody>
+<tr><td>0 → 1</td><td>posedge</td></tr>
+<tr><td>0 → x / z</td><td>posedge</td></tr>
+<tr><td>x / z → 1</td><td>posedge</td></tr>
+<tr><td>1 → 0</td><td>negedge</td></tr>
+<tr><td>1 → x / z</td><td>negedge</td></tr>
+<tr><td>x / z → 0</td><td>negedge</td></tr>
+</tbody>
+</table>
+<div class="example-title">코드 5-19</div>
+<pre><code>module dff (
+    input  clk,
+    input  din,
+    output qout
+);
+
+reg qout;
+
+always @(posedge clk)
+    qout &lt;= din;
+
+endmodule</code></pre>
+<div class="note">
+<strong>플립플롭 감지신호목록</strong><br/>
+일반 D 플립플롭에서는 데이터 입력 <code>din</code>이 아니라
+클록 에지 <code>posedge clk</code>가 저장 이벤트이다.
+비동기 reset/set이 있다면 그 비동기 신호의 에지도 함께 감지해야 한다.
+</div>
+</section>
+<section id="event">
+<h2>13. 5.6.3 named event와 event or</h2>
+<p>
+Verilog의 <code>event</code> 자료형으로 선언된 named event는
+데이터 값을 저장하지 않고 “사건이 발생했다”는 순간적 트리거를 표현한다.
+</p>
+<div class="syntax">
+<code>event event_name;
+-&gt; event_name;</code>
+</div>
+<div class="warn">
+<strong>합성 범위</strong><br/>
+이벤트 트리거가 Vivado에서 합성되지 않는다고 설명한다.
+따라서 이 부분은 주로 시뮬레이션 프로세스 간 동기화 관점으로 이해한다.
+</div>
+<h3>13.1 named event를 이용한 D 플립플롭 형태</h3>
+<div class="example-title">코드 5-20</div>
+<pre><code>module dff_event (
+    input  clock,
+    input  reset,
+    input  din,
+    output qout
+);
+
+reg qout;
+event upedge;
+
+always @(posedge clock)
+    -&gt; upedge;
+
+always @(upedge or negedge reset) begin
+    if (reset == 0)
+        qout = 0;
+    else
+        qout = din;
+end
+
+endmodule</code></pre>
+<div class="flow">
+<span>posedge clock</span>
+<span class="arrow">→</span>
+<span>upedge 트리거</span>
+<span class="arrow">→</span>
+<span>두 번째 always 실행</span>
+</div>
+<h3>13.2 count가 5의 배수일 때 event 발생</h3>
+<div class="example-title">코드 5-21</div>
+<pre><code>module named_event;
+
+reg [7:0] count;
+event ready;
+
+initial begin
+    count = 0;
+    #400 $finish;
+end
+
+always begin
+    #2 count &lt;= count + 1;
+
+    if (count % 5 == 0)
+        -&gt; ready;
+end
+
+always @(ready) begin
+    $display($realtime, "The count is %d", count);
+end
+
+endmodule</code></pre>
+<h3>13.3 event or와 콤마</h3>
+<pre><code>always @(posedge clk_a or posedge clk_b or trig)
+    rega = regb;
+
+always @(posedge clk_a, posedge clk_b, trig)
+    rega = regb;</code></pre>
+<p>위 두 표현을 같은 의미로 설명한다.</p>
+</section>
+<section id="wait">
+<h2>14. 5.6.5 wait와 5.6.6 intra-assignment 타이밍 제어</h2>
+<h3>14.1 wait</h3>
+<div class="syntax">
+<code>wait (expression)
+    statement;</code>
+</div>
+<p>
+<code>wait</code>는 조건이 참이 될 때까지 실행을 멈추며,
+이를 level-sensitive 이벤트 제어로 설명한다.
+</p>
+<div class="example-title">예시 5-15</div>
+<pre><code>begin
+    wait (!enable)
+        #10 a = b;
+
+    #10 c = d;
+end</code></pre>
+<div class="flow">
+<span>enable=0 기다림</span>
+<span class="arrow">→</span>
+<span>10ns</span>
+<span class="arrow">→</span>
+<span>a=b</span>
+<span class="arrow">→</span>
+<span>10ns</span>
+<span class="arrow">→</span>
+<span>c=d</span>
+</div>
+<h3>14.2 일반 지연과 intra-assignment 지연의 차이</h3>
+<div class="grid">
+<div class="card">
+<span class="k">문장 앞 지연</span>
+<pre><code>#5 q = b;</code></pre>
+<p>5시간 단위를 기다린 뒤 b를 평가하고 q에 할당한다.</p>
+</div>
+<div class="card">
+<span class="k">intra-assignment</span>
+<pre><code>q = #5 b;</code></pre>
+<p>b를 먼저 평가해 보관하고, 5시간 단위 후 그 저장값을 q에 할당한다.</p>
+</div>
+</div>
+<h3>14.3 fork-join의 race와 data swap</h3>
+<div class="example-title">예시 5-16</div>
+<pre><code>fork
+    #5 a = b;
+    #5 b = a;
+join</code></pre>
+<p>
+두 문장이 병렬로 같은 시각에 실행되므로
+상호 참조 순서에 따라 race condition(경쟁상태)이 발생할 수 있다.
+</p>
+<div class="example-title">예시 5-17: intra-assignment를 이용한 swap</div>
+<pre><code>fork
+    a = #5 b;
+    b = #5 a;
+join</code></pre>
+<div class="rtl">
+<strong>동작</strong><br/>
+두 문장 모두 현재 <code>a</code>, <code>b</code> 값을 먼저 읽어 임시 보관한 뒤
+5시간 단위 후 서로 반대 좌변에 기록한다.
+즉, 평가 시점과 갱신 시점을 분리한다.
+</div>
+<h3>14.4 이벤트 기반 intra-assignment</h3>
+<div class="example-title">예시 5-18</div>
+<pre><code>fork
+    a = @(posedge clk) b;
+    b = @(posedge clk) c;
+join</code></pre>
+<p>
+우변 값은 문장을 만났을 때 평가되고,
+<code>posedge clk</code> 이벤트까지 보관된 뒤 좌변에 할당된다.
+</p>
+<h3>14.5 repeat 이벤트 제어</h3>
+<div class="example-title">예시 5-19</div>
+<pre><code>q &lt;= repeat(5) @(posedge clk) data;</code></pre>
+<div class="flow">
+<span>data 먼저 평가</span>
+<span class="arrow">→</span>
+<span>clk 상승에지 1</span>
+<span class="arrow">→</span>
+<span>2</span>
+<span class="arrow">→</span>
+<span>3</span>
+<span class="arrow">→</span>
+<span>4</span>
+<span class="arrow">→</span>
+<span>5</span>
+<span class="arrow">→</span>
+<span>q 갱신</span>
+</div>
+<div class="example-title">예시 5-20</div>
+<pre><code>q = repeat(num) @(clk) data;</code></pre>
+<div class="example-title">예시 5-21</div>
+<pre><code>q &lt;= repeat(a+b) @(posedge phi1 or negedge phi2) data;</code></pre>
+<h3>14.6 등가 표현</h3>
+<table>
+<thead><tr><th>intra-assignment</th><th>의미를 풀어쓴 형태</th></tr></thead>
+<tbody>
+<tr>
+<td><code>q = #5 b;</code></td>
+<td><code>temp=b;</code> → 5만큼 기다림 → <code>q=temp;</code></td>
+</tr>
+<tr>
+<td><code>q = @(posedge clk) b;</code></td>
+<td><code>temp=b;</code> → clk 상승에지 기다림 → <code>q=temp;</code></td>
+</tr>
+<tr>
+<td><code>q = repeat(3) @(posedge clk) b;</code></td>
+<td><code>temp=b;</code> → 상승에지 3회 대기 → <code>q=temp;</code></td>
+</tr>
+</tbody>
+</table>
+<h3>14.7 3번째 상승에지 후 처음 평가한 d를 출력</h3>
+<div class="example-title">코드 5-22</div>
+<pre><code>module intra_assign_delay (
+    input  clk,
+    input  d,
+    output out
+);
+
+reg out;
+
+always @(*)
+    out = repeat(3) @(posedge clk) d;
+
+endmodule</code></pre>
+<div class="example-title">코드 5-23: 풀어쓴 등가 코드</div>
+<pre><code>module intra_assign_delay_eq (
+    input  clk,
+    input  d,
+    output out
+);
+
+reg out, temp;
+
+always @(*) begin
+    temp = d;
+
+    @(posedge clk);
+    @(posedge clk);
+    @(posedge clk);
+
+    out = temp;
+end
+
+endmodule</code></pre>
+<div class="note">
+<strong>핵심</strong><br/>
+세 번째 클록 에지에서 그 시점의 <code>d</code>를 읽는 것이 아니라,
+문장을 처음 만났을 때 읽어 둔 <code>d</code> 값을 세 번의 이벤트 후에 출력한다.
+</div>
+</section>
+<section id="block">
+<h2>15. 5.7 블록문</h2>
+<p>
+Verilog는 여러 문장을 하나의 문장처럼 그룹화하기 위해
+<strong>begin-end 절차형 블록</strong>과
+<strong>fork-join 병렬 블록</strong>을 제공한다.
+</p>
+<table>
+<thead><tr><th>블록</th><th>실행 방식</th><th>지연 기준</th><th>종료 시점</th></tr></thead>
+<tbody>
+<tr>
+<td><code>begin-end</code></td>
+<td>문장 순서대로 순차 실행</td>
+<td>앞 문장 완료 시각을 기준으로 누적</td>
+<td>마지막 문장 완료</td>
+</tr>
+<tr>
+<td><code>fork-join</code></td>
+<td>모든 문장 동시 시작</td>
+<td>블록 진입 시각을 공통 기준으로 사용</td>
+<td>가장 늦게 끝나는 문장 완료</td>
+</tr>
+</tbody>
+</table>
+<h3>15.1 named block</h3>
+<div class="syntax">
+<code>begin : block_name
+    declarations;
+    statements;
+end</code>
+</div>
+<p>
+블록 이름을 붙이면 지역 변수, parameter, named event를 선언하거나
+<code>disable</code> 문에서 해당 블록을 참조할 수 있다.
+</p>
+<h3>15.2 begin-end 절차형 블록</h3>
+<div class="example-title">예시 5-22</div>
+<pre><code>begin
+    areg = breg;
+    creg = areg;
+end</code></pre>
+<div class="flow">
+<span>areg=breg</span>
+<span class="arrow">완료 후</span>
+<span>creg=areg</span>
+</div>
+<div class="example-title">예시 5-23: 이벤트가 포함된 순차 블록</div>
+<pre><code>begin
+    areg = breg;
+    @(posedge clock)
+        creg = areg;
+end</code></pre>
+<h3>15.3 순차 지연으로 파형 생성</h3>
+<div class="example-title">코드 5-24</div>
+<pre><code>parameter d = 50;
+
+reg [7:0] r;
+event end_wave;
+
+initial begin
+    #d r = 8'h35;
+    #d r = 8'hE2;
+    #d r = 8'h00;
+    #d r = 8'hF7;
+    #d -&gt; end_wave;
+end</code></pre>
+<table>
+<thead><tr><th>시간</th><th>동작</th></tr></thead>
+<tbody>
+<tr><td>50</td><td><code>r=8'h35</code></td></tr>
+<tr><td>100</td><td><code>r=8'hE2</code></td></tr>
+<tr><td>150</td><td><code>r=8'h00</code></td></tr>
+<tr><td>200</td><td><code>r=8'hF7</code></td></tr>
+<tr><td>250</td><td><code>end_wave</code> event 발생</td></tr>
+</tbody>
+</table>
+<h3>15.4 fork-join 병렬 블록</h3>
+<div class="syntax">
+<code>fork
+    statement1;
+    statement2;
+    ...
+join</code>
+</div>
+<div class="example-title">코드 5-25(a)</div>
+<pre><code>fork
+    #50  r = 8'h35;
+    #100 r = 8'hE2;
+    #150 r = 8'h00;
+    #200 r = 8'hF7;
+    #250 -&gt; end_wave;
+join</code></pre>
+<div class="example-title">코드 5-25(b): 순서가 뒤집혀도 동일 파형</div>
+<pre><code>fork
+    #250 -&gt; end_wave;
+    #200 r = 8'hF7;
+    #150 r = 8'h00;
+    #100 r = 8'hE2;
+    #50  r = 8'h35;
+join</code></pre>
+<div class="tip">
+<strong>왜 결과가 같은가?</strong><br/>
+fork 내부 각 문장은 블록 진입 시각을 기준으로 동시에 시작한다.
+따라서 소스에서 위아래 순서를 바꿔도 각 문장의 지연값이 같다면
+동일한 시각에 동일한 동작이 발생한다.
+</div>
+<h3>15.5 fork 안에 두 개의 begin-end 블록</h3>
+<div class="example-title">코드 5-26</div>
+<pre><code>fork
+    @(enable_a) begin
+        #ta wa = 0;
+        #ta wa = 1;
+        #ta wa = 0;
+    end
+
+    @(enable_b) begin
+        #tb wb = 1;
+        #tb wb = 0;
+        #tb wb = 1;
+    end
+join</code></pre>
+<div class="flow">
+<span>enable_a 이벤트</span>
+<span class="arrow">→</span>
+<span>wa 파형 생성 블록</span>
+</div>
+<div class="flow">
+<span>enable_b 이벤트</span>
+<span class="arrow">→</span>
+<span>wb 파형 생성 블록</span>
+</div>
+<p>
+두 이벤트 대기는 fork 내부에서 병렬로 이루어지고,
+각 이벤트가 발생하면 해당 begin-end 블록은 내부적으로 순차 실행된다.
+</p>
+</section>
+<section id="summary">
+<h2>16. 최종 핵심 정리</h2>
+<table>
+<thead><tr><th>주제</th><th>핵심</th><th>회로/시뮬레이션 관점</th></tr></thead>
+<tbody>
+<tr><td><code>always @(*)</code></td><td>관련 입력 변화 시 재평가</td><td>조합회로</td></tr>
+<tr><td><code>always @(posedge clk)</code></td><td>클록 상승에지에서 실행</td><td>플립플롭/레지스터</td></tr>
+<tr><td><code>initial</code></td><td>시뮬레이션 시작 후 1회 실행</td><td>초기화·테스트벤치</td></tr>
+<tr><td>blocking <code>=</code></td><td>현재 문장 완료 후 다음 문장</td><td>문장 순서 영향 큼</td></tr>
+<tr><td>nonblocking <code>&lt;=</code></td><td>우변 평가 후 좌변 갱신 예약</td><td>동일 클록 에지 레지스터 표현</td></tr>
+<tr><td><code>if</code></td><td>조건에 따른 선택</td><td>MUX·우선순위·제어논리</td></tr>
+<tr><td><code>case</code></td><td>하나의 조건식을 여러 item과 비교</td><td>디코더·MUX·제어논리</td></tr>
+<tr><td><code>casez/casex</code></td><td>don’t-care 허용</td><td>우선순위 인코더 등</td></tr>
+<tr><td><code>repeat/for</code></td><td>고정 반복</td><td>합성 시 반복 구조 전개 가능</td></tr>
+<tr><td><code>while</code></td><td>조건 기반 반복</td><td>반복 횟수 불명확 시 합성 문제 가능</td></tr>
+<tr><td><code>forever</code></td><td>무한 반복</td><td>테스트벤치 파형 생성</td></tr>
+<tr><td><code>#</code></td><td>시간 지연</td><td>시뮬레이션 타이밍</td></tr>
+<tr><td><code>@</code></td><td>이벤트 대기</td><td>클록·신호 변화 동기화</td></tr>
+<tr><td><code>wait</code></td><td>조건이 참이 될 때까지 대기</td><td>level-sensitive 제어</td></tr>
+<tr><td>intra-assignment</td><td>우변 먼저 평가 후 나중에 좌변 갱신</td><td>평가 시점과 할당 시점 분리</td></tr>
+<tr><td><code>begin-end</code></td><td>순차 블록</td><td>문장 순서와 누적 지연</td></tr>
+<tr><td><code>fork-join</code></td><td>병렬 블록</td><td>동시 시작, 가장 늦은 문장까지 대기</td></tr>
+</tbody>
+</table>
+<div class="note">
+<strong>CHAPTER 05핵심 질문 5개</strong><br/>
+① 이 블록은 조합회로인가 순차회로인가?<br/>
+② 값이 언제 바뀌는가 — 입력 변화, 클록 에지, 지연 후, 이벤트 후인가?<br/>
+③ blocking과 nonblocking 중 어떤 갱신 규칙을 사용하는가?<br/>
+④ 모든 조건에서 출력에 값이 할당되는가 — 래치가 생기지 않는가?<br/>
+⑤ 반복문과 지연문은 실제 합성 회로인가, 시뮬레이션용 표현인가?
+</div>
+<div class="rtl">
+<strong>Digital Design → Verilog RTL → Synthesis 연결</strong><br/>
+조합논리는 입력 변화에 따라 계산되고,
+순차논리는 클록 에지에서 레지스터에 저장된다.
+<code>if</code>, <code>case</code>는 선택 논리와 제어 논리로,
+산술식은 연산 회로로,
+클록 에지 기반 nonblocking 할당은 플립플롭/레지스터 구조로 연결된다.
+반면 <code>#delay</code>, named event, 많은 테스트벤치 제어 구문은
+시뮬레이션을 위한 표현이므로 실제 FPGA의 물리적 지연과 구분해야 한다.
+</div>
+<div class="flow">
+<span>입력 / 이벤트 / Clock</span>
+<span class="arrow">→</span>
+<span>always / initial 활성화</span>
+<span class="arrow">→</span>
+<span>if / case / loop</span>
+<span class="arrow">→</span>
+<span>blocking / nonblocking 갱신</span>
+<span class="arrow">→</span>
+<span>조합회로 또는 레지스터 구조</span>
+</div>
+</section>
+</main>
+</body>
+</html>

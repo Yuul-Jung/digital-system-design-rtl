@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>디지털시스템설계 · RTL · Verilog</title>
+<style>
+:root{--bg:#f6f8fb;--paper:#fff;--ink:#172033;--muted:#617083;--line:#dfe6ef;--blue:#1769aa;--blue2:#eaf4fc}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.65}
+header{margin-left:294px;background:linear-gradient(135deg,#0c4e86,#1887a9);color:#fff;padding:44px 30px}
+header h1{margin:0 0 8px;font-size:2.2rem} header p{margin:0;opacity:.94}
+nav{position:fixed;left:18px;top:18px;width:258px;max-height:calc(100vh - 36px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 8px 26px rgba(20,50,80,.08)}
+nav strong{display:block;margin-bottom:9px} nav a{display:block;padding:7px 9px;border-radius:7px;color:var(--blue);text-decoration:none} nav a:hover{background:#eef6fb}
+main{margin-left:312px;margin-right:30px;padding:28px 0 60px}
+.intro{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{display:block;background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;text-decoration:none;color:inherit;transition:.15s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(20,50,80,.08);border-color:#bfd5e5}
+.badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.76rem;font-weight:700;background:var(--blue2);color:#155f93;margin-bottom:8px}
+.card h2{font-size:1.18rem;margin:4px 0 8px;color:#154f78}.card p{margin:0;color:var(--muted);font-size:.93rem}
+.sequence{font-weight:700;color:#1769aa}
+@media(max-width:1099px){header{margin-left:0}nav{position:static;width:auto;max-height:none;margin:18px}nav a{display:inline-block}main{margin:0 18px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><strong>전체 목차</strong>
+<a href="01.html">CHAPTER 01 · Verilog HDL 기초</a>
+<a href="02.html">CHAPTER 02 · 자료형과 연산자</a>
+<a href="03.html">CHAPTER 03 · 게이트 수준 모델링</a>
+<a href="04.html">CHAPTER 04 · 할당문</a>
+<a href="05.html">CHAPTER 05 · 행위수준 모델링</a>
+<a href="06.html">CHAPTER 06 · 구조적 모델링</a>
+<a href="07.html">CHAPTER 07 · 함수와 태스크</a>
+<a href="08.html">CHAPTER 08 · 컴파일러 지시어</a>
+<a href="09.html">CHAPTER 09 · 시스템 태스크와 시스템 함수</a>
+<a href="10.html">CHAPTER 10 · 조합회로 모델링</a>
+<a href="11.html">CHAPTER 11 · 순차회로 모델링</a>
+<a href="12.html">CHAPTER 12 · 순차회로의 FPGA 구현 실습</a>
+</nav>
+<header>
+<h1>디지털시스템설계 · RTL · Verilog</h1>
+<p>디지털회로설계 · Verilog RTL · FPGA 구현</p>
+</header>
+<main>
+
+<div class="grid">
+<a class="card" href="01.html">
+<span class="badge">CHAPTER 01</span>
+<h2>Verilog HDL 기초</h2>
+<p>어휘 토큰과 규칙 · 모듈 · 모델링 방법 · 테스트벤치</p>
+</a>
+<a class="card" href="02.html">
+<span class="badge">CHAPTER 02</span>
+<h2>자료형과 연산자</h2>
+<p>net · variable · vector · array · parameter · 산술/논리/비트/시프트/조건 연산자</p>
+</a>
+<a class="card" href="03.html">
+<span class="badge">CHAPTER 03</span>
+<h2>게이트 수준 모델링</h2>
+<p>기본 논리 게이트 프리미티브 · buf/not · 3상태 버퍼 · 프리미티브 배열 · 게이트 지연 · net 지연 · 관성지연</p>
+</a>
+<a class="card" href="04.html">
+<span class="badge">CHAPTER 04</span>
+<h2>할당문</h2>
+<p>연속 할당문 · 할당 지연과 net 지연 · 절차형 할당문 · blocking/nonblocking · 절차형 연속 할당문(PCA)</p>
+</a>
+<a class="card" href="05.html">
+<span class="badge">CHAPTER 05</span>
+<h2>행위수준 모델링</h2>
+<p>always · initial · blocking/nonblocking · if · case/casez/casex · 반복문 · 타이밍 제어 · named event · wait · intra-assignment · begin-end · fork-join</p>
+</a>
+<a class="card" href="06.html">
+<span class="badge">CHAPTER 06</span>
+<h2>구조적 모델링</h2>
+<p>모듈 · 포트 · 모듈 인스턴스 · 포트 연결 · parameter · defparam · 인스턴스 배열 · generate · genvar · 계층적 이름</p>
+</a>
+<a class="card" href="07.html">
+<span class="badge">CHAPTER 07</span>
+<h2>함수와 태스크</h2>
+<p>function · task · zero-delay · automatic · 입력/출력 인수 · 함수 반환값 · 재귀함수 · task timing control · 메모리 읽기</p>
+</a>
+<a class="card" href="08.html">
+<span class="badge">CHAPTER 08</span>
+<h2>컴파일러 지시어</h2>
+<p>`define · `undef · `timescale · `include · `ifdef · `ifndef · `elsif · `else · `endif · `resetall</p>
+</a>
+<a class="card" href="09.html">
+<span class="badge">CHAPTER 09</span>
+<h2>시스템 태스크와 시스템 함수</h2>
+<p>$display · $write · $monitor · $strobe · 파일 입출력 · $finish/$stop · 자료형 변환 시스템 함수</p>
+</a>
+<a class="card" href="10.html">
+<span class="badge">CHAPTER 10</span>
+<h2>조합회로 모델링</h2>
+<p>기본 논리 게이트 · 부울식 · 진리표 · LUT · 멀티플렉서 · 인코더/디코더 · 비교기 · 3상태 버스 · case/if 합성</p>
+</a>
+<a class="card" href="11.html">
+<span class="badge">CHAPTER 11</span>
+<h2>순차회로 모델링</h2>
+<p>래치 · 플립플롭 · Blocking/Nonblocking · 계수기 · 분주기 · 시프트 레지스터 · LFSR · Moore/Mealy FSM</p>
+</a>
+<a class="card" href="12.html">
+<span class="badge">CHAPTER 12</span>
+<h2>순차회로의 FPGA 구현 실습</h2>
+<p>플립플롭 · 시프트 레지스터 · 계수기 · 분주기 · 키패드 · Piezo · 스텝 모터 · Color LED · Text LCD</p>
+</a>
+</div></main></body></html>

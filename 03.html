@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>CHAPTER 03 게이트 수준 모델링</title>
+<style>
+:root{
+  --bg:#f6f8fb; --paper:#ffffff; --ink:#172033; --muted:#5c667a;
+  --line:#dfe5ee; --blue:#1769aa; --blue2:#eaf4fc; --teal:#0b7a75;
+  --code:#101722; --codeink:#eef5ff; --warn:#fff7df; --ok:#eef9f2;
+  --soft:#f8fbfd;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans KR","Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  line-height:1.72
+}
+header{
+  background:linear-gradient(135deg,#0c4e86,#1887a9);
+  color:#fff;padding:44px 24px
+}
+header .wrap, main{max-width:1120px;margin:auto}
+h1{margin:0 0 10px;font-size:2.25rem;line-height:1.25}
+.subtitle{opacity:.92;font-size:1.03rem}
+main{padding:28px 20px 72px}
+nav,section,.card{background:var(--paper);border:1px solid var(--line);border-radius:14px}
+nav{padding:20px 24px;margin-bottom:22px}
+nav a{color:var(--blue);text-decoration:none;margin-right:16px;white-space:nowrap}
+section{padding:28px 30px;margin:20px 0}
+h2{margin-top:0;border-bottom:2px solid #dceaf5;padding-bottom:10px;color:#134f7a}
+h3{margin-top:30px;color:#245b7e}
+h4{margin-bottom:8px;color:#315f7d}
+p{margin:.65em 0}
+ul,ol{padding-left:1.3rem}
+li{margin:.28em 0}
+.badge{
+  display:inline-block;border-radius:999px;padding:3px 9px;
+  font-size:.78rem;font-weight:700;background:var(--blue2);
+  color:#155f93;margin-right:6px
+}
+.note,.warn,.tip{
+  border-left:5px solid var(--blue);padding:14px 16px;
+  border-radius:8px;margin:16px 0
+}
+.note{background:#f1f7fc}
+.warn{background:var(--warn);border-color:#d49b17}
+.tip{background:var(--ok);border-color:#2b8a57}
+code{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+pre{
+  background:var(--code);color:var(--codeink);padding:18px;
+  border-radius:10px;overflow:auto;line-height:1.55;
+  font-family:"JetBrains Mono","D2Coding","Consolas",monospace
+}
+table{width:100%;border-collapse:collapse;margin:14px 0 18px}
+th,td{border:1px solid var(--line);padding:10px 12px;vertical-align:top}
+th{background:#eef5fa;text-align:left}
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:12px
+}
+.card{padding:16px 18px}
+.k{font-weight:700;color:#0d5b8c}
+.example-title{
+  font-size:.92rem;color:#376b8d;font-weight:700;
+  margin:18px 0 8px
+}
+.flow,.path{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0
+}
+.flow span,.path span{
+  background:#edf5fb;border:1px solid #cfe3f1;
+  border-radius:8px;padding:8px 11px
+}
+.flow .arrow,.path .arrow{
+  background:none;border:none;padding:0;color:#557
+}
+.syntax{
+  background:#f3f7fa;border:1px solid #cbdce8;border-radius:10px;
+  padding:14px 16px;margin:14px 0
+}
+.syntax code{color:#193f5b}
+.compare td:first-child{font-weight:700;color:#245b7e;width:24%}
+.gate-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;margin:14px 0
+}
+.gate{
+  border:1px solid var(--line);border-radius:12px;background:#fbfdff;
+  padding:14px 16px;text-align:center
+}
+.gate .name{font-size:1.1rem;font-weight:800;color:#135d8c}
+.gate .desc{font-size:.92rem;color:var(--muted)}
+.logic{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  flex-wrap:wrap;margin:18px 0
+}
+.logic .box{
+  min-width:100px;border:2px solid #7fa8c3;background:#f8fbfd;
+  padding:10px 14px;border-radius:12px;text-align:center;font-weight:700
+}
+.logic .sig{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+.delaybox{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;margin:14px 0
+}
+.delay{
+  border:1px solid #cfe0ec;border-radius:10px;background:#f7fbfe;
+  padding:14px 16px
+}
+.delay strong{color:#155f93}
+.truth{max-width:760px;margin:14px auto}
+.truth td,.truth th{text-align:center}
+.timeline{
+  border:1px solid var(--line);border-radius:12px;padding:16px;background:#fafcfe;margin:16px 0
+}
+.pulse{
+  display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:center;margin:8px 0
+}
+.pulse .label{font-family:"JetBrains Mono","D2Coding","Consolas",monospace;font-weight:700}
+.wave{
+  height:34px;border-bottom:2px solid #70889b;position:relative
+}
+.wave.short:before{
+  content:"";position:absolute;left:46%;width:18%;top:2px;height:24px;
+  border-left:2px solid #1769aa;border-top:2px solid #1769aa;border-right:2px solid #1769aa
+}
+.wave.pass:before{
+  content:"";position:absolute;left:20%;width:42%;top:2px;height:24px;
+  border-left:2px solid #1769aa;border-top:2px solid #1769aa;border-right:2px solid #1769aa
+}
+.small{font-size:.92rem;color:var(--muted)}
+footer{
+  max-width:1120px;margin:0 auto 50px;padding:0 20px;
+  color:var(--muted);font-size:.9rem
+}
+@media(max-width:720px){
+  h1{font-size:1.7rem}
+  section{padding:22px 18px}
+}
+@media print{
+  body{background:white}
+  header{padding:28px 20px}
+  nav{display:none}
+  section{break-inside:avoid;box-shadow:none}
+}
+
+
+/* 좌측 고정 바로가기 */
+nav.sidebar-nav{
+  position:fixed;
+  left:18px;
+  top:18px;
+  width:258px;
+  max-height:calc(100vh - 36px);
+  overflow:auto;
+  z-index:1000;
+  padding:18px 16px;
+  background:rgba(255,255,255,.98);
+  border:1px solid var(--line,#dfe5ee);
+  border-radius:14px;
+  box-shadow:0 8px 26px rgba(20,50,80,.08);
+}
+nav.sidebar-nav strong{display:block;margin-bottom:8px;color:#183e5b}
+nav.sidebar-nav a{
+  display:block;
+  margin:0;
+  padding:7px 9px;
+  border-radius:7px;
+  color:var(--blue,#1769aa);
+  text-decoration:none;
+  line-height:1.38;
+}
+nav.sidebar-nav a:hover{background:#eef6fb}
+nav.sidebar-nav .home-link{
+  margin-bottom:10px;
+  border-bottom:1px solid var(--line,#dfe5ee);
+  padding-bottom:10px;
+  font-weight:700;
+}
+@media (min-width:1100px){
+  header{margin-left:294px}
+  main{
+    margin-left:312px !important;
+    margin-right:28px !important;
+    max-width:none !important;
+    width:auto !important;
+  }
+}
+@media (max-width:1099px){
+  nav.sidebar-nav{
+    position:static;
+    width:auto;
+    max-height:none;
+    margin:0 0 22px 0;
+    box-shadow:none;
+  }
+  nav.sidebar-nav a{display:inline-block;margin-right:5px}
+}
+
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div>
+<span class="badge">CHAPTER 03</span>
+<span class="badge">게이트 수준 모델링</span>
+</div>
+<h1>게이트 수준 모델링</h1>
+<div class="subtitle"> 기본 논리 게이트 프리미티브 · buf/not · 3상태 버퍼 · 프리미티브 배열 · 게이트 지연 · net 지연 · 관성지연 </div>
+</div>
+</header>
+<main>
+<nav class="sidebar-nav"><a class="home-link" href="index.html">← 전체 목차</a><strong>바로가기</strong><br/><a href="#intro">CHAPTER 03 개요</a><a href="#primitive">3.1 기본 논리 게이트 프리미티브</a><a href="#fulladder">게이트 프리미티브를 이용한 전가산기 모델링</a><a href="#bufnot">3.2 buf 게이트와 not 게이트 프리미티브</a><a href="#tristate">3.3 3상태 버퍼 게이트 프리미티브</a><a href="#array">3.4 게이트 프리미티브 인스턴스의 배열</a><a href="#delay">3.5 게이트 지연과 net 지연</a><a href="#latch">지연이 포함된 3상태 출력 래치</a><a href="#inertial">관성지연</a><a href="#summary">최종 핵심 정리</a></nav>
+<section id="intro">
+<h2>1. CHAPTER 03 개요</h2>
+<p>
+Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)은
+논리 게이트 수준의 모델링을 위해 미리 정의된
+<strong>gate primitive(게이트 프리미티브, 기본 게이트 요소)</strong>를 제공한다.
+이 프리미티브는 별도의 모듈 정의 없이 바로 사용할 수 있다.
+</p>
+<div class="grid">
+<div class="card">
+<span class="k">기본 논리 게이트</span>
+<p><code>and</code>, <code>nand</code>, <code>nor</code>, <code>or</code>, <code>xor</code>, <code>xnor</code></p>
+</div>
+<div class="card">
+<span class="k">다출력 게이트</span>
+<p><code>buf</code>, <code>not</code></p>
+</div>
+<div class="card">
+<span class="k">3상태 게이트</span>
+<p><code>bufif0</code>, <code>bufif1</code>, <code>notif0</code>, <code>notif1</code></p>
+</div>
+<div class="card">
+<span class="k">기타 프리미티브</span>
+<p>pull gate, MOS switch, bidirectional switch 등이 존재한다.</p>
+</div>
+</div>
+<div class="note">
+<strong>범위</strong><br/>
+이 장은 기본 논리 게이트 프리미티브를 이용한 하드웨어 설계를 중심으로 다루며,
+스위치 수준 모델링은 합성용 셀 라이브러리 표현에 사용될 수 있다고 소개만 하고 상세히 다루지 않는다.
+</div>
+<h3>1.1 프리미티브 사용 위치</h3>
+<div class="warn">
+<strong>중요 문법</strong><br/>
+게이트 및 스위치 프리미티브는 <strong>모듈 몸체에서 사용</strong>한다.
+이를 <code>initial</code> 또는 <code>always</code> 블록 내부에서는 사용할 수 없다고 설명한다.
+</div>
+<div class="flow">
+<span>module</span>
+<span class="arrow">→</span>
+<span>게이트 프리미티브 인스턴스</span>
+<span class="arrow">→</span>
+<span>endmodule</span>
+</div>
+</section>
+<section id="primitive">
+<h2>2. 3.1 기본 논리 게이트 프리미티브</h2>
+<p>
+게이트 수준 회로 모델링에는
+<code>and</code>, <code>nand</code>, <code>or</code>, <code>nor</code>,
+<code>xor</code>, <code>xnor</code>를 사용할 수 있다.
+이 기본 게이트들은 <strong>하나의 출력과 두 개 이상의 입력</strong>을 갖는다.
+</p>
+<div class="gate-grid">
+<div class="gate"><div class="name">and</div><div class="desc">모든 입력이 1일 때 출력 1</div></div>
+<div class="gate"><div class="name">nand</div><div class="desc">AND 결과의 반전</div></div>
+<div class="gate"><div class="name">or</div><div class="desc">입력 중 하나 이상이 1이면 출력 1</div></div>
+<div class="gate"><div class="name">nor</div><div class="desc">OR 결과의 반전</div></div>
+<div class="gate"><div class="name">xor</div><div class="desc">입력의 배타적 OR</div></div>
+<div class="gate"><div class="name">xnor</div><div class="desc">XOR 결과의 반전</div></div>
+</div>
+<h3>2.1 기본 문법</h3>
+<div class="syntax">
+<code>primitive_gate_name [#(n1, n2)] [instance_name] (output, input1, input2, ...);</code>
+</div>
+<table class="compare">
+<thead><tr><th>구성</th><th>의미</th></tr></thead>
+<tbody>
+<tr>
+<td><code>primitive_gate_name</code></td>
+<td><code>and</code>, <code>nand</code>, <code>or</code> 등 사용할 게이트 종류</td>
+</tr>
+<tr>
+<td><code>#(n1,n2)</code></td>
+<td>선택적인 전달지연. 첫 값은 상승지연, 둘째 값은 하강지연</td>
+</tr>
+<tr>
+<td><code>instance_name</code></td>
+<td>일반 인스턴스에서는 생략 가능. 프리미티브 배열에서는 필요</td>
+</tr>
+<tr>
+<td>포트 순서</td>
+<td><strong>출력을 먼저</strong> 쓰고 그 뒤에 입력들을 나열</td>
+</tr>
+</tbody>
+</table>
+<div class="tip">
+<strong>포트 연결 방법</strong><br/>
+기본 게이트 프리미티브는 하위모듈 인스턴스와 달리
+<strong>순서에 의한 포트 매핑만 사용</strong>한다.
+즉, <code>.a(a)</code> 같은 이름 기반 포트 연결은 사용하지 않는다.
+</div>
+<h3>2.2 게이트 인스턴스 예</h3>
+<pre><code>nand U1 (out_nd2, a, b);
+nor       (out_nr3, a, b, c);
+
+and #2 U3 (out_and2, a, b);
+xnor #(3, 4) U4 (out_xnor3, c, b, a);</code></pre>
+<div class="delaybox">
+<div class="delay">
+<strong><code>#2</code></strong><br/> 상승/하강 전달지연이 모두 2 time unit </div>
+<div class="delay">
+<strong><code>#(3,4)</code></strong><br/> 상승지연 3, 하강지연 4 </div>
+<div class="delay">
+<strong>지연 생략</strong><br/> default 전달지연 0 </div>
+</div>
+<div class="note">
+<strong>두 개의 지연 값과 x</strong><br/>
+두 지연 값이 지정된 경우 출력이 <code>x</code>로 변하는 지연은
+두 값 중 작은 값으로 결정된다고 설명한다.
+</div>
+</section>
+<section id="fulladder">
+<h2>3. 게이트 프리미티브를 이용한 전가산기 모델링</h2>
+<p>
+전가산기(full adder, 풀 애더)를
+기본 게이트 프리미티브로 직접 구성한다.
+내부 연결선 <code>s1</code>, <code>c1</code>, <code>c2</code>가
+회로도상의 실제 중간 신호선에 대응한다.
+</p>
+<div class="logic">
+<span class="sig">a,b</span>
+<span>→</span>
+<div class="box">XOR</div>
+<span>→</span>
+<span class="sig">s1</span>
+<span>→</span>
+<div class="box">XOR + cin</div>
+<span>→</span>
+<span class="sig">sum</span>
+</div>
+<div class="logic">
+<span class="sig">a,b</span>
+<span>→</span>
+<div class="box">AND</div>
+<span>→</span>
+<span class="sig">c1</span>
+</div>
+<div class="logic">
+<span class="sig">s1,cin</span>
+<span>→</span>
+<div class="box">AND</div>
+<span>→</span>
+<span class="sig">c2</span>
+</div>
+<div class="logic">
+<span class="sig">c1,c2</span>
+<span>→</span>
+<div class="box">XOR</div>
+<span>→</span>
+<span class="sig">cout</span>
+</div>
+<div class="example-title">코드 3-1</div>
+<pre><code>module full_adder_g (
+    input  a,
+    input  b,
+    input  cin,
+    output sum,
+    output cout
+);
+
+wire s1, c1, c2;   // 1비트 내부 연결선
+
+xor    (s1, a, b);
+and    (c1, a, b);
+and G3 (c2, s1, cin);
+xor G4 (sum, s1, cin);
+xor G5 (cout, c1, c2);
+
+endmodule</code></pre>
+<div class="tip">
+<strong>CODE → 실제 회로</strong><br/>
+각 게이트 인스턴스는 함수 호출이 아니라
+실제 논리 게이트 한 개를 회로에 배치하는 것과 같은 의미이다.
+동일한 이름의 <code>wire</code>는 회로도에서 같은 물리적 연결선을 나타낸다.
+</div>
+<div class="note">
+<strong>cout에 XOR를 사용한 이유를 이해할 때</strong><br/>
+이 회로에서는 <code>c1 = a &amp; b</code>와
+<code>c2 = (a ^ b) &amp; cin</code>이 동시에 1이 되는 입력 조합이 없으므로
+두 신호를 XOR해도 전가산기의 carry 출력 기능을 만족한다.
+</div>
+</section>
+<section id="bufnot">
+<h2>4. 3.2 buf 게이트와 not 게이트 프리미티브</h2>
+<p>
+<code>buf</code>는 입력 논리값을 그대로 전달하는 디지털 버퍼이고,
+<code>not</code>은 입력을 반전시키는 인버터이다.
+두 프리미티브 모두 <strong>입력은 하나이고 출력은 하나 이상</strong>을 가질 수 있다.
+</p>
+<table class="truth">
+<thead><tr><th>입력</th><th>buf 출력</th><th>not 출력</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0</td><td>1</td></tr>
+<tr><td>1</td><td>1</td><td>0</td></tr>
+<tr><td>x</td><td>x</td><td>x</td></tr>
+<tr><td>z</td><td>x</td><td>x</td></tr>
+</tbody>
+</table>
+<h3>4.1 포트 순서</h3>
+<div class="syntax">
+<code>buf (output1, output2, ..., input);</code><br/>
+<code>not (output1, output2, ..., input);</code>
+</div>
+<p>
+출력이 여러 개라면 출력들을 먼저 나열하고,
+<strong>마지막 포트 하나가 입력</strong>이 된다.
+</p>
+<div class="example-title">그림 3-4의 인스턴스 예</div>
+<pre><code>buf #(2, 1) bf1 (out_buf, in);
+
+not #3 (out_inv, in);
+
+buf bf2 (
+    out1_buf, out2_buf, out3_buf,
+    in
+);
+
+not (
+    out1_inv, out2_inv,
+    in
+);</code></pre>
+<div class="delaybox">
+<div class="delay"><strong>buf #(2,1)</strong><br/>상승지연 2, 하강지연 1</div>
+<div class="delay"><strong>not #3</strong><br/>상승/하강지연 모두 3</div>
+<div class="delay"><strong>지연 생략</strong><br/>default 지연 0</div>
+</div>
+</section>
+<section id="tristate">
+<h2>5. 3.3 3상태 버퍼 게이트 프리미티브</h2>
+<p>
+<code>bufif0</code>, <code>bufif1</code>,
+<code>notif0</code>, <code>notif1</code>는
+3상태 드라이버(tri-state driver, 트라이스테이트 드라이버)를 모델링한다.
+출력은 <code>0</code>, <code>1</code>, <code>z</code>가 될 수 있다.
+</p>
+<div class="syntax">
+<code>primitive (output, data, control);</code>
+</div>
+<div class="flow">
+<span>output</span>
+<span class="arrow">←</span>
+<span>data</span>
+<span class="arrow">+</span>
+<span>control</span>
+</div>
+<table class="compare">
+<thead><tr><th>프리미티브</th><th>제어가 활성일 때</th><th>비활성일 때</th></tr></thead>
+<tbody>
+<tr><td><code>bufif1</code></td><td>data 그대로 출력</td><td>z</td></tr>
+<tr><td><code>bufif0</code></td><td>control=0일 때 data 출력</td><td>z</td></tr>
+<tr><td><code>notif1</code></td><td>data 반전 출력</td><td>z</td></tr>
+<tr><td><code>notif0</code></td><td>control=0일 때 data 반전 출력</td><td>z</td></tr>
+</tbody>
+</table>
+<div class="note">
+<strong>H / L 상태</strong><br/>
+제어 또는 데이터가 <code>x</code>인 일부 조합에서는 출력이
+<code>0 또는 z</code>일 수 있는 상태를 L,
+<code>1 또는 z</code>일 수 있는 상태를 H로 표시한다.
+</div>
+<h3>5.1 3상태 게이트의 지연값</h3>
+<p>
+3상태 게이트에는 최대 세 개의 지연값을 지정할 수 있다.
+</p>
+<table>
+<thead><tr><th>지연 순서</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td>첫 번째</td><td>출력이 1로 천이하는 상승지연</td></tr>
+<tr><td>두 번째</td><td>출력이 0으로 천이하는 하강지연</td></tr>
+<tr><td>세 번째</td><td>출력이 z로 천이하는 턴-오프 지연</td></tr>
+</tbody>
+</table>
+<div class="example-title">예시 3-1</div>
+<pre><code>bufif1 #(10, 12, 11) (out3, in, control);
+
+bufif0 #(3, 5) U1 (out1, in, control);
+
+notif0 #3 U3 (out2, in, control);
+
+notif1 U4 (out4, in, control);</code></pre>
+<div class="grid">
+<div class="card">
+<span class="k">3개 지정</span>
+<p>rise / fall / turn-off 각각 지정</p>
+</div>
+<div class="card">
+<span class="k">2개 지정</span>
+<p>rise / fall 지정, x 또는 z 관련 지연은 작은 값 사용</p>
+</div>
+<div class="card">
+<span class="k">1개 지정</span>
+<p>모든 출력 변화에 동일한 지연</p>
+</div>
+<div class="card">
+<span class="k">생략</span>
+<p>전달지연 0</p>
+</div>
+</div>
+</section>
+<section id="array">
+<h2>6. 3.4 게이트 프리미티브 인스턴스의 배열</h2>
+<p>
+같은 형태의 게이트를 여러 개 반복할 때
+인스턴스 이름 뒤에 범위를 지정하여
+<strong>게이트 프리미티브 배열</strong>을 만들 수 있다.
+</p>
+<div class="syntax">
+<code>gate_type instance_name [range] (ports...);</code>
+</div>
+<h3>6.1 배열 범위</h3>
+<p>
+<code>[n:m]</code>으로 지정된 연속 범위에 따라
+여러 인스턴스가 생성되며, 어느 한쪽이 반드시 0일 필요는 없고
+오름차순/내림차순 모두 가능하다고 설명한다.
+</p>
+<div class="example-title">문법 오류 예</div>
+<pre><code>module invalid_array_example (
+    input  [7:0] a,
+    input  [7:0] b,
+    output [7:0] y
+);
+
+// 문법 오류: 동일한 인스턴스 이름 I_nand를
+// 분리된 두 배열 범위에 다시 사용
+nand I_nand [0:3] (
+    y[3:0], a[3:0], b[3:0]
+),
+     I_nand [4:7] (
+    y[7:4], a[7:4], b[7:4]
+);
+
+endmodule</code></pre>
+<p>
+동일한 인스턴스 식별자 <code>I_nand</code>를
+서로 분리된 두 인스턴스 배열 범위에 다시 사용했기 때문에 오류가 된다.
+</p>
+<div class="example-title">올바른 표현</div>
+<pre><code>module valid_array_example (
+    input  [7:0] a,
+    input  [7:0] b,
+    output [7:0] y_all,
+    output [7:0] y_split
+);
+
+// 하나의 연속 배열 범위
+nand I_nand [0:7] (
+    y_all, a, b
+);
+
+// 서로 다른 인스턴스 이름을 사용한 두 배열
+nand x_nand [0:3] (
+    y_split[3:0], a[3:0], b[3:0]
+),
+     y_nand [4:7] (
+    y_split[7:4], a[7:4], b[7:4]
+);
+
+endmodule</code></pre>
+<h3>6.2 4비트 2입력 NOR 게이트</h3>
+<div class="example-title">코드 3-2: 배열 표현</div>
+<pre><code>module nor_gate_4b (
+    input  [3:0] a,
+    input  [3:0] b,
+    output [3:0] y
+);
+
+nor U0 [3:0] (y, a, b);
+
+endmodule</code></pre>
+<div class="example-title">코드 3-3: 개별 인스턴스로 풀어쓴 표현</div>
+<pre><code>module nor_gate_4b_eq (
+    input  [3:0] a,
+    input  [3:0] b,
+    output [3:0] y
+);
+
+nor U3 (y[3], a[3], b[3]);
+nor U2 (y[2], a[2], b[2]);
+nor U1 (y[1], a[1], b[1]);
+nor U0 (y[0], a[0], b[0]);
+
+endmodule</code></pre>
+<div class="tip">
+<strong>비트별로 풀어보면</strong><br/>
+<code>nor U0 [3:0] (y, a, b);</code>는
+4개의 2입력 NOR 게이트를 병렬로 만든다.
+즉, <code>y[3:0]</code>의 각 비트는 같은 인덱스의
+<code>a</code>와 <code>b</code>를 입력으로 갖는다.
+</div>
+</section>
+<section id="delay">
+<h2>7. 3.5 게이트 지연과 net 지연</h2>
+<p>
+실제 하드웨어에서는 입력이 변한 순간 출력이 즉시 바뀌지 않는다.
+이 전달 시간을 더 정확하게 표현하기 위해
+<strong>게이트 지연(gate delay)</strong>과
+<strong>net 지연(net delay)</strong>을 설명한다.
+</p>
+<table class="compare">
+<thead><tr><th>구분</th><th>의미</th></tr></thead>
+<tbody>
+<tr>
+<td>게이트 지연</td>
+<td>논리 게이트 입력 변화가 출력에 나타날 때까지의 전달지연</td>
+</tr>
+<tr>
+<td>net 지연</td>
+<td>net을 구동하는 구동자 값이 변한 뒤 실제 net 값이 갱신될 때까지의 지연</td>
+</tr>
+</tbody>
+</table>
+<h3>7.1 세 가지 전달지연</h3>
+<div class="delaybox">
+<div class="delay">
+<strong>d1 : 상승지연</strong><br/> 출력이 논리 1로 천이할 때의 지연 </div>
+<div class="delay">
+<strong>d2 : 하강지연</strong><br/> 출력이 논리 0으로 천이할 때의 지연 </div>
+<div class="delay">
+<strong>d3 : 턴-오프 지연</strong><br/> 출력이 z로 천이할 때의 지연 </div>
+</div>
+<div class="note">
+<strong>x로 천이할 때</strong><br/>
+세 값이 지정된 경우 <code>x</code>로 변하는 지연은
+<code>min(d1,d2,d3)</code>,
+두 값만 지정된 경우에는 <code>min(d1,d2)</code>가 적용된다.
+</div>
+<h3>7.2 지연값 지정 예</h3>
+<pre><code>and    #10         u0 (out, in1, in2);
+nor    #(10, 12)   u1 (out, in1, in2);
+bufif0 #(10,12,11) u3 (out, in, ctrl);</code></pre>
+<table>
+<thead><tr><th>표현</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td><code>#10</code></td><td>모든 전달 변화에 동일한 지연 10</td></tr>
+<tr><td><code>#(10,12)</code></td><td>상승 10, 하강 12</td></tr>
+<tr><td><code>#(10,12,11)</code></td><td>상승 10, 하강 12, turn-off 11</td></tr>
+</tbody>
+</table>
+<h3>7.3 전달지연 규칙</h3>
+<table class="truth">
+<thead>
+<tr><th>시작</th><th>종료</th><th>2개 지연 d1,d2</th><th>3개 지연 d1,d2,d3</th></tr>
+</thead>
+<tbody>
+<tr><td>0</td><td>1</td><td>d1</td><td>d1</td></tr>
+<tr><td>0</td><td>x</td><td>min(d1,d2)</td><td>min(d1,d2,d3)</td></tr>
+<tr><td>0</td><td>z</td><td>min(d1,d2)</td><td>d3</td></tr>
+<tr><td>1</td><td>0</td><td>d2</td><td>d2</td></tr>
+<tr><td>1</td><td>x</td><td>min(d1,d2)</td><td>min(d1,d2,d3)</td></tr>
+<tr><td>1</td><td>z</td><td>min(d1,d2)</td><td>d3</td></tr>
+<tr><td>x</td><td>0</td><td>d2</td><td>d2</td></tr>
+<tr><td>x</td><td>1</td><td>d1</td><td>d1</td></tr>
+<tr><td>x</td><td>z</td><td>min(d1,d2)</td><td>d3</td></tr>
+<tr><td>z</td><td>0</td><td>d2</td><td>d2</td></tr>
+<tr><td>z</td><td>1</td><td>d1</td><td>d1</td></tr>
+<tr><td>z</td><td>x</td><td>min(d1,d2)</td><td>min(d1,d2,d3)</td></tr>
+</tbody>
+</table>
+</section>
+<section id="latch">
+<h2>8. 지연이 포함된 3상태 출력 래치</h2>
+<p>
+코드 3-4는
+<code>not</code>, <code>nand</code>, <code>bufif1</code>을 이용해
+3상태 출력을 갖는 래치 회로를 구성한다.
+각 게이트에는 서로 다른 전달지연이 지정되어 있다.
+</p>
+<div class="example-title">코드 3-4</div>
+<pre><code>module tri_latch (
+    input  clock,
+    input  data,
+    input  enable,
+    output qout,
+    output qbout
+);
+
+tri qout, qbout;
+
+not #5 u0 (ndata, data);
+
+nand #(3,5)
+    u1 (wa, data, clock),
+    n3 (wb, ndata, clock);
+
+nand #(12,15)
+    u2 (q,  qb, wa),
+    n5 (qb, q,  wb);
+
+bufif1 #(3,7,13)
+    u3 (qout,  q,  enable),
+    u4 (qbout, qb, enable);
+
+endmodule</code></pre>
+<div class="note">
+<strong>동일 지연을 갖는 인스턴스 묶기</strong><br/>
+같은 프리미티브이면서 같은 지연값을 갖는 여러 게이트를
+한 문장 안에 함께 인스턴스할 수 있음을 보여준다.
+</div>
+<div class="flow">
+<span>data</span>
+<span class="arrow">→</span>
+<span>입력 NAND 경로</span>
+<span class="arrow">→</span>
+<span>교차결합 NAND 래치</span>
+<span class="arrow">→</span>
+<span>bufif1</span>
+<span class="arrow">→</span>
+<span>qout / qbout</span>
+</div>
+<div class="tip">
+<strong>경로별 전달지연</strong><br/>
+입력에서 출력까지의 전체 지연은 한 숫자로 고정되는 것이 아니라,
+실제로 신호가 통과한 게이트 경로의 지연들이 누적되어 결정된다.
+</div>
+</section>
+<section id="inertial">
+<h2>9. 관성지연</h2>
+<p>
+Verilog HDL의 게이트 지연에는
+<strong>inertial delay(관성지연, 짧은 펄스를 걸러내는 지연 특성)</strong>가 기본적으로 적용된다.
+입력 변화가 게이트 전달지연보다 짧게 유지되면
+그 변화가 출력까지 전달되지 않을 수 있다.
+</p>
+<div class="example-title">코드 3-5</div>
+<pre><code>module inertial_delay_gate;
+
+reg a, b;
+
+and #30 (out, a, b);
+
+initial begin
+    a = 1'b0; b = 1'b0;
+
+    #50 a = 1'b1; b = 1'b1;
+    #50 a = 1'b0; b = 1'b0;
+    #50 a = 1'b1; b = 1'b1;
+
+    #20 b = 1'b0;
+
+    #50;
+end
+
+endmodule</code></pre>
+<h3>9.1 시간 흐름</h3>
+<div class="flow">
+<span>t=0</span>
+<span class="arrow">→</span>
+<span>a=0, b=0</span>
+<span class="arrow">→</span>
+<span>out=0</span>
+</div>
+<div class="flow">
+<span>t=50</span>
+<span class="arrow">→</span>
+<span>a=1, b=1</span>
+<span class="arrow">30ns 지연</span>
+<span>out에 변화 반영</span>
+</div>
+<div class="flow">
+<span>t=150</span>
+<span class="arrow">→</span>
+<span>a=1, b=1</span>
+<span class="arrow">20ns 후</span>
+<span>b=0</span>
+</div>
+<div class="timeline">
+<div class="pulse">
+<div class="label">입력 펄스</div>
+</div>
+<div class="pulse">
+<div class="label">지연 30ns</div>
+<div>입력 HIGH 유지시간은 20ns → 게이트 지연보다 짧음</div>
+</div>
+<div class="pulse">
+<div class="label">출력</div>
+<div>짧은 HIGH 펄스가 출력까지 전달되지 않음</div>
+</div>
+</div>
+<div class="warn">
+<strong>핵심 예</strong><br/>
+150ns에서 170ns까지 <code>b</code>가 1을 유지하는 시간은 20ns인데,
+AND 게이트의 지연은 30ns이다.
+따라서 이 20ns 폭의 입력 변화는 출력에 영향을 주지 못한다.
+</div>
+<div class="note">
+<strong>Simulation과 실제 FPGA 구분</strong><br/>
+이 절의 <code>#30</code>은 Verilog 시뮬레이션에서 게이트 전달지연을 표현하기 위한 모델이다.
+실제 FPGA의 물리적 지연은 구현 후 Timing Analysis(타이밍 분석) 결과로 확인해야 하며,
+소스의 <code>#</code> 지연값을 실제 FPGA 지연으로 그대로 간주하면 안 된다.
+</div>
+</section>
+<section id="summary">
+<h2>10. 최종 핵심 정리</h2>
+<table>
+<thead><tr><th>항목</th><th>핵심 내용</th></tr></thead>
+<tbody>
+<tr><td>게이트 프리미티브</td><td>미리 정의된 논리 게이트를 모듈 내부에 직접 인스턴스</td></tr>
+<tr><td>포트 순서</td><td>기본 게이트는 출력이 먼저, 그 뒤에 입력</td></tr>
+<tr><td>인스턴스 이름</td><td>일반 게이트는 생략 가능, 배열에서는 필요</td></tr>
+<tr><td>기본 게이트</td><td><code>and nand or nor xor xnor</code></td></tr>
+<tr><td>buf / not</td><td>입력 1개, 출력 1개 이상 가능</td></tr>
+<tr><td>3상태 게이트</td><td><code>bufif0/1</code>, <code>notif0/1</code>, 출력 z 가능</td></tr>
+<tr><td>프리미티브 배열</td><td>같은 게이트 여러 개를 벡터처럼 반복 인스턴스</td></tr>
+<tr><td>상승지연</td><td>출력이 1로 바뀔 때의 전달지연</td></tr>
+<tr><td>하강지연</td><td>출력이 0으로 바뀔 때의 전달지연</td></tr>
+<tr><td>턴-오프 지연</td><td>출력이 z로 바뀔 때의 전달지연</td></tr>
+<tr><td>관성지연</td><td>게이트 지연보다 짧은 입력 펄스가 출력에 전달되지 않을 수 있음</td></tr>
+</tbody>
+</table>
+<div class="note">
+<strong>이 장을 회로 설계 관점으로 정리하면</strong><br/>
+Verilog 게이트 프리미티브 한 줄
+→ 실제 논리 게이트 하나 또는 게이트 배열
+→ <code>wire</code>가 게이트 사이의 물리적 연결선
+→ <code>#delay</code>가 시뮬레이션상의 전달지연
+→ 여러 게이트 경로를 통과하면 지연이 누적
+→ 짧은 펄스는 관성지연에 의해 제거될 수 있다.
+</div>
+<div class="flow">
+<span>Gate Primitive</span>
+<span class="arrow">→</span>
+<span>Gate-level RTL/Model</span>
+<span class="arrow">→</span>
+<span>Signal Path</span>
+<span class="arrow">→</span>
+<span>Propagation Delay</span>
+<span class="arrow">→</span>
+<span>Simulation Waveform</span>
+</div>
+</section>
+</main>
+</body>
+</html>
