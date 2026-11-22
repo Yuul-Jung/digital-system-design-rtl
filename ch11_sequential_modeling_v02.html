@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="모듈 · 포트 · 모듈 인스턴스 · 포트 연결 · parameter · defparam · 인스턴스 배열 · generate · genvar · 계층적 이름">
-<title>제06장 · 구조적 모델링 · 디지털시스템설계 · RTL · Verilog</title>
+<meta name="description" content="래치 · 플립플롭 · Blocking/Nonblocking · 계수기 · 분주기 · 시프트 레지스터 · LFSR · Moore/Mealy FSM">
+<title>제11장 · 순차회로 모델링 · 디지털시스템설계 · RTL · Verilog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -34,1624 +34,1507 @@ code{background:#f6ede2}
 </style>
 <style>
 :root{
-  --c-bg:#faf9f7; --c-paper:#ffffff; --c-ink:#331f17; --c-muted:#7a655c;
-  --c-line:#eee7df; --c-blue:#9a4927; --c-blue2:#faf0ec; --c-teal:#6a331b;
+  --c-bg:#faf9f7; --c-paper:#fff; --c-ink:#331f17; --c-muted:#7b665d;
+  --c-line:#eee8e0; --c-blue:#9a4927; --c-blue2:#faf0ec; --c-teal:#6a331b;
   --c-code:#221510; --c-codeink:#fcf4f1; --c-warn:#fff7df; --c-ok:#eef9f2;
-  --c-danger:#fff0f0; --c-dangerline:#b94c4c; --c-soft:#fdfaf8;
-  --c-purple:#7154a7;
+  --c-danger:#fff0f0; --c-dangerline:#b94c4c; --c-purple:#7154a7;
+  --c-orange:#b56a10; --c-soft:#fdfaf8;
 }
 .card{background:var(--c-paper);border:1px solid var(--c-line);border-radius:14px}
 .badge{display:inline-block;border-radius:999px;padding:3px 9px;
   font-size:.78rem;font-weight:700;background:var(--c-blue2);
   color:#864022;margin-right:6px}
-.note,.warn,.tip,.danger,.rtl,.source-note{border-left:5px solid var(--c-blue);padding:14px 16px;
-  border-radius:8px;margin:16px 0}
+.note,.warn,.tip,.danger,.rtl,.source-note,.verify{border-left:5px solid var(--c-blue);padding:14px 16px;border-radius:8px;margin:16px 0}
 .note{background:#fcf4f1}
 .warn{background:var(--c-warn);border-color:#d49b17}
 .tip{background:var(--c-ok);border-color:#2b8a57}
 .danger{background:var(--c-danger);border-color:var(--c-dangerline)}
 .rtl{background:#f5f0ff;border-color:var(--c-purple)}
 .source-note{background:#faf9f7;border-color:#84726a}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:12px}
+.verify{background:#fff4e8;border-color:var(--c-orange)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:12px}
 .card{padding:16px 18px}
 .k{font-weight:700;color:#7a3a1f}
-.example-title{font-size:.92rem;color:#8d5137;font-weight:700;
-  margin:18px 0 8px}
-.flow,.path{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
-.flow span,.path span{background:#fbf1ed;border:1px solid #e9e1d7;
-  border-radius:8px;padding:8px 11px}
-.flow .arrow,.path .arrow{background:none;border:none;padding:0;color:#557}
-.syntax{background:#f9f7f4;border:1px solid #e5dbce;border-radius:10px;
-  padding:14px 16px;margin:14px 0}
-.syntax code{color:#5b2d19}
+.example-title{font-size:.92rem;color:#8d5137;font-weight:700;margin:18px 0 8px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span{background:#fbf1ed;border:1px solid #e9e1d7;border-radius:8px;padding:8px 11px}
+.flow .arrow{background:none;border:none;padding:0;color:#557}
+.logic{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+.logic .box{min-width:128px;border:2px solid #c3937f;background:#fdfaf8;
+  padding:10px 14px;border-radius:12px;text-align:center;font-weight:700}
+.logic .sig{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+.step{border:1px solid #ebe4da;border-radius:10px;background:#fefdfc;
+  padding:12px 14px;margin:10px 0}
+.step strong{color:#864022}
+.task{border:1px solid #e7ddd2;border-radius:12px;background:#fefdfc;
+  padding:16px 18px;margin:16px 0}
+.task .title{font-weight:800;color:#864022;margin-bottom:8px}
+.truth{max-width:940px;margin:14px auto}
+.truth td,.truth th{text-align:center}
 .compare td:first-child{font-weight:700;color:#7e3f24;width:23%}
-.modulebox{border:2px solid #c3937e;background:#fefdfc;border-radius:12px;
-  padding:18px;margin:16px 0}
-.modulebox .title{font-weight:800;color:#7a3a1f;border-bottom:1px solid #ebe4db;
-  padding-bottom:9px;margin-bottom:10px}
-.layer{border:1px dashed #ceb2a6;border-radius:9px;background:#fdfaf8;
-  padding:12px 14px;margin:9px 0}
-.hier{display:flex;flex-direction:column;align-items:center;gap:8px;margin:18px 0}
-.hier .node{min-width:220px;text-align:center;border:2px solid #c3937f;
-  background:#fdfaf8;border-radius:10px;padding:10px 14px;font-weight:700}
-.hier .childrow{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
-.hier .arrow{color:#8b6d60;font-weight:700}
-.bitgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:10px;margin:14px 0}
-.bitbox{border:1px solid #e8dfd4;background:#fefdfc;border-radius:10px;
-  padding:12px;text-align:center}
-.scope{font-family:"JetBrains Mono","D2Coding","Consolas",monospace;
-  background:#fbf9f7;border:1px solid #e9e1d6;border-radius:8px;
-  padding:8px 10px;display:inline-block;margin:3px}
+.chip{display:inline-block;background:#f7f4f0;border:1px solid #e6ddd1;
+  border-radius:999px;padding:2px 8px;margin:2px;font-size:.84rem}
 .small{font-size:.92rem;color:var(--c-muted)}
 </style>
 </head>
-<body data-chapter="ch06">
+<body data-chapter="ch11">
 <a class="skip" href="#main-content">본문 바로가기</a>
 <button type="button" class="mobile-menu" id="mobile-menu" aria-controls="course-nav" aria-expanded="false">☰ 장·목차</button>
 <div class="shade" id="shade"></div>
-<header class="hero"><div class="hero-inner"><p class="kicker">DIGITAL SYSTEM DESIGN · CHAPTER 06</p><h1>제06장 · 구조적 모델링</h1><p>모듈 · 포트 · 모듈 인스턴스 · 포트 연결 · parameter · defparam · 인스턴스 배열 · generate · genvar · 계층적 이름</p><div class="chips"></div></div></header>
+<header class="hero"><div class="hero-inner"><p class="kicker">DIGITAL SYSTEM DESIGN · CHAPTER 11</p><h1>제11장 · 순차회로 모델링</h1><p>래치 · 플립플롭 · Blocking/Nonblocking · 계수기 · 분주기 · 시프트 레지스터 · LFSR · Moore/Mealy FSM</p><div class="chips"></div></div></header>
 <div class="wrap">
 <nav class="toc" id="course-nav" aria-label="장과 절 탐색"></nav>
 <main class="content" id="main-content">
 <section class="section" id="overview">
-<h2><span class="num">00</span> CHAPTER 06 전체 개요</h2>
+<h2><span class="num">00</span> CHAPTER 11 전체 개요</h2>
 <p>
-Verilog HDL에서 하드웨어 설계의 기본 단위는 <strong>module(모듈)</strong>이다.
-구조적 모델링(structural modeling)은 큰 회로를 여러 하위 모듈로 나누고,
-상위 모듈에서 하위 모듈을 <strong>인스턴스(instance)</strong>한 뒤
-포트를 통해 신호를 연결하여 전체 하드웨어를 구성하는 방법이다.
+순차회로(sequential circuit)는 현재 입력뿐 아니라
+<strong>과거 입력과 회로에 저장된 현재 상태</strong>에 의해 출력이 결정되는 회로이다.
+따라서 조합회로와 달리 과거 정보를 기억하기 위한 저장소자가 필요하며,
+대표 저장소자가 latch(래치)와 flip-flop(플립플롭)이다.
 </p>
 <div class="grid">
-<div class="card">
-<span class="k">모듈</span>
-<p>재사용 가능한 독립 하드웨어 블록</p>
-</div>
-<div class="card">
-<span class="k">인스턴스</span>
-<p>정의된 모듈을 실제 상위 회로 안에 배치한 복사본</p>
-</div>
-<div class="card">
-<span class="k">포트 연결</span>
-<p>상위 신호와 하위 모듈의 input/output/inout을 연결</p>
-</div>
-<div class="card">
-<span class="k">parameter / generate</span>
-<p>비트 폭·깊이·구현 구조를 파라미터화하여 재사용</p>
-</div>
-</div>
-<div class="hier">
-<div class="node">System / Top Module</div>
-<div class="arrow">↓</div>
-<div class="childrow">
-<div class="node">Board / Sub Module A</div>
-<div class="node">Board / Sub Module B</div>
-</div>
-<div class="arrow">↓</div>
-<div class="childrow">
-<div class="node">IC / Controller</div>
-<div class="node">ALU / MUX / Flip-Flop</div>
-</div>
-</div>
-<div class="note">
-<strong>비유</strong><br/>
-시스템 → 보드 → IC → 플립플롭·멀티플렉서·ALU처럼
-상위 블록을 여러 하위 블록으로 분해하는 방식이
-Verilog의 계층적 구조적 설계와 대응된다.
-</div>
-<div class="danger">
-<strong>모듈 정의의 내포는 허용되지 않음</strong><br/>
-하나의 <code>module ... endmodule</code> 내부에
-다른 <code>module ... endmodule</code> 정의를 직접 넣는 방식은 허용되지 않는다.
-필요한 하위 모듈은 각각 독립적으로 정의한 후 상위 모듈에서 인스턴스한다.
+<div class="card"><span class="k">Latch</span><p>클록/enable의 <strong>레벨</strong>에 반응하는 저장소자</p></div>
+<div class="card"><span class="k">Flip-Flop</span><p>클록의 상승 또는 하강 <strong>에지</strong>에서 상태 갱신</p></div>
+<div class="card"><span class="k">Counter</span><p>클록마다 값을 증가/감소시키는 상태기계</p></div>
+<div class="card"><span class="k">Shift Register</span><p>클록마다 저장 데이터를 한 비트씩 이동</p></div>
+<div class="card"><span class="k">LFSR</span><p>귀환 XOR/XNOR로 의사난수 비트열 생성</p></div>
+<div class="card"><span class="k">FSM</span><p>상태 레지스터 + 다음 상태 로직 + 출력 로직</p></div>
 </div>
 <div class="rtl">
-<strong>CODE → 하드웨어 구조</strong><br/>
-모듈 정의는 “부품의 설계도”에 가깝고,
-모듈 인스턴스는 상위 회로에 실제로 배치된 “부품 한 개”에 해당한다.
-같은 모듈을 여러 번 인스턴스하면 동일한 기능의 하드웨어 블록이 여러 개 만들어진다.
+<strong>Clock 중심으로 읽는 법</strong><br/>
+순차회로는 “이 값이 무엇인가?”보다 먼저
+<strong>“언제 이 값이 바뀌는가?”</strong>를 확인해야 한다.
+<code>posedge</code>, <code>negedge</code>, enable, reset이 상태 갱신 시점을 결정한다.
 </div>
-</section><section class="section" id="module">
-<h2><span class="num">01</span> 6.1 모듈</h2>
-<p>
-Verilog 모듈을 크게
-<strong>타이틀 부분 → 선언 부분 → 몸체 부분</strong>으로 구분한다.
-</p>
-<div class="modulebox">
-<div class="title">module module_name (port_list);</div>
-<div class="layer">
-<strong>타이틀 부분</strong><br/> module 이름 · parameter 목록(선택) · port 목록 또는 port declaration 목록 </div>
-<div class="layer">
-<strong>선언 부분</strong><br/> input/output/inout · reg · wire · parameter 등의 선언 </div>
-<div class="layer">
-<strong>몸체 부분</strong><br/> 모듈 인스턴스 · gate primitive · generate · assign · always · initial · function · task </div>
-<div class="title" style="border:0;margin:12px 0 0;padding:0">endmodule</div>
-</div>
-<div class="example-title">그림 6-1의 기본 구조</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">module_name.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module module_name (port_list);
-
-    // declarations
-    // port 선언
-    // reg 선언
-    // wire 선언
-    // parameter 선언
-
-    // module items
-    // 모듈 인스턴스
-    // gate primitive 인스턴스
-    // generate 블록
-    // assign 문
-    // always 문, initial 문
-    // function, task 정의/호출
-
-endmodule</code></pre></div>
-<div class="tip">
-<strong>이름 작성의 의미</strong><br/>
-모듈 이름이 기능을 함축적으로 나타내는 것이 좋다고 설명한다.
-예를 들어 <code>adder_8b</code>는 이름만 보고도
-“8비트 가산기 모듈”임을 예상할 수 있다.
-</div>
-<h3>2.1 두 가지 모듈 정의 형식</h3>
-<div class="grid">
-<div class="card">
-<span class="k">방법 ① ANSI-C 형식</span>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">module_name.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module module_name (
-    input  a,
-    input  b,
-    output y
-);
-
-assign y = a &amp; b;
-
-endmodule</code></pre></div>
-<p>포트 목록 안에 방향·자료형·범위를 함께 선언한다.</p>
-</div>
-<div class="card">
-<span class="k">방법 ② 포트 목록/선언 분리</span>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">module_name.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module module_name (a, b, y);
-
-input  a;
-input  b;
-output y;
-
-assign y = a &amp; b;
-
-endmodule</code></pre></div>
-<p>타이틀에는 이름만 나열하고 선언 부분에서 별도로 선언한다.</p>
-</div>
-</div>
-<div class="warn">
-<strong>순서에 의한 포트 연결과 관계</strong><br/>
-모듈 타이틀에 포트가 나열된 순서는
-나중에 하위 모듈을 <strong>순서에 의해 포트 연결</strong>할 때 직접 사용된다.
-따라서 포트 순서는 구조적 설계에서 의미가 있다.
-</div>
-</section><section class="section" id="port">
-<h2><span class="num">02</span> 6.1.1 모듈 포트의 선언</h2>
-<div class="syntax">
-<code>input  [net_type] [signed] [range] port_name;
-output [net_type] [reg] [signed] [range] port_name;
-inout  [net_type] [signed] [range] port_name;</code>
-</div>
+<h3>1.1 동기식과 비동기식</h3>
 <table>
-<thead><tr><th>포트 방향</th><th>의미</th><th>핵심</th></tr></thead>
+<thead><tr><th>구분</th><th>동작 원리</th><th>특징</th></tr></thead>
 <tbody>
-<tr><td><code>input</code></td><td>외부 → 모듈 내부</td><td>모듈이 입력값을 받음</td></tr>
-<tr><td><code>output</code></td><td>모듈 내부 → 외부</td><td>모듈 결과를 외부로 전달</td></tr>
-<tr><td><code>inout</code></td><td>양방향</td><td>양쪽 방향으로 신호 전달 가능</td></tr>
+<tr><td>동기식 순차회로</td><td>공통 clock에 맞춰 상태 갱신</td><td>설계·검증이 명확하고 일반적인 디지털 시스템의 기본 구조</td></tr>
+<tr><td>비동기식 순차회로</td><td>각 저장소자가 서로 다른 시점 또는 사건에 의해 변화</td><td>전파지연과 상태변화 순서에 더 민감</td></tr>
 </tbody>
 </table>
-<h3>3.1 signed 속성</h3>
 <p>
-포트나 연결 신호가 <code>signed</code>로 선언되면
-해당 비트패턴은 2의 보수 부호값으로 해석된다.
-명시적으로 signed가 지정되지 않은 일반 net는 unsigned로 취급된다.
+이 장에서 대부분의 디지털 시스템 설계에 사용되는
+<strong>동기식 순차회로</strong>를 중심으로 설명한다.
 </p>
-<h3>3.2 포트 내부/외부 자료형 규칙</h3>
+</section><section class="section" id="latch">
+<h2><span class="num">01</span> 11.1 래치와 플립플롭</h2>
+<h3>2.1 Latch와 Flip-Flop의 차이</h3>
 <table>
-<thead>
-<tr><th>위치</th><th>input</th><th>output</th><th>inout</th></tr>
-</thead>
+<thead><tr><th>구분</th><th>Latch</th><th>Flip-Flop</th></tr></thead>
 <tbody>
-<tr>
-<td>모듈 인스턴스 외부</td>
-<td>net 또는 variable<br/><span class="small">real 예외</span></td>
-<td>net</td>
-<td>net</td>
-</tr>
-<tr>
-<td>모듈 정의 내부</td>
-<td>net</td>
-<td>net 또는 variable<br/><span class="small">real 예외</span></td>
-<td>net</td>
-</tr>
+<tr><td>감응 기준</td><td>클록/enable의 레벨</td><td>클록의 에지</td></tr>
+<tr><td>대표 이벤트</td><td><code>if(clock)</code></td><td><code>@(posedge clk)</code>, <code>@(negedge clk)</code></td></tr>
+<tr><td>상태 변경</td><td>활성 레벨 동안 입력 변화가 출력에 전달될 수 있음</td><td>에지 순간에 입력을 저장</td></tr>
+<tr><td>대표 용도</td><td>레벨 민감 저장</td><td>동기식 레지스터, 카운터, FSM 상태 저장</td></tr>
 </tbody>
 </table>
-<div class="note"><strong>real 값의 포트 전달</strong><br/>real 값은 직접 포트로 연결하지 않고 $realtobits로 64비트 벡터로 변환해 전달한 뒤, 수신부에서 $bitstoreal로 복원한다.</div>
-<h3>3.3 포트 선언 예</h3>
-<div class="example-title">예시 6-1</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">port_example.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module port_example (
-    a, b, sel, c, result, sum, data_bus, addr
-);
-
-input [15:0] a, b;
-input sel;
-
-input signed [7:0] c;
-
-output signed [15:0] result;
-output signed reg [7:0] sum;
-
-inout [32:1] data_bus;
-
-parameter WORD = 32;
-
-input [WORD-1:0] addr;
-
-endmodule</code></pre></div>
-<table>
-<thead><tr><th>선언</th><th>의미</th></tr></thead>
-<tbody>
-<tr><td><code>input [15:0] a,b</code></td><td>16비트 입력 2개</td></tr>
-<tr><td><code>input sel</code></td><td>1비트 입력</td></tr>
-<tr><td><code>input signed [7:0] c</code></td><td>8비트 signed 입력</td></tr>
-<tr><td><code>output signed reg [7:0] sum</code></td><td>내부 절차형 할당에 사용할 수 있는 signed reg 출력</td></tr>
-<tr><td><code>inout [32:1] data_bus</code></td><td>32비트 양방향 포트</td></tr>
-<tr><td><code>input [WORD-1:0] addr</code></td><td>parameter를 이용해 폭을 결정하는 입력</td></tr>
-</tbody>
-</table>
-<h3>3.4 중복 선언 오류</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>input  aport;   // 첫 번째 선언
-input  aport;   // 오류: 중복 선언
-output aport;   // 오류: 중복 선언</code></pre></div>
-<div class="danger">
-<strong>같은 포트 이름은 한 범위 안에서 중복 선언할 수 없다.</strong>
-</div>
-</section><section class="section" id="portlist">
-<h2><span class="num">03</span> 6.1.2 포트선언목록</h2>
+<h3>2.2 11.1.1 Positive D Latch</h3>
 <p>
-Verilog-2001의 ANSI 형식에서는
-포트 목록에 방향, 비트 폭, 자료형, signed 속성까지 함께 넣어
-한 번에 완전한 포트 선언을 만들 수 있다.
+positive D latch는 clock=1인 동안 입력 <code>din</code>이 출력 <code>qout</code>으로 전달되고,
+clock=0인 동안에는 이전 <code>qout</code> 값을 유지한다.
+11-1은 이 투명(transparent) 구간과 유지 구간을 파형으로 보여준다.
 </p>
-<div class="example-title">예시 6-3</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">port_example.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module port_example (
-    input  [15:0] a,
-    input  [15:0] b,
-    input         sel,
-    input  signed [7:0] c,
-
-    output signed [15:0] result,
-    output signed reg [7:0] sum,
-
-    inout  [32:1] data_bus,
-    input  [WORD-1:0] addr
+<div class="logic">
+<span class="sig">din</span>
+<span>→</span>
+<div class="box">D Latch<br/>clock=1일 때 투명</div>
+<span>→</span>
+<span class="sig">qout</span>
+</div>
+<h4>코드 11-1 — Positive D Latch</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_pos.v</span><span>VERILOG</span></span></div><pre><code>module dlatch_pos (
+    input  clock,
+    input  din,
+    output reg qout
 );
 
-parameter WORD = 32;
+always @(clock or din) begin
+    if (clock)
+        qout = din;
+end
 
-endmodule</code></pre></div>
-<div class="tip">
-<strong>핵심</strong><br/>
-포트선언목록에서 이미 완전하게 선언한 포트는
-선언부에서 다시 중복 선언하지 않는다.
-</div>
-<h3>4.1 다양한 포트 표현</h3>
-<div class="example-title">예시 6-4</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">complex_ports.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module complex_ports ({c,d}, .e(f));
-    // {c,d}: 첫 번째 포트
-    // 외부 포트 이름 e에 내부 이름 f 연결
-endmodule
-
-module split_ports (a[7:4], a[3:0]);
-    // a의 상위 4비트와 하위 4비트를 각각 포트로 사용
-endmodule
-
-module same_port (.a(i), .b(i));
-    // 내부 이름 i를 외부 포트 a, b와 연결
-endmodule
-
-module renamed_concat (.a({b,c}), f, .g(h[1]));
-    // 결합, 이름 변경, 비트 선택을 이용한 포트 표현
 endmodule</code></pre></div>
 <div class="note">
-<strong>핵심</strong><br/>
-포트는 단순한 전체 신호 이름만이 아니라
-비트 선택, 부분 선택, 결합, 외부 이름과 내부 이름의 대응처럼
-다양한 형식으로 정의될 수 있다.
-다만 이러한 정의 방식은 이후 이름에 의한 포트 연결 가능 여부에 영향을 줄 수 있다.
+<strong>else가 없는 이유</strong><br/>
+clock=0일 때 새로운 값을 할당하지 않아야 이전 qout을 유지한다.
+이 “값 유지”가 바로 latch의 저장 기능이다.
 </div>
-</section><section class="section" id="instance">
-<h2><span class="num">04</span> 6.2 모듈 인스턴스</h2>
-<p>
-구조적 설계는 이미 정의된 하위 모듈을 상위 모듈 내부에
-인스턴스하고 포트를 연결하는 방식으로 이루어진다.
-</p>
-<div class="syntax">
-<code>module_name [parameter_value]
-    instance_name [range]
-    (port_connections);</code>
-</div>
-<table class="compare">
-<thead><tr><th>요소</th><th>역할</th></tr></thead>
-<tbody>
-<tr><td><code>module_name</code></td><td>어떤 설계도를 사용할지 결정</td></tr>
-<tr><td><code>parameter_value</code></td><td>필요할 때 하위모듈 parameter 값 변경</td></tr>
-<tr><td><code>instance_name</code></td><td>상위 계층 안에서 해당 복사본을 식별</td></tr>
-<tr><td><code>[range]</code></td><td>같은 모듈의 인스턴스 배열 생성</td></tr>
-<tr><td><code>port_connections</code></td><td>상위 신호와 하위 포트 연결</td></tr>
-</tbody>
-</table>
-<div class="warn">
-<strong>모듈 인스턴스 이름은 생략할 수 없음</strong><br/>
-게이트 프리미티브와 달리
-모듈 인스턴스에는 반드시 고유한 인스턴스 이름이 필요하다고 설명한다.
-</div>
-<h3>5.1 parameter 값 변경 형식</h3>
-<div class="syntax">
-<code>#(value1, value2, ...)
+<h4>코드 11-2 — 테스트벤치</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dlatch.v</span><span>VERILOG</span></span></div><pre><code>module tb_dlatch;
 
-#(
-    .parameter_name1(value1),
-    .parameter_name2(value2)
-)</code>
-</div>
-<p>
-<code>localparam</code>, <code>specparam</code>은
-외부 인스턴스에서 이 방식으로 변경할 수 없고,
-모듈 내부의 <code>parameter</code>만 변경 대상이 된다.
-</p>
-</section><section class="section" id="connect">
-<h2><span class="num">05</span> 6.2.1 포트 연결 형식</h2>
-<div class="grid">
-<div class="card">
-<span class="k">순서에 의한 연결</span>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module_name U0 (
-    signal1,
-    signal2,
-    signal3
-);</code></pre></div>
-<p>하위 모듈의 포트 선언 순서와 1:1 대응한다.</p>
-</div>
-<div class="card">
-<span class="k">이름에 의한 연결</span>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module_name U0 (
-    .port1(signal1),
-    .port2(signal2),
-    .port3(signal3)
-);</code></pre></div>
-<p>포트 이름을 직접 지정하므로 나열 순서가 중요하지 않다.</p>
-</div>
-</div>
-<div class="danger">
-<strong>한 인스턴스 안에서 두 방식을 혼용할 수 없음</strong><br/>
-특정 모듈 인스턴스는 전체 포트를 순서 방식으로 연결하거나,
-전체 포트를 이름 방식으로 연결해야 한다.
-</div>
-<h3>6.1 modB 포트 연결 비교</h3>
-<div class="example-title">코드 6-1(a): 하위모듈</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">modB.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module modB (
-    output wa,
-    input  b,
-    input  c,
-    input  d
+reg clock, din;
+
+dlatch_pos U0 (
+    clock,
+    din,
+    qout
 );
 
-bufif1 g1 (wa, b, cinvert);
-not #(2,6) n1 (cinvert, int);
-and #(6,5) g2 (int, c, d);
+initial begin
+    clock = 1'b0;
+    forever #10 clock = ~clock;
+end
+
+initial begin
+    din = 1'b0;
+
+    #15 din = 1'b1;
+    #10 din = 1'b0;
+    #10 din = 1'b1;
+    #10 din = 1'b0;
+    #20 din = 1'b1;
+    #10 din = 1'b0;
+
+    #20 $finish;
+end
 
 endmodule</code></pre></div>
-<div class="example-title">코드 6-1(b): 순서 연결</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">top_mod.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module top_mod;
-
-wire [2:0] v;
-wire w;
-
-modB b1 (
-    w,
-    v[2],
-    v[1],
-    v[0]
-);
-
-endmodule</code></pre></div>
-<table>
-<thead><tr><th>modB 포트</th><th>상위 신호</th></tr></thead>
-<tbody>
-<tr><td>wa</td><td>w</td></tr>
-<tr><td>b</td><td>v[2]</td></tr>
-<tr><td>c</td><td>v[1]</td></tr>
-<tr><td>d</td><td>v[0]</td></tr>
-</tbody>
-</table>
-<div class="example-title">코드 6-1(c): 이름 연결</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">top_mod.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module top_mod;
-
-wire [2:0] v;
-wire w;
-
-modB b1 (
-    .wa(w),
-    .d(v[0]),
-    .c(v[1]),
-    .b(v[2])
-);
-
-endmodule</code></pre></div>
-<div class="tip">
-<strong>이름 연결의 장점</strong><br/>
-포트가 선언된 순서와 다르게 적어도
-포트 이름으로 연결 관계가 명확하다.
+<div class="task">
+<div class="title">설계과제 11-1</div>
+<p>8비트 negative D latch를 설계하고 테스트벤치로 기능을 검증한다.</p>
 </div>
-<h3>6.2 사용하지 않는 포트</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>ALPHA U0 (
-    .out(topB),
-    .in1(topA),
-    .in2()
-);</code></pre></div>
+<h3>2.3 비동기식 Active-High Reset을 갖는 Positive D Latch</h3>
+<h4>코드 11-3</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_pos_AHrst.v</span><span>VERILOG</span></span></div><pre><code>module dlatch_pos_AHrst (
+    input  clock,
+    input  rst,
+    input  din,
+    output reg qout
+);
+
+always @(clock or rst or din) begin
+    if (rst)
+        qout = 1'b0;
+    else if (clock)
+        qout = din;
+end
+
+endmodule</code></pre></div>
+<div class="flow">
+<span>rst=1</span>
+<span class="arrow">→</span>
+<span>qout=0 즉시</span>
+<span class="arrow">/ rst=0</span>
+<span>clock=1일 때 din 통과</span>
+</div>
+<h4>코드 11-4 — 테스트벤치</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dlatch_rst.v</span><span>VERILOG</span></span></div><pre><code>module tb_dlatch_rst;
+
+reg clock, din, rst;
+
+dlatch_pos_AHrst U0 (
+    clock,
+    rst,
+    din,
+    qout
+);
+
+initial begin
+    clock = 1'b0;
+    forever #10 clock = ~clock;
+end
+
+initial begin
+    din = 1'b0;
+    rst = 1'b0;
+
+    #15 din = 1'b1;
+    #10 din = 1'b0;
+    #10 din = 1'b1;
+
+    #30 rst = 1'b1;
+    #10 rst = 1'b0;
+
+    #10 din = 1'b0;
+    #20 din = 1'b1;
+    #10 din = 1'b0;
+
+    #20 $finish;
+end
+
+endmodule</code></pre></div>
+<div class="task">
+<div class="title">설계과제 11-2</div>
+<p>비동기식 active-low set/reset을 갖는 4비트 negative D latch를 설계한다.</p>
+</div>
+</section><section class="section" id="ff">
+<h2><span class="num">02</span> 11.1.2 D 플립플롭</h2>
 <p>
-연결하지 않는 포트를
-<code>.port_name()</code>처럼 빈 괄호로 표현할 수 있다고 설명한다.
+D Flip-Flop(DFF)은 clock의 천이 에지에서만 입력을 샘플링하고,
+다음 유효 에지까지 그 값을 유지한다.
+따라서 동기식 디지털 시스템의 기본 저장소자로 사용된다.
 </p>
-<h3>6.3 동일 포트 중복 연결 오류</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>modX U0 (
-    .i(a),
-    .i(b),   // 오류
-    .o(c),
-    .o(d),   // 오류
-    .e(f)
-);</code></pre></div>
-</section><section class="section" id="fulladder">
-<h2><span class="num">06</span> 포트 연결과 구조적 설계 예</h2>
-<h3>7.1 parameter를 갖는 D 플립플롭과 5비트 레지스터</h3>
-<div class="example-title">코드 6-3(a): dff</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff (
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg q,
+<div class="logic">
+<span class="sig">din</span>
+<span>→</span>
+<div class="box">DFF<br/>posedge clk</div>
+<span>→</span>
+<span class="sig">qout</span>
+</div>
+<div class="note">
+<strong>감지신호목록</strong><br/>
+일반적인 edge-triggered DFF는 <code>always @(posedge clk)</code>처럼
+clock만 감지한다.
+비동기 reset/set이 있다면 해당 reset/set edge도 함께 넣는다.
+</div>
+<h3>3.1 코드 11-9 — 상승에지 DFF</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_pos.v</span><span>VERILOG</span></span></div><pre><code>module dff_pos (
     input  clk,
-    input  d
+    input  din,
+    output reg qout
 );
 
-parameter delay = 1;
+always @(posedge clk)
+    qout &lt;= din;
+
+endmodule</code></pre></div>
+<div class="flow">
+<span>posedge clk</span>
+<span class="arrow">→</span>
+<span>din 샘플링</span>
+<span class="arrow">→</span>
+<span>qout Register 저장</span>
+<span class="arrow">→</span>
+<span>다음 posedge까지 유지</span>
+</div>
+<h3>3.2 코드 11-10 — 테스트벤치</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dff.v</span><span>VERILOG</span></span></div><pre><code>module tb_dff;
+
+reg clk, din;
+
+dff_pos U0 (
+    clk,
+    din,
+    qout
+);
+
+initial begin
+    clk = 1'b0;
+    forever #10 clk = ~clk;
+end
+
+initial begin
+    din = 1'b0;
+
+    #15 din = 1'b1;
+    #10 din = 1'b0;
+    #10 din = 1'b1;
+    #10 din = 1'b0;
+    #20 din = 1'b1;
+    #10 din = 1'b0;
+
+    #20 $finish;
+end
+
+endmodule</code></pre></div>
+<h3>3.3 qout과 qout_bar를 갖는 DFF</h3>
+<p>
+코드 11-11은 qout과 qout_bar를 모두 sequential block에서 만드는 경우와,
+qout만 register로 만들고 qout_bar를 조합논리로 만드는 경우를 비교한다.
+</p>
+<h4>코드 11-11(a) — 두 출력 모두 nonblocking</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Bad1.v</span><span>VERILOG</span></span></div><pre><code>module dff_Bad1 (
+    input  clk,
+    input  din,
+    output reg qout,
+    output reg qout_bar
+);
 
 always @(posedge clk) begin
-    #delay q &lt;= d;
+    qout     &lt;= din;
+    qout_bar &lt;= ~din;
 end
 
 endmodule</code></pre></div>
-<div class="example-title">코드 6-3(b): reg_5b</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">reg_5b.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module reg_5b (
-    output [4:0] qout,
-    input        clk,
-    input  [4:0] din
+<h4>코드 11-11(b) — 두 출력 모두 blocking</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Bad2.v</span><span>VERILOG</span></span></div><pre><code>module dff_Bad2 (
+    input  clk,
+    input  din,
+    output reg qout,
+    output reg qout_bar
 );
 
-dff u1 (
-    qout[0], clk, din[0]
+always @(posedge clk) begin
+    qout     = din;
+    qout_bar = ~din;
+end
+
+endmodule</code></pre></div>
+<h4>코드 11-11(c) — qout만 register, qout_bar는 조합논리</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Good.v</span><span>VERILOG</span></span></div><pre><code>module dff_Good (
+    input  clk,
+    input  din,
+    output reg qout,
+    output qout_bar
 );
 
-dff u2 (
-    .clk(clk),
-    .q(qout[1]),
-    .d(din[1])
-);
+assign qout_bar = ~qout;
 
-dff u3 (
-    qout[2], clk, din[2]
-);
-
-defparam u3.delay = 2.5;
-
-dff #(3) u4 (
-    qout[3], clk, din[3]
-);
-
-dff #(
-    .delay(4)
-) u5 (
-    qout[4], clk, din[4]
-);
+always @(posedge clk)
+    qout &lt;= din;
 
 endmodule</code></pre></div>
 <table>
-<thead><tr><th>인스턴스</th><th>포트 연결</th><th>parameter 변경</th></tr></thead>
+<thead><tr><th>모델</th><th>합성되는 저장소자</th><th>의미</th></tr></thead>
 <tbody>
-<tr><td>u1</td><td>순서</td><td>기본값</td></tr>
-<tr><td>u2</td><td>이름</td><td>기본값</td></tr>
-<tr><td>u3</td><td>순서</td><td><code>defparam</code>으로 2.5</td></tr>
-<tr><td>u4</td><td>순서</td><td><code>#(3)</code></td></tr>
-<tr><td>u5</td><td>순서</td><td><code>#(.delay(4))</code></td></tr>
+<tr><td>11-11(a)</td><td>qout용 FF + qout_bar용 FF</td><td>1비트 저장에 FF 2개 사용</td></tr>
+<tr><td>11-11(b)</td><td>마찬가지로 FF 2개</td><td>clocked always의 좌변 reg는 저장소자로 추론</td></tr>
+<tr><td>11-11(c)</td><td>qout용 FF 1개 + 인버터</td><td>가장 자연스러운 구조</td></tr>
 </tbody>
 </table>
-<div class="note"><strong>Simulation 지연과 실제 FPGA 지연</strong><br/>#delay는 시뮬레이션 시간 제어이며, 실제 FPGA의 물리적 지연은 구현 후 Timing Report에서 확인한다.</div>
-<h3>7.2 1비트 전가산기 — 두 개의 반가산기 + OR</h3>
-<div class="example-title">코드 6-4(a): half_adder</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">half_adder.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module half_adder (
-    input  a,
-    input  b,
-    output sum,
-    output cout
-);
-
-xor U0 (sum, a, b);
-nand    (cout_bar, a, b);
-not U1 (cout, cout_bar);
-
-endmodule</code></pre></div>
-<div class="example-title">코드 6-4(b): full_adder</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">full_adder.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module full_adder (
-    input  a,
-    input  b,
-    input  cin,
-    output sum,
-    output cout
-);
-
-half_adder u0 (
-    a,
-    b,
-    temp_sum,
-    temp_c1
-);
-
-half_adder u1 (
-    .a(temp_sum),
-    .b(cin),
-    .sum(sum),
-    .cout(temp_c2)
-);
-
-or u2 (
-    cout,
-    temp_c1,
-    temp_c2
-);
-
-endmodule</code></pre></div>
-<div class="flow">
-<span>a,b</span>
-<span class="arrow">→</span>
-<span>half_adder u0</span>
-<span class="arrow">→</span>
-<span>temp_sum, temp_c1</span>
+<div class="task">
+<div class="title">설계과제 11-5</div>
+<p><code>qout_bar &lt;= ~qout;</code>로 작성하면 단순 보수 출력 DFF가 아닌 다른 회로가 되는 이유를 시뮬레이션과 합성으로 확인한다.</p>
 </div>
-<div class="flow">
-<span>temp_sum, cin</span>
-<span class="arrow">→</span>
-<span>half_adder u1</span>
-<span class="arrow">→</span>
-<span>sum, temp_c2</span>
-</div>
-<div class="flow">
-<span>temp_c1, temp_c2</span>
-<span class="arrow">→</span>
-<span>OR u2</span>
-<span class="arrow">→</span>
-<span>cout</span>
-</div>
-<div class="rtl">
-<strong>구조적 모델링핵심</strong><br/>
-<code>full_adder</code>는 반가산기의 내부 논리식을 다시 작성하지 않는다.
-이미 정의된 <code>half_adder</code>를 하드웨어 블록으로 재사용하고,
-중간 신호를 wire처럼 연결하여 더 큰 회로를 만든다.
-</div>
-<h3>7.3 전가산기 테스트벤치</h3>
-<div class="example-title">코드 6-5</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_full_adder.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_full_adder;
-
-reg a, b, cin;
-integer k;
-
-full_adder U0 (
-    a, b, cin,
-    sum, cout
+</section><section class="section" id="reset">
+<h2><span class="num">03</span> Set/Reset을 갖는 플립플롭</h2>
+<h3>4.1 동기식 Active-Low Reset</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_sync_ALrst.v</span><span>VERILOG</span></span></div><pre><code>module dff_sync_ALrst (
+    input  clk,
+    input  din,
+    input  rstn,
+    output reg qout
 );
 
-initial begin
-    for (k = 0; k &lt; 8; k = k + 1) begin
-        cin = k / 4;
-        b   = (k % 4) / 2;
-        a   = k % 2;
-
-        #10;
-    end
-
-    #10 $finish;
+always @(posedge clk) begin
+    if (!rstn)
+        qout &lt;= 1'b0;
+    else
+        qout &lt;= din;
 end
-
-endmodule</code></pre></div>
-<p>
-<code>k=0~7</code>을 이용해
-<code>{cin,b,a}</code>의 8개 가능한 입력 조합을 순차적으로 만든다.
-</p>
-</section><section class="section" id="array">
-<h2><span class="num">07</span> 인스턴스 배열</h2>
-<p>
-동일한 모듈을 여러 번 반복 배치할 때
-인스턴스 이름 뒤에 범위를 지정하여 인스턴스 배열을 만들 수 있다.
-</p>
-<h3>8.1 개별 인스턴스 방식</h3>
-<div class="example-title">코드 6-6(a)</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bus_driver.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module bus_driver (
-    input  [15:0] busin,
-    input         enh,
-    input         enl,
-    output [7:0]  bushigh,
-    output [7:0]  buslow
-);
-
-driver busar3 (
-    busin[15:12], bushigh[7:4], enh
-);
-
-driver busar2 (
-    busin[11:8], bushigh[3:0], enh
-);
-
-driver busar1 (
-    busin[7:4], buslow[7:4], enl
-);
-
-driver busar0 (
-    busin[3:0], buslow[3:0], enl
-);
-
-endmodule</code></pre></div>
-<h3>8.2 인스턴스 배열 방식</h3>
-<div class="example-title">코드 6-6(b)</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bus_driver.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module bus_driver (
-    input  [15:0] busin,
-    input         enh,
-    input         enl,
-    output [7:0]  bushigh,
-    output [7:0]  buslow
-);
-
-driver busar [3:0] (
-    .in(busin),
-    .out({bushigh, buslow}),
-    .en({enh, enh, enl, enl})
-);
-
-endmodule</code></pre></div>
-<div class="tip">
-<strong>무엇이 줄어든 것인가?</strong><br/>
-네 개의 같은 <code>driver</code> 인스턴스를 한 줄의 인스턴스 배열로 표현한다.
-포트에 연결되는 벡터와 결합 연산자는 배열의 각 인스턴스에 대응하여 분배된다.
-</div>
-</section><section class="section" id="real">
-<h2><span class="num">08</span> 6.2.2 실수형 값의 포트 연결</h2>
-<p>
-<code>real</code> 값을 모듈 포트에 직접 연결하지 않고
-64비트 비트 벡터로 변환한 뒤 전달하는 방법을 설명한다.
-</p>
-<div class="example-title">코드 6-7: real → bits</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">driver.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module driver (
-    output net_r
-);
-
-real r;
-
-wire [64:1] net_r = $realtobits(r);
-
-endmodule</code></pre></div>
-<div class="example-title">코드 6-8: bits → real</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">receiver.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module receiver (
-    input net_r
-);
-
-wire [64:1] net_r;
-real r;
-
-initial
-    r = $bitstoreal(net_r);
-
-endmodule</code></pre></div>
-<div class="flow">
-<span>real r</span>
-<span class="arrow">→ $realtobits</span>
-<span>64비트 벡터</span>
-<span class="arrow">→ 포트 전달</span>
-<span>64비트 벡터</span>
-<span class="arrow">→ $bitstoreal</span>
-<span>real r</span>
-</div>
-</section><section class="section" id="parameter">
-<h2><span class="num">09</span> 6.3 모듈 parameter</h2>
-<p>
-<code>parameter</code>는 하나의 RTL 모듈을
-여러 비트 폭, 깊이, 지연값 또는 구현 조건으로 재사용하기 위한 중요한 수단이다.
-모듈 외부의 인스턴스에서 값을 변경할 수 있다.
-반면 <code>localparam</code>은 모듈 내부 상수로 사용되며 외부에서 직접 변경하지 않는다.
-</p>
-<table>
-<thead><tr><th>구분</th><th>parameter</th><th>localparam</th></tr></thead>
-<tbody>
-<tr><td>상수</td><td>예</td><td>예</td></tr>
-<tr><td>모듈 인스턴스에서 변경</td><td>가능</td><td>불가</td></tr>
-<tr><td>주요 용도</td><td>모듈 맞춤화</td><td>내부 파생 상수</td></tr>
-</tbody>
-</table>
-<h3>10.1 자료형/범위에 따른 parameter 값 해석</h3>
-<ul>
-<li>자료형과 범위가 모두 없으면 최종 할당값이 자신의 기본 자료형·범위를 결정한다.</li>
-<li>범위만 지정되면 해당 범위의 unsigned parameter가 된다.</li>
-<li>자료형만 지정되면 지정 자료형으로 변환된다.</li>
-<li><code>signed</code>와 범위를 함께 지정하면 해당 signed/폭을 유지한다.</li>
-</ul>
-<div class="example-title">코드 6-9(a)</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mod_param.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mod_param (a, b);
-
-real r1, r2;
-
-parameter [2:0] A = 3'h2;
-parameter       B = 2;
-
-initial begin
-    r1 = A;
-    r2 = B;
-
-    $display(
-        "r1 is %f, r2 is %f",
-        r1, r2
-    );
-end
-
-endmodule</code></pre></div>
-<div class="example-title">코드 6-9(b)</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mod_defparam.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mod_defparam;
-
-wire a, b;
-
-defparam U0.A = 3.1415;
-defparam U0.B = 3.1415;
-
-mod_param U0 (a, b);
 
 endmodule</code></pre></div>
 <div class="note">
-<strong>해석</strong><br/>
-A는 <code>[2:0]</code> 범위를 가지고 있으므로
-3.1415가 정수화/폭 변환되어 A의 3비트 형식에 맞춰진다.
-B는 자료형과 범위가 명시되지 않았으므로 변경된 값의 성격을 따른다.
+<strong>동기식 reset핵심</strong><br/>
+reset이 바뀌어도 즉시 qout이 변하지 않는다.
+반드시 다음 <code>posedge clk</code>에서 reset 상태를 확인한 뒤 qout을 0으로 만든다.
 </div>
-</section><section class="section" id="defparam">
-<h2><span class="num">10</span> 6.3.1 defparam 문</h2>
-<p>
-<code>defparam</code>은 인스턴스의 <strong>계층적 이름</strong>을 사용해
-하위모듈 parameter 값을 바꾸는 방법이다.
-</p>
-<div class="example-title">코드 6-10(a): vdff</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">vdff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module vdff (
-    input                 clk,
-    input  [size-1:0]     in,
-    output reg [size-1:0] out
+<h3>4.2 비동기식 Active-Low Reset</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_async_ALrst.v</span><span>VERILOG</span></span></div><pre><code>module dff_async_ALrst (
+    input  clk,
+    input  din,
+    input  rst_n,
+    output reg qout
 );
 
-parameter size  = 1;
-parameter delay = 1;
-
-always @(posedge clk)
-    #delay out &lt;= in;
-
-endmodule</code></pre></div>
-<div class="example-title">코드 6-10(b): top</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">top.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module top (
-    input        clk,
-    input  [4:0] in1,
-    input  [9:0] in2,
-    output [4:0] out1,
-    output [9:0] out2
-);
-
-defparam
-    top.m1.size  = 5,
-    top.m1.delay = 10,
-    top.m2.size  = 10,
-    top.m2.delay = 20;
-
-vdff m1 (
-    clk, in1, out1
-);
-
-vdff m2 (
-    clk, in2, out2
-);
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+        qout &lt;= 1'b0;
+    else
+        qout &lt;= din;
+end
 
 endmodule</code></pre></div>
 <div class="flow">
-<span>vdff 기본 size=1</span>
+<span>posedge clk</span>
+<span class="arrow">또는</span>
+<span>negedge rst_n</span>
 <span class="arrow">→</span>
-<span>m1.size=5</span>
-<span class="arrow">→</span>
-<span>5비트 레지스터</span>
+<span>always block 실행</span>
 </div>
+<div class="task">
+<div class="title">설계과제 11-6</div>
+<ol>
+<li>동기식 active-high reset DFF</li>
+<li>동기식 active-high set DFF</li>
+<li>동기식 active-low set/reset DFF</li>
+<li>비동기식 active-high reset DFF</li>
+<li>비동기식 active-high set DFF</li>
+<li>비동기식 active-low set/reset DFF</li>
+</ol>
+</div>
+</section><section class="section" id="assign">
+<h2><span class="num">04</span> 11.2 순차회로에서 Blocking과 Nonblocking</h2>
+<p>
+이 장에서 가장 중요한 핵심 중 하나는
+<strong>순차회로의 상태를 표현할 때 blocking(<code>=</code>)과 nonblocking(<code>&lt;=</code>)의 의미가 다르다</strong>는 점이다.
+</p>
+<h3>5.1 래치 회로에서의 차이 — 코드 11-5 / 11-6</h3>
+<h4>Blocking</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_blocking.v</span><span>VERILOG</span></span></div><pre><code>module dlatch_blocking (
+    input  en,
+    input  a,
+    input  b,
+    input  c,
+    output reg y_out
+);
+
+reg m;
+
+always @(en, a, b, c) begin
+    if (en) begin
+        m     = ~(a | b);
+        y_out = ~(m &amp; c);
+    end
+end
+
+endmodule</code></pre></div>
 <div class="flow">
-<span>vdff 기본 size=1</span>
-<span class="arrow">→</span>
-<span>m2.size=10</span>
-<span class="arrow">→</span>
-<span>10비트 레지스터</span>
-</div>
-<div class="rtl">
-<strong>합성 구조</strong><br/>
-6-4는 parameter 변경에 따라
-같은 <code>vdff</code> 정의에서 5비트와 10비트 크기의 서로 다른 하드웨어 인스턴스가 생성되는 모습을 보여준다.
-</div>
-</section><section class="section" id="paraminst">
-<h2><span class="num">11</span> 6.3.2 모듈 인스턴스에서 parameter 값 변경</h2>
-<h3>12.1 순서에 의한 변경</h3>
-<div class="syntax">
-<code>module_name #(value1, value2, ...)
-    instance_name (port_connections);</code>
+<span>m = ~(a|b)</span>
+<span class="arrow">→ 즉시 m 갱신</span>
+<span>y_out = ~(새 m &amp; c)</span>
 </div>
 <p>
-하위모듈에서 parameter가 선언된 순서와
-<code>#(...)</code> 안 값의 순서가 1:1 대응한다.
+합성 결과에서는 <code>m</code>은 조합논리 결과가 되고,
+<code>y_out</code>만 latch가 된다.
 </p>
-<h3>12.2 이름에 의한 변경</h3>
-<div class="syntax">
-<code>module_name #(
-    .param_name1(value1),
-    .param_name2(value2)
-) instance_name (port_connections);</code>
+<h4>Nonblocking</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_Nonblocking.v</span><span>VERILOG</span></span></div><pre><code>module dlatch_Nonblocking (
+    input  en,
+    input  a,
+    input  b,
+    input  c,
+    output reg y_out
+);
+
+reg m;
+
+always @(en, a, b, c) begin
+    if (en) begin
+        m     &lt;= ~(a | b);
+        y_out &lt;= ~(m &amp; c);
+    end
+end
+
+endmodule</code></pre></div>
+<div class="flow">
+<span>우변 m 평가</span>
+<span class="arrow">→ 이전 m 사용</span>
+<span class="arrow">→</span>
+<span>m과 y_out 모두 상태 유지 필요</span>
+<span class="arrow">→</span>
+<span>Latch 2개</span>
 </div>
+<h3>5.2 플립플롭 회로에서의 차이 — 코드 11-16 / 11-17</h3>
+<h4>코드 11-16 — Blocking</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_blocking.v</span><span>VERILOG</span></span></div><pre><code>module seq_blocking (
+    input  clk,
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    input  e,
+    output reg yout
+);
+
+reg m, n;
+
+always @(posedge clk) begin
+    m    = ~(a &amp; b);
+    n    = c | d;
+    yout = ~(m | n | e);
+end
+
+endmodule</code></pre></div>
 <p>
-선언 순서와 무관하게 parameter 이름으로 원하는 항목만 변경할 수 있다.
+blocking이므로 m과 n의 새 값이 같은 always 실행 안에서 yout 계산에 바로 사용된다.
+11-11에서는 최종 yout만 FF에 저장되는 구조로 합성된다.
 </p>
-<h3>12.3 파라미터 + 인스턴스 배열을 이용한 M×N 레지스터</h3>
-<div class="example-title">코드 6-11(a): DFF</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">DFF.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module DFF (
-    input      clk,
-    input      in,
-    output reg out
+<h4>코드 11-17 — Nonblocking</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_Nonblocking.v</span><span>VERILOG</span></span></div><pre><code>module seq_Nonblocking (
+    input  clk,
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    input  e,
+    output reg yout
 );
 
-always @(posedge clk)
-    out &lt;= in;
+reg m, n;
+
+always @(posedge clk) begin
+    m    &lt;= ~(a &amp; b);
+    n    &lt;= c | d;
+    yout &lt;= ~(m | n | e);
+end
 
 endmodule</code></pre></div>
-<div class="example-title">코드 6-11(b): dffn</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dffn.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dffn (
-    input                   clk,
-    input  [BITS-1:0]       d,
-    output [BITS-1:0]       q
+<p>
+nonblocking에서는 같은 clock edge에서 우변들이 이전 상태를 기준으로 평가되므로
+<code>m</code>, <code>n</code>, <code>yout</code>가 모두 상태로 저장된다.
+11-12는 3개의 FF가 생성되는 모습을 보여준다.
+</p>
+<h3>5.3 4단 Shift Register에서 순서의 영향</h3>
+<h4>코드 11-19(a) — Blocking, 앞에서 뒤로</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(posedge clk) begin
+    q0 = din;
+    q1 = q0;
+    q2 = q1;
+    q3 = q2;
+end</code></pre></div>
+<p>
+blocking에서는 새 q0가 즉시 q1에 전달되고,
+다시 q2, q3로 같은 clock event 안에서 연쇄적으로 전달된다.
+따라서 4단 shift register가 아니라 사실상 한 단계에 값이 연쇄 전달되는 구조가 된다.
+</p>
+<h4>코드 11-19(b) — Blocking, 뒤에서 앞으로</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(posedge clk) begin
+    q3 = q2;
+    q2 = q1;
+    q1 = q0;
+    q0 = din;
+end</code></pre></div>
+<p>
+이 순서는 앞 단계의 “이전 값”을 뒤 단계에 먼저 복사하므로
+4단 shift register가 된다.
+즉 blocking은 <strong>문장 순서에 따라 회로 의미가 바뀔 수 있다.</strong>
+</p>
+<h4>코드 11-20 — Nonblocking</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(posedge clk) begin
+    q0 &lt;= din;
+    q1 &lt;= q0;
+    q2 &lt;= q1;
+    q3 &lt;= q2;
+end</code></pre></div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(posedge clk) begin
+    q3 &lt;= q2;
+    q2 &lt;= q1;
+    q1 &lt;= q0;
+    q0 &lt;= din;
+end</code></pre></div>
+<p>
+두 코드 모두 우변이 edge 직전 값으로 평가되므로 동일한 4단 shift register가 된다.
+</p>
+</section><section class="section" id="guideline">
+<h2><span class="num">05</span> 순차회로 코딩 가이드라인</h2>
+<ol>
+<li><strong>플립플롭 또는 래치</strong>를 모델링하는 always 블록에서는 nonblocking(<code>&lt;=</code>)을 사용한다.</li>
+<li><strong>조합회로</strong>를 모델링하는 always 블록에서는 blocking(<code>=</code>)을 사용한다.</li>
+<li>동일 always 블록에서 순차회로와 조합회로를 함께 표현해야 한다면 nonblocking을 권장한다.</li>
+<li>동일 always 블록에서 blocking과 nonblocking을 혼합하지 않는 것이 바람직하다.</li>
+<li>여러 always 블록이 동일 reg를 구동하지 않도록 한다.</li>
+</ol>
+<h3>6.1 코드 11-21 — 권장/비권장 코딩</h3>
+<h4>비권장 — 혼합 사용</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(posedge clk or negedge rstn)
+    if (!rstn)
+        qout &lt;= 1'b0;
+    else begin
+        tmp = a &amp; b;
+        qout &lt;= tmp;
+    end</code></pre></div>
+<h4>권장 — 조합식을 nonblocking 우변으로 직접 사용</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(posedge clk or negedge rstn)
+    if (!rstn)
+        qout &lt;= 1'b0;
+    else
+        qout &lt;= a &amp; b;</code></pre></div>
+<h4>권장 — 조합논리를 assign으로 분리</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>assign tmp = a &amp; b;
+
+always @(posedge clk or negedge rstn)
+    if (!rstn)
+        qout &lt;= 1'b0;
+    else
+        qout &lt;= tmp;</code></pre></div>
+<h3>6.2 코드 11-22 — Multiple Driver</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">Not_recommend_3.v</span><span>VERILOG</span></span></div><pre><code>module Not_recommend_3 (
+    input  clk,
+    input  rstn,
+    input  d1,
+    input  d2,
+    output reg qout
 );
 
-parameter BITS = 1;
+always @(posedge clk or negedge rstn)
+    if (!rstn)
+        qout &lt;= 1'b0;
+    else
+        qout &lt;= d1;
 
-DFF dff_array [BITS-1:0] (
-    .clk(clk),
-    .in(d),
-    .out(q)
-);
+always @(posedge clk or negedge rstn)
+    if (!rstn)
+        qout &lt;= 1'b0;
+    else
+        qout &lt;= d2;
 
 endmodule</code></pre></div>
-<div class="example-title">코드 6-11(c): MxN_register</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">MxN_register.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module MxN_register (
-    input          clk,
-    input  [M-1:0] in,
-    output [M-1:0] out
-);
-
-parameter M = 3;
-parameter N = 4;
-
-wire [M*(N-1):1] t;
-
-// dffn의 BITS를 M으로 변경
-dffn #(M) p [1:N] (
-    .clk(clk),
-    .d({t, in}),
-    .q({out, t})
-);
-
-endmodule</code></pre></div>
-<div class="rtl">
-<strong>합성 구조 해석</strong><br/>
-6-5는 M=3, N=4 조건에서
-3비트 폭의 레지스터 단계가 깊이 4로 연결된 구조,
-즉 DFF의 2차원 배열 형태로 확장된 회로를 보여준다.
+<div class="danger">
+<strong>다중 구동</strong><br/>
+같은 <code>qout</code>을 두 개의 always block이 동시에 구동하면
+합성 오류나 합성 전/후 불일치의 원인이 될 수 있다.
+한 상태 변수는 한 순차 always block에서만 갱신하는 구조가 기본이다.
 </div>
-<h3>12.4 네 가지 parameter 적용 예</h3>
-<div class="example-title">코드 6-12</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff (
-    input                  clk,
-    input  [size-1:0]      in,
-    output reg [size-1:0]  out
-);
-
-parameter size  = 5;
-parameter delay = 1;
-
-always @(posedge clk)
-    #delay out &lt;= in;
-
-endmodule
-
-
-module mod_param_assign (
-    input        clk,
-    input  [9:0] in_a,
-    input  [4:0] in_b,
-    input  [4:0] in_c,
-    input  [9:0] in_d,
-
-    output [9:0] out_a,
-    output [4:0] out_b,
-    output [4:0] out_c,
-    output [9:0] out_d
-);
-
-dff #(10,15) mod_a (
-    clk, in_a, out_a
-);
-
-dff mod_b (
-    clk, in_b, out_b
-);
-
-dff #(
-    .delay(12)
-) mod_c (
-    clk, in_c, out_c
-);
-
-dff #(
-    .delay(),
-    .size(10)
-) mod_d (
-    clk, in_d, out_d
-);
-
-endmodule</code></pre></div>
+</section><section class="section" id="counter">
+<h2><span class="num">06</span> 11.3 계수기와 시프트 레지스터</h2>
+<p>
+Counter(계수기)는 clock마다 상태값을 증가/감소시키며,
+주파수 분주, 시간 계수, 제어신호 생성 등에 널리 사용된다.
+</p>
+<h3>7.1 동기식 vs 비동기식 계수기</h3>
 <table>
-<thead><tr><th>인스턴스</th><th>size</th><th>delay</th><th>방법</th></tr></thead>
+<thead><tr><th>구분</th><th>동기식</th><th>비동기식(Ripple)</th></tr></thead>
 <tbody>
-<tr><td>mod_a</td><td>10</td><td>15</td><td>순서에 의한 변경</td></tr>
-<tr><td>mod_b</td><td>5</td><td>1</td><td>기본값 유지</td></tr>
-<tr><td>mod_c</td><td>5</td><td>12</td><td>이름에 의한 delay 변경</td></tr>
-<tr><td>mod_d</td><td>10</td><td>1</td><td>size만 변경, delay 기본 유지</td></tr>
+<tr><td>Clock</td><td>모든 FF가 같은 clock 사용</td><td>앞단 출력이 다음 FF의 clock 역할</td></tr>
+<tr><td>상태변화</td><td>동시에 갱신</td><td>앞단부터 순차 전파</td></tr>
+<tr><td>장점</td><td>빠르고 분석이 명확</td><td>구조가 단순</td></tr>
+<tr><td>단점</td><td>조합논리가 더 필요할 수 있음</td><td>전파지연 누적</td></tr>
 </tbody>
 </table>
-</section><section class="section" id="dependency">
-<h2><span class="num">12</span> 6.3.3 모듈 parameter의 상호 의존성</h2>
-<p>
-한 parameter가 다른 parameter를 이용해 계산되면
-원본 parameter 값이 변경될 때 파생 parameter도 함께 바뀐다.
-</p>
-<div class="example-title">예시 6-6</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>parameter
-    word_size   = 32,
-    memory_size = word_size * 4096;</code></pre></div>
+<h3>7.2 11.3.1 8비트 증가계수기</h3>
+<h4>코드 11-23</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">counter_up.v</span><span>VERILOG</span></span></div><pre><code>module counter_up (
+    input        clk,
+    input        rstn,
+    output reg [7:0] cnt_out
+);
+
+always @(posedge clk or negedge rstn) begin
+    if (!rstn)
+        cnt_out &lt;= 0;
+    else
+        cnt_out &lt;= cnt_out + 1;
+end
+
+endmodule</code></pre></div>
 <div class="flow">
-<span>word_size 변경</span>
-<span class="arrow">→</span>
-<span>memory_size 식 재계산</span>
-<span class="arrow">→</span>
-<span>파라미터화된 메모리 크기 변화</span>
+<span>현재 cnt_out</span>
+<span class="arrow">→ +1 Adder</span>
+<span>cnt_out + 1</span>
+<span class="arrow">→ posedge clk</span>
+<span>8-bit Register 저장</span>
 </div>
-<div class="tip">
-<strong>설계 의미</strong><br/>
-관련된 폭과 용량을 각각 따로 수동 수정하지 않고,
-하나의 기준 parameter를 변경하면
-종속 parameter가 자동으로 따라가도록 만들 수 있다.
+<div class="note">
+<strong>Bit Width</strong><br/>
+8비트 unsigned counter는 0~255를 표현한다.
+255에서 +1을 하면 상위 carry는 잘리고 0으로 wrap-around된다.
 </div>
-</section><section class="section" id="generate">
-<h2><span class="num">13</span> 6.4 생성문(generate)</h2>
+<h4>코드 11-24 — 테스트벤치</h4>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_counter.v</span><span>VERILOG</span></span></div><pre><code>module tb_counter;
+
+reg clk, rstn;
+wire [7:0] cnt_out;
+
+counter_up u0 (
+    clk,
+    rstn,
+    cnt_out
+);
+
+initial begin
+    clk  = 1'b0;
+    rstn = 1'b0;
+
+    #5   rstn = 1'b1;
+    #100 rstn = 1'b0;
+    #20  rstn = 1'b1;
+
+    #300 $finish;
+end
+
+always
+    #10 clk = ~clk;
+
+endmodule</code></pre></div>
+<div class="task">
+<div class="title">설계과제 11-8 ~ 11-10</div>
+<ul>
+<li>active-high enable을 갖는 8비트 down counter</li>
+<li>mode에 따라 up/down이 바뀌는 8비트 counter</li>
+<li>parallel load 기능까지 추가한 up/down counter</li>
+</ul>
+</div>
+</section><section class="section" id="divider">
+<h2><span class="num">07</span> 11.3.2 주파수 분주기</h2>
 <p>
-생성문은 elaboration(엘라보레이션, 시뮬레이션/합성 전에 설계 계층과 parameter를 확정하는 단계)에서
-조건에 따라 하드웨어 인스턴스를 여러 개 만들거나
-특정 구현을 선택하기 위한 구문이다.
+1MHz master clock에서 100kHz pulse를 만드는 1/10 분주기를 예로 든다.
+0~9까지 10개의 clock edge를 계수하고 cnt=9일 때 1 clock 동안 출력 pulse를 1로 만든다.
 </p>
-<div class="syntax">
-<code>generate
-    // generate items
-endgenerate</code>
+<h3>8.1 코드 11-25 — Duty 10% 1/10 분주</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">freq_div10.v</span><span>VERILOG</span></span></div><pre><code>module freq_div10 (
+    input  mclk,
+    input  rst,
+    output reg clk_div
+);
+
+reg [3:0] cnt;
+
+always @(posedge mclk or posedge rst) begin
+    if (rst) begin
+        cnt     &lt;= 0;
+        clk_div &lt;= 0;
+    end
+    else begin
+        if (cnt == 9) begin
+            cnt     &lt;= 0;
+            clk_div &lt;= 1'b1;
+        end
+        else begin
+            clk_div &lt;= 1'b0;
+            cnt     &lt;= cnt + 1;
+        end
+    end
+end
+
+endmodule</code></pre></div>
+<div class="flow">
+<span>mclk 10주기</span>
+<span class="arrow">→</span>
+<span>cnt 0→9</span>
+<span class="arrow">→</span>
+<span>clk_div 1주기 HIGH</span>
 </div>
-<h3>14.1 생성 가능한 항목</h3>
-<div class="bitgrid">
-<div class="bitbox">net 선언</div>
-<div class="bitbox">variable 선언</div>
-<div class="bitbox">assign</div>
-<div class="bitbox">module instance</div>
-<div class="bitbox">gate primitive</div>
-<div class="bitbox">always / initial</div>
-<div class="bitbox">function / task</div>
+<div class="note">
+<strong>Duty Cycle</strong><br/>
+출력은 10개의 입력 clock 주기 중 1주기만 HIGH이므로 duty cycle은 10%이다.
+</div>
+<div class="task">
+<div class="title">설계과제 11-11</div>
+<p>비동기식 active-high reset을 갖고 duty cycle 50%인 대칭 1/10 분주기를 설계한다.</p>
+</div>
+</section><section class="section" id="shift">
+<h2><span class="num">08</span> 11.3.3 직렬입력-직렬출력 Shift Register</h2>
+<p>
+8비트 SISO(Serial-In Serial-Out) shift register는
+클록 상승에지마다 데이터를 왼쪽으로 한 비트 이동시키고
+<code>s_in</code>을 LSB로 받아 <code>s_out</code>을 MSB에서 출력한다.
+</p>
+<div class="flow">
+<span>s_in</span>
+<span class="arrow">→</span>
+<span>q[0]</span>
+<span class="arrow">→</span>
+<span>q[1]</span>
+<span class="arrow">→ ... →</span>
+<span>q[7]</span>
+<span class="arrow">→</span>
+<span>s_out</span>
+</div>
+<h3>9.1 코드 11-26 — 비트별 nonblocking</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">shift_reg_nblk1.v</span><span>VERILOG</span></span></div><pre><code>module shift_reg_nblk1 (
+    input  clk,
+    input  rst,
+    input  s_in,
+    output s_out
+);
+
+reg [7:0] q;
+
+assign s_out = q[7];
+
+always @(posedge clk) begin
+    if (rst)
+        q &lt;= 8'h00;
+    else begin
+        q[0] &lt;= s_in;
+        q[1] &lt;= q[0];
+        q[2] &lt;= q[1];
+        q[3] &lt;= q[2];
+        q[4] &lt;= q[3];
+        q[5] &lt;= q[4];
+        q[6] &lt;= q[5];
+        q[7] &lt;= q[6];
+    end
+end
+
+endmodule</code></pre></div>
+<h3>9.2 코드 11-27 — 벡터 할당</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">shift_reg_nblk2.v</span><span>VERILOG</span></span></div><pre><code>module shift_reg_nblk2 (
+    input  clk,
+    input  rst,
+    input  s_in,
+    output s_out
+);
+
+reg [7:0] q;
+
+assign s_out = q[7];
+
+always @(posedge clk) begin
+    if (rst)
+        q &lt;= 8'h00;
+    else begin
+        q[0]   &lt;= s_in;
+        q[7:1] &lt;= q[6:0];
+    end
+end
+
+endmodule</code></pre></div>
+<div class="note">
+<strong>비트별로 풀어쓴 동작</strong><br/>
+<code>q[7:1] &lt;= q[6:0]</code>은
+q[7]←q[6], q[6]←q[5], …, q[1]←q[0]을 동시에 수행한다.
+</div>
+<div class="task">
+<div class="title">설계과제 11-12</div>
+<p>같은 8비트 SISO shift register를 다음 세 방법으로 다시 모델링한다.</p>
+<ol>
+<li>Concatenation(결합 연산자)</li>
+<li>Shift operator(시프트 연산자)</li>
+<li><code>for</code> 반복문</li>
+</ol>
+</div>
+<h3>9.3 11.3.4 병렬입력-병렬출력 Shift Register</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pload_shift_reg.v</span><span>VERILOG</span></span></div><pre><code>module pload_shift_reg (
+    input        clk,
+    input        rstn,
+    input        load,
+    input  [7:0] din,
+    output [7:0] pout
+);
+
+reg [7:0] shift_reg;
+
+assign pout = shift_reg;
+
+always @(posedge clk) begin
+    if (!rstn)
+        shift_reg &lt;= 0;
+    else if (load)
+        shift_reg &lt;= din;
+    else
+        shift_reg &lt;= shift_reg &lt;&lt; 1;
+end
+
+endmodule</code></pre></div>
+<div class="flow">
+<span>load=1</span>
+<span class="arrow">→</span>
+<span>din 병렬 로드</span>
+<span class="arrow">/ load=0</span>
+<span>왼쪽 shift</span>
+</div>
+<div class="task">
+<div class="title">설계과제 11-13</div>
+<p>비동기식 active-high reset을 갖는 SIPO(직렬입력-병렬출력) 8비트 shift register를 설계한다.</p>
+</div>
+</section><section class="section" id="spio">
+<h2><span class="num">09</span> 직렬/병렬 입출력을 갖는 가변폭 Shift Register</h2>
+<p>
+serial I/O와 parallel I/O를 모두 갖고,
+parameter로 폭을 바꿀 수 있는 shift register를 모델링한다.
+<code>data_io</code>는 병렬 입력과 출력을 함께 수행하므로 <code>inout</code>이다.
+</p>
+<table>
+<thead><tr><th>신호</th><th>기능</th></tr></thead>
+<tbody>
+<tr><td>clk</td><td>clock</td></tr>
+<tr><td>rstn</td><td>active-low reset</td></tr>
+<tr><td>shift_en</td><td>active-low shift enable</td></tr>
+<tr><td>pload_en</td><td>active-low parallel load enable</td></tr>
+<tr><td>pout_en</td><td>active-low parallel output enable</td></tr>
+<tr><td>sin</td><td>serial input</td></tr>
+<tr><td>sout</td><td>serial output</td></tr>
+<tr><td>data_io</td><td>parallel bidirectional data</td></tr>
+</tbody>
+</table>
+<h3>10.1 코드 11-29</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">shifter_sp_io.v</span><span>VERILOG</span></span></div><pre><code>module shifter_sp_io (
+    input                   clk,
+    input                   rstn,
+    input                   shift_en,
+    input                   pload_en,
+    input                   pout_en,
+    input                   sin,
+    output                  sout,
+    inout      [Len-1:0]    data_io
+);
+
+parameter Len = 8;
+
+reg [Len-1:0] shift_reg;
+
+assign data_io =
+    (!pout_en) ? shift_reg : {Len{1'bz}};
+
+assign sout = shift_reg[Len-1];
+
+always @(posedge clk) begin
+    if (!rstn)
+        shift_reg &lt;= {Len{1'b0}};
+    else begin
+        if (!shift_en) begin
+            shift_reg    &lt;= shift_reg &lt;&lt; 1;
+            shift_reg[0] &lt;= sin;
+        end
+        else if (!pload_en)
+            shift_reg &lt;= data_io;
+    end
+end
+
+endmodule</code></pre></div>
+<div class="note">
+<strong>3-state 병렬출력</strong><br/>
+<code>pout_en=0</code>이면 내부 shift_reg가 data_io를 구동하고,
+그 외에는 <code>{Len{1'bz}}</code>로 버스를 해제한다.
 </div>
 <div class="warn">
-<strong>제한</strong><br/>
-generate 내부에서 <code>parameter</code>, <code>localparam</code>,
-<code>input</code>, <code>output</code>, <code>inout</code> 선언은 허용되지 않는다고 설명한다.
-또한 반복 generate 내부에서는 function/task 선언에 제한이 있다.
+<strong>제어신호 상호배타성</strong><br/>
+parallel load와 shift가 동시에 활성되지 않아야 하며,
+외부 장치가 data_io를 구동하는 동안 내부 parallel output도 동시에 구동되지 않아야 한다.
 </div>
-<h3>14.2 생성문의 주요 형태</h3>
-<ul>
-<li>generate block</li>
-<li>generate-if</li>
-<li>generate-case</li>
-<li>generate-for</li>
-</ul>
-</section><section class="section" id="genvar">
-<h2><span class="num">14</span> 6.4.1 genvar 선언</h2>
-<div class="syntax">
-<code>genvar i;</code>
+<h3>10.2 코드 11-30 — 테스트벤치핵심 구조</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_shifter_sp_io.v</span><span>VERILOG</span></span></div><pre><code>`define PERIOD 20
+
+module tb_shifter_sp_io;
+
+parameter Len = 8;
+
+reg clk;
+reg rstn;
+reg shift_en;
+reg pload_en;
+reg pout_en;
+reg sin;
+
+reg  [Len-1:0] data_drv;
+reg            data_drv_en;
+
+wire [Len-1:0] data_io;
+wire           sout;
+
+shifter_sp_io #(
+    .Len(Len)
+) U0 (
+    .clk(clk),
+    .rstn(rstn),
+    .shift_en(shift_en),
+    .pload_en(pload_en),
+    .pout_en(pout_en),
+    .sin(sin),
+    .sout(sout),
+    .data_io(data_io)
+);
+
+// Testbench가 parallel load 데이터를 공급할 때만 bus를 구동
+assign data_io =
+    data_drv_en ? data_drv : {Len{1'bz}};
+
+initial begin
+    clk = 1'b0;
+    forever #(`PERIOD/2) clk = ~clk;
+end
+
+task shift_one_bit;
+input bit_value;
+begin
+    @(negedge clk);
+    sin = bit_value;
+
+    @(negedge clk);
+end
+endtask
+
+initial begin
+    rstn       = 1'b0;
+    shift_en   = 1'b1;
+    pload_en   = 1'b1;
+    pout_en    = 1'b1;
+    sin        = 1'b0;
+    data_drv   = {Len{1'b0}};
+    data_drv_en = 1'b0;
+
+    // synchronous reset
+    @(negedge clk);
+    rstn = 1'b1;
+
+    // serial shift: 1,0,1,1
+    shift_en = 1'b0;
+    shift_one_bit(1'b1);
+    shift_one_bit(1'b0);
+    shift_one_bit(1'b1);
+    shift_one_bit(1'b1);
+
+    // parallel output 확인
+    shift_en = 1'b1;
+    pout_en  = 1'b0;
+    @(negedge clk);
+    pout_en  = 1'b1;
+
+    // parallel load: 8'hA5
+    data_drv    = 8'hA5;
+    data_drv_en = 1'b1;
+    pload_en    = 1'b0;
+
+    @(negedge clk);
+    pload_en    = 1'b1;
+    data_drv_en = 1'b0;
+
+    // 다시 serial shift
+    shift_en = 1'b0;
+    shift_one_bit(1'b0);
+    shift_one_bit(1'b1);
+
+    #20 $finish;
+end
+
+endmodule</code></pre></div>
+<div class="task">
+<div class="title">설계과제 11-14</div>
+<p>코드 11-29에 <code>mode</code>를 추가하여 mode=0이면 오른쪽 shift, mode=1이면 왼쪽 shift가 되도록 양방향 기능을 추가한다.</p>
 </div>
+</section><section class="section" id="lfsr">
+<h2><span class="num">10</span> 11.3.5 선형 귀환 시프트 레지스터(LFSR)</h2>
 <p>
-<code>genvar</code>는 generate-for 반복 생성문에서 사용하는
-elaboration 전용 정수 인덱스이다.
+LFSR(Linear Feedback Shift Register, 선형 귀환 시프트 레지스터)는
+shift register의 일부 비트를 XOR/XNOR하여 입력으로 되먹임(feedback)함으로써
+의사난수 비트열을 만든다.
 </p>
+<div class="grid">
+<div class="card"><span class="k">응용 1</span><p>의사난수 sequence 생성</p></div>
+<div class="card"><span class="k">응용 2</span><p>암호화/복호화</p></div>
+<div class="card"><span class="k">응용 3</span><p>CRC·checksum 계열 무결성 검사</p></div>
+<div class="card"><span class="k">응용 4</span><p>BIST 테스트 벡터 생성/응답 분석</p></div>
+</div>
+<div class="danger">
+<strong>초기값 주의</strong><br/>
+XOR feedback LFSR을 모두 0으로 초기화하면 feedback도 계속 0이 되어
+영원히 000… 상태에 갇힌다.
+XNOR 방식은 반대로 모든 비트를 1로 초기화하지 않도록 주의한다.
+</div>
+<h3>11.1 코드 11-31(a) — 잘못된 Blocking 모델</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">LFSR_Bad1.v</span><span>VERILOG</span></span></div><pre><code>module LFSR_Bad1 (
+    input        clk,
+    input        rstn,
+    output [2:0] qout
+);
+
+reg q3, q2, q1;
+wire n1;
+
+assign qout = {q3, q2, q1};
+assign n1   = q1 ^ q3;
+
+always @(posedge clk or negedge rstn)
+    if (!rstn) begin
+        {q3, q2, q1} = 3'b111;
+    end
+    else begin
+        q3 = q2;
+        q2 = n1;
+        q1 = q3;
+    end
+
+endmodule</code></pre></div>
+<p>
+blocking으로 인해 q3가 먼저 바뀌고,
+그 새 q3가 같은 edge 처리 중 q1에 다시 사용되면서
+의도한 “동시에 한 칸 이동” 구조가 깨진다.
+</p>
+<h3>11.2 코드 11-31(b) — 올바른 Nonblocking 모델</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">LFSR_Good1.v</span><span>VERILOG</span></span></div><pre><code>module LFSR_Good1 (
+    input        clk,
+    input        rstn,
+    output [2:0] qout
+);
+
+reg q3, q2, q1;
+
+assign qout = {q3, q2, q1};
+
+always @(posedge clk or negedge rstn)
+    if (!rstn) begin
+        {q3, q2, q1} &lt;= 3'b111;
+    end
+    else begin
+        q3 &lt;= q2;
+        q2 &lt;= q1 ^ q3;
+        q1 &lt;= q3;
+    end
+
+endmodule</code></pre></div>
+<h3>11.3 코드 11-31(c) — Concatenation으로 간결화</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">LFSR_Good2.v</span><span>VERILOG</span></span></div><pre><code>module LFSR_Good2 (
+    input        clk,
+    input        rstn,
+    output [2:0] qout
+);
+
+reg q3, q2, q1;
+
+assign qout = {q3, q2, q1};
+
+always @(posedge clk or negedge rstn)
+    if (!rstn)
+        {q3, q2, q1} &lt;= 3'b111;
+    else
+        {q3, q2, q1}
+            &lt;= {q2, (q1 ^ q3), q3};
+
+endmodule</code></pre></div>
+<h3>11.4 코드 11-31(d) — 잘못된 초기값</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(posedge clk or negedge rstn)
+    if (!rstn)
+        {q3, q2, q1} &lt;= 3'b000;
+    else
+        {q3, q2, q1}
+            &lt;= {q2, (q1 ^ q3), q3};</code></pre></div>
+<div class="task">
+<div class="title">설계과제 11-15</div>
+<p>11-24의 8비트 LFSR을 모델링하고 비동기식 active-low set/reset 조건으로 시뮬레이션한다.</p>
+</div>
+</section><section class="section" id="fsm">
+<h2><span class="num">11</span> 11.4 유한상태머신(FSM)</h2>
+<p>
+FSM(Finite State Machine, 유한상태머신)은 정해진 수의 상태를 갖고
+입력과 현재상태에 따라 다음 상태로 천이하며 출력을 생성하는 제어회로이다.
+</p>
+<div class="logic">
+<span class="sig">Input</span>
+<span>→</span>
+<div class="box">Next-State Logic<br/>조합회로</div>
+<span>→</span>
+<div class="box">State Register<br/>순차회로</div>
+<span>→</span>
+<div class="box">Output Logic<br/>조합/순차</div>
+<span>→</span>
+<span class="sig">Output</span>
+</div>
+<h3>12.1 Moore와 Mealy</h3>
 <table>
-<thead><tr><th>항목</th><th>genvar</th><th>절차형 for의 integer</th></tr></thead>
+<thead><tr><th>구분</th><th>출력 결정 요소</th><th>특징</th></tr></thead>
 <tbody>
-<tr><td>존재 시점</td><td>elaboration 동안</td><td>시뮬레이션/절차 실행 동안</td></tr>
-<tr><td>용도</td><td>하드웨어 인스턴스 생성</td><td>절차형 문장 반복</td></tr>
-<tr><td>시뮬레이션 중 변수로 존재</td><td>아니오</td><td>예</td></tr>
+<tr><td>Moore</td><td>현재 state</td><td>출력이 상태 변화에 맞춰 바뀌며 구조가 명확</td></tr>
+<tr><td>Mealy</td><td>현재 state + input</td><td>입력 변화가 같은 상태에서도 출력에 영향을 줄 수 있음</td></tr>
+</tbody>
+</table>
+<h3>12.2 상태 인코딩</h3>
+<table class="truth">
+<thead><tr><th>State</th><th>Binary</th><th>Gray</th><th>Johnson</th><th>One-hot</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>000</td><td>000</td><td>0000</td><td>00000001</td></tr>
+<tr><td>1</td><td>001</td><td>001</td><td>0001</td><td>00000010</td></tr>
+<tr><td>2</td><td>010</td><td>011</td><td>0011</td><td>00000100</td></tr>
+<tr><td>3</td><td>011</td><td>010</td><td>0111</td><td>00001000</td></tr>
+<tr><td>4</td><td>100</td><td>110</td><td>1111</td><td>00010000</td></tr>
+<tr><td>5</td><td>101</td><td>111</td><td>1110</td><td>00100000</td></tr>
+<tr><td>6</td><td>110</td><td>101</td><td>1100</td><td>01000000</td></tr>
+<tr><td>7</td><td>111</td><td>100</td><td>1000</td><td>10000000</td></tr>
 </tbody>
 </table>
 <div class="note">
-<code>genvar</code>가 x, z, 음수 값을 가질 수 없고,
-반복 generate에 의해 값이 결정된다고 설명한다.
+<strong>Flip-Flop 수</strong><br/>
+N개 상태를 binary로 인코딩하면 대략 <code>ceil(log2(N))</code>개의 state bit가 필요하고,
+one-hot은 상태 수만큼 N개의 bit가 필요하다.
 </div>
-</section><section class="section" id="gray">
-<h2><span class="num">15</span> 6.4.2 반복 생성문 — Gray → Binary 변환기</h2>
+<h3>12.3 FSM 설계 권장사항</h3>
+<ol>
+<li>각 FSM을 독립 모듈로 구성한다.</li>
+<li>상태 이름은 <code>parameter</code>로 정의한다.</li>
+<li>초기 상태가 보장되도록 reset을 둔다.</li>
+<li>Next-State Logic / State Register / Output Logic을 분리한다.</li>
+<li>State Register는 latch보다 flip-flop을 사용한다.</li>
+<li>Next-State Logic은 <code>case</code> 중심으로 작성하고 undefined state는 <code>default</code>로 처리한다.</li>
+</ol>
+</section><section class="section" id="moore">
+<h2><span class="num">12</span> 11.4.1 Moore FSM</h2>
 <p>
-코드 6-13과 6-14는
-비트 수를 <code>SIZE</code> parameter로 설정한
-파라미터화 Gray code(그레이 코드) → binary(이진) 변환기 예이다.
+11-28은 네 상태 <code>IDLE → READ → DLY → DONE</code>을 갖는 FSM을 보여준다.
+<code>go</code>와 <code>ws</code>가 전이 조건으로 사용되며,
+출력 <code>rd</code>, <code>ds</code>는 현재 상태에 의해 결정된다.
 </p>
-<h3>16.1 assign을 이용한 generate-for</h3>
-<div class="example-title">코드 6-13</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">gray2bin1.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module gray2bin1 (
-    output [SIZE-1:0] bin,
-    input  [SIZE-1:0] gray
-);
-
-parameter SIZE = 4;
-
-genvar i;
-
-generate
-    for (i = 0; i &lt; SIZE; i = i + 1) begin : bit
-        assign bin[i] = ^gray[SIZE-1:i];
-    end
-endgenerate
-
-endmodule</code></pre></div>
+<h3>13.1 상태 흐름</h3>
 <div class="flow">
-<span>bin[i]</span>
-<span class="arrow">←</span>
-<span>gray[SIZE-1:i] 전체 XOR 축약</span>
-</div>
-<h3>16.2 always를 이용한 generate-for</h3>
-<div class="example-title">코드 6-14</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">gray2bin2.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module gray2bin2 (
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [SIZE-1:0] bin,
-    input  [SIZE-1:0] gray
-);
-
-parameter SIZE = 4;
-
-genvar i;
-
-generate
-    for (i = 0; i &lt; SIZE; i = i + 1) begin : bit
-        always @(gray[SIZE-1:i])
-            bin[i] = ^gray[SIZE-1:i];
-    end
-endgenerate
-
-endmodule</code></pre></div>
-<div class="rtl">
-<strong>generate-for의 의미</strong><br/>
-이 <code>for</code>는 시뮬레이션 중 매번 반복 실행되는 소프트웨어 루프가 아니다.
-elaboration 시점에 <code>SIZE</code>만큼의 하드웨어 조각을
-<strong>복제하여 생성</strong>하는 구조이다.
-</div>
-</section><section class="section" id="ripple">
-<h2><span class="num">16</span> 파라미터화된 리플 캐리 가산기</h2>
-<p>
-generate-for를 이용해
-각 비트의 full-adder 논리를 반복 생성하여
-멀티비트 ripple-carry adder(리플 캐리 가산기)를 만든다.
-</p>
-<h3>17.1 생성루프 밖에 2차원 net 선언</h3>
-<div class="example-title">코드 6-15</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">adder_gen1.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module adder_gen1 (
-    output              co,
-    output [SIZE-1:0]   sum,
-    input  [SIZE-1:0]   a,
-    input  [SIZE-1:0]   b,
-    input               ci
-);
-
-parameter SIZE = 4;
-
-wire [SIZE:0] c;
-wire [SIZE-1:0] t [1:3];
-
-genvar i;
-
-assign c[0] = ci;
-
-generate
-    for (i = 0; i &lt; SIZE; i = i + 1) begin : bit
-        xor g1 (t[1][i], a[i], b[i]);
-        xor g2 (sum[i],  t[1][i], c[i]);
-
-        and g3 (t[2][i], a[i], b[i]);
-        and g4 (t[3][i], t[1][i], c[i]);
-
-        or  g5 (c[i+1],  t[2][i], t[3][i]);
-    end
-endgenerate
-
-assign co = c[SIZE];
-
-endmodule</code></pre></div>
-<h4>비트 i의 데이터패스</h4>
-<div class="flow">
-<span>a[i], b[i]</span>
-<span class="arrow">→ XOR</span>
-<span>t1</span>
-<span class="arrow">+ c[i]</span>
-<span>sum[i]</span>
-</div>
-<div class="flow">
-<span>a[i],b[i]</span>
-<span class="arrow">→ AND</span>
-<span>t2</span>
-</div>
-<div class="flow">
-<span>t1,c[i]</span>
-<span class="arrow">→ AND</span>
-<span>t3</span>
-</div>
-<div class="flow">
-<span>t2,t3</span>
-<span class="arrow">→ OR</span>
-<span>c[i+1]</span>
-</div>
-<h3>17.2 생성루프 안에 지역 wire 선언</h3>
-<div class="example-title">코드 6-16</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">adder_gen2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module adder_gen2 (
-    output              co,
-    output [SIZE-1:0]   sum,
-    input  [SIZE-1:0]   a,
-    input  [SIZE-1:0]   b,
-    input               ci
-);
-
-parameter SIZE = 4;
-
-wire [SIZE:0] c;
-genvar i;
-
-assign c[0] = ci;
-
-generate
-    for (i = 0; i &lt; SIZE; i = i + 1) begin : bit
-        wire t1, t2, t3;
-
-        xor g1 (t1,       a[i], b[i]);
-        xor g2 (sum[i],   t1,   c[i]);
-
-        and g3 (t2,       a[i], b[i]);
-        and g4 (t3,       t1,   c[i]);
-
-        or  g5 (c[i+1],   t2,   t3);
-    end
-endgenerate
-
-assign co = c[SIZE];
-
-endmodule</code></pre></div>
-<div class="tip">
-<strong>두 코드의 차이</strong><br/>
-코드 6-15는 중간 net을 generate 밖의 2차원 배열로 선언하고,
-코드 6-16은 각 반복 블록 내부에 <code>t1,t2,t3</code>를 지역 net으로 생성한다.
-6-7은 두 코드가 동일한 4비트 리플 캐리 가산기 구조로 합성됨을 보여준다.
-</div>
-<h3>17.3 생성된 인스턴스 이름</h3>
-<p>
-<code>begin : bit</code>처럼 generate block 이름을 붙이면
-각 반복은 <code>bit[0]</code>, <code>bit[1]</code>처럼 고유한 계층 이름을 갖는다.
-</p>
-<div>
-<span class="scope">bit[0].g1</span>
-<span class="scope">bit[1].g1</span>
-<span class="scope">bit[2].g1</span>
-<span class="scope">bit[3].g1</span>
-</div>
-</section><section class="section" id="genhier">
-<h2><span class="num">17</span> 다중 생성루프와 생성 계층 이름</h2>
-<div class="example-title">코드 6-17</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>parameter SIZE = 2;
-
-genvar i, j, k, m;
-
-generate
-    for (i = 0; i &lt; SIZE; i = i + 1) begin : B1
-        M1 N1();
-
-        for (j = 0; j &lt; SIZE; j = j + 1) begin : B2
-            M2 N2();
-
-            for (k = 0; k &lt; SIZE; k = k + 1) begin : B3
-                M3 N3();
-            end
-        end
-
-        if (i &gt; 0) begin : B4
-            for (m = 0; m &lt; SIZE; m = m + 1) begin : B5
-                M4 N4();
-            end
-        end
-    end
-endgenerate</code></pre></div>
-<h3>18.1 계층 경로 예</h3>
-<div>
-<span class="scope">B1[0].N1</span>
-<span class="scope">B1[1].N1</span>
-<span class="scope">B1[0].B2[0].N2</span>
-<span class="scope">B1[0].B2[1].N2</span>
-<span class="scope">B1[0].B2[0].B3[0].N3</span>
-<span class="scope">B1[1].B4.B5[0].N4</span>
+<span>IDLE</span>
+<span class="arrow">go=1 →</span>
+<span>READ</span>
+<span class="arrow">→</span>
+<span>DLY</span>
+<span class="arrow">ws=0 →</span>
+<span>DONE</span>
+<span class="arrow">→</span>
+<span>IDLE</span>
 </div>
 <div class="note">
-<strong>계층 이름의 형태</strong><br/>
-<code>generated_block_identifier[genvar_value]</code>가 반복 생성 인스턴스의 범위를 만들고,
-그 아래에 실제 모듈 인스턴스 이름이 이어진다.
+<strong>DLY에서 ws=1</strong><br/>
+DONE으로 가지 않고 READ로 되돌아간다.
 </div>
-</section><section class="section" id="genif">
-<h2><span class="num">18</span> 6.4.3 조건 생성문과 6.4.4 case 생성문</h2>
-<h3>19.1 generate-if</h3>
-<p>
-조건 생성문은 <strong>elaboration 시점</strong>의 상수 조건에 따라
-어떤 하드웨어 블록을 실제 설계에 포함할지 결정한다.
-</p>
-<div class="example-title">코드 6-18</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">multiplier.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module multiplier (
-    input  [a_width-1:0]       a,
-    input  [b_width-1:0]       b,
-    output [product_width-1:0] product
+<h3>13.2 코드 11-32(a) — 출력 assign</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">FSM_ex1.v</span><span>VERILOG</span></span></div><pre><code>module FSM_ex1 (
+    input  clk,
+    input  rstn,
+    input  go,
+    input  ws,
+    output rd,
+    output ds
 );
 
-parameter a_width = 8;
-parameter b_width = 8;
+parameter
+    IDLE = 2'b00,
+    READ = 2'b01,
+    DLY  = 2'b10,
+    DONE = 2'b11;
 
-localparam product_width = a_width + b_width;
+reg [1:0] state, next;
 
-generate
-    if ((a_width &lt; 8) || (b_width &lt; 8)) begin : MULT
-        CLA_mul #(
-            a_width,
-            b_width
-        ) U1 (
-            a, b, product
-        );
-    end
-    else begin : MULT
-        WALLACE_mul #(
-            a_width,
-            b_width
-        ) U1 (
-            a, b, product
-        );
-    end
-endgenerate
+// State Register
+always @(posedge clk or negedge rstn)
+    if (!rstn)
+        state &lt;= IDLE;
+    else
+        state &lt;= next;
+
+// Next-State Logic
+always @(state or go or ws) begin
+    next = 2'bx;
+
+    case (state)
+        IDLE:
+            if (go) next = READ;
+            else    next = IDLE;
+
+        READ:
+            next = DLY;
+
+        DLY:
+            if (!ws) next = DONE;
+            else     next = READ;
+
+        DONE:
+            next = IDLE;
+    endcase
+end
+
+// Moore Output Logic
+assign rd = (state == READ) ||
+            (state == DLY);
+
+assign ds = (state == DONE);
 
 endmodule</code></pre></div>
-<div class="flow">
-<span>a_width 또는 b_width &lt; 8</span>
-<span class="arrow">→</span>
-<span>CLA_mul 인스턴스</span>
-</div>
-<div class="flow">
-<span>그 외</span>
-<span class="arrow">→</span>
-<span>WALLACE_mul 인스턴스</span>
-</div>
-<div class="rtl">
-<strong>중요</strong><br/>
-런타임에 두 곱셈기 사이를 MUX로 선택하는 회로가 아니다.
-elaboration 시 parameter 조건에 따라
-둘 중 하나의 구현만 실제 계층에 생성되는 구조이다.
-</div>
-<h3>19.2 generate-case</h3>
-<div class="example-title">코드 6-19</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>generate
-    case (WIDTH)
-        1: begin : ADDER
-            adder_1bit U1 (
-                co, sum, a, b, ci
-            );
+<h3>13.3 코드 11-32(b) — Next-State block에서 출력도 계산</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(state or go or ws) begin
+    next = 2'bx;
+    rd   = 1'b0;
+    ds   = 1'b0;
+
+    case (state)
+        IDLE:
+            if (go) next = READ;
+            else    next = IDLE;
+
+        READ: begin
+            rd   = 1'b1;
+            next = DLY;
         end
 
-        2: begin : ADDER
-            adder_2bit U1 (
-                co, sum, a, b, ci
-            );
+        DLY: begin
+            rd = 1'b1;
+
+            if (!ws) next = DONE;
+            else     next = READ;
         end
 
-        default: begin : ADDER
-            adder_cla #(
-                WIDTH
-            ) U1 (
-                co, sum, a, b, ci
-            );
+        DONE: begin
+            ds   = 1'b1;
+            next = IDLE;
         end
     endcase
-endgenerate</code></pre></div>
+end</code></pre></div>
+<div class="note">
+<strong>조합출력의 특징</strong><br/>
+state decoding을 통해 rd/ds가 직접 만들어진다.
+조합경로의 입력이 변하면 출력도 조합논리 지연 후 변할 수 있다.
+</div>
+<h3>13.4 코드 11-32(c) — Registered Output</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>// 출력값 결정 및 출력 레지스터
+always @(posedge clk or negedge rstn)
+    if (!rstn) begin
+        ds &lt;= 1'b0;
+        rd &lt;= 1'b0;
+    end
+    else begin
+        ds &lt;= 1'b0;
+        rd &lt;= 1'b0;
+
+        case (next)
+            READ: rd &lt;= 1'b1;
+            DLY : rd &lt;= 1'b1;
+            DONE: ds &lt;= 1'b1;
+        endcase
+    end</code></pre></div>
+<div class="rtl">
+<strong>Registered output</strong><br/>
+출력을 별도 FF에 저장하면 clock edge에서만 출력이 바뀌므로
+조합 decode glitch를 줄이는 데 유리하다.
+다만 출력이 register를 거치므로 timing/latency 해석은 상태전이 기준으로 확인해야 한다.
+</div>
+<div class="task">
+<div class="title">설계과제 11-16 ~ 11-18</div>
+<ul>
+<li>ST0~ST3 Moore FSM 설계</li>
+<li>출력을 register로 바꾼 Moore FSM</li>
+<li>비트패턴 <code>0110</code>을 검출하는 Moore sequence detector</li>
+</ul>
+</div>
+</section><section class="section" id="mealy">
+<h2><span class="num">13</span> 11.4.2 Mealy FSM</h2>
+<p>
+입력 bit가 연속해서 <code>00</code> 또는 <code>11</code>이 되면
+출력 <code>dout_bit=1</code>이 되는 sequence detector를 Mealy FSM으로 구현한다.
+</p>
+<h3>14.1 상태 역할</h3>
 <table>
-<thead><tr><th>WIDTH</th><th>생성되는 하드웨어</th></tr></thead>
+<thead><tr><th>상태</th><th>의미</th></tr></thead>
 <tbody>
-<tr><td>1</td><td><code>adder_1bit</code></td></tr>
-<tr><td>2</td><td><code>adder_2bit</code></td></tr>
-<tr><td>그 외</td><td><code>adder_cla #(WIDTH)</code></td></tr>
+<tr><td>start</td><td>초기 상태</td></tr>
+<tr><td>rd0_once</td><td>직전 입력이 0인 상태</td></tr>
+<tr><td>rd0_twice</td><td>0이 연속 입력된 상태</td></tr>
+<tr><td>rd1_once</td><td>직전 입력이 1인 상태</td></tr>
+<tr><td>rd1_twice</td><td>1이 연속 입력된 상태</td></tr>
 </tbody>
 </table>
-<p>
-선택된 경로의 계층 인스턴스 이름을
-<code>ADDER.U1</code>로 설명한다.
-</p>
-</section><section class="section" id="hiername">
-<h2><span class="num">19</span> 6.5 계층적 이름</h2>
-<p>
-Verilog의 모듈, 인스턴스, task, function, named block,
-generate block 등은 계층구조 안에서 고유한 경로 이름을 가질 수 있다.
-각 계층은 점(<code>.</code>)으로 연결된다.
-</p>
-<div class="syntax">
-<code>root.instance.sub_instance.block.object</code>
+<h3>14.2 핵심 전이</h3>
+<div class="flow">
+<span>rd0_once + din=0</span>
+<span class="arrow">→</span>
+<span>rd0_twice, dout=1</span>
 </div>
-<h3>20.1 코드 6-20의 계층 구조</h3>
-<div class="example-title">코드 6-20</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">wave.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module wave;
-
-reg stim1, stim2;
-
-cct a (
-    stim1,
-    stim2
+<div class="flow">
+<span>rd1_once + din=1</span>
+<span class="arrow">→</span>
+<span>rd1_twice, dout=1</span>
+</div>
+<h3>14.3 코드 11-33 — Mealy FSM</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_det_mealy.v</span><span>VERILOG</span></span></div><pre><code>module seq_det_mealy (
+    input  clk,
+    input  rst,
+    input  din_bit,
+    output dout_bit
 );
 
-initial begin : wave1
-    #100 fork : innerwave
-        reg hold;
-    join
+reg [2:0] state_reg, next_state;
 
-    #150 begin
-        stim1 = 0;
-    end
+parameter
+    start      = 3'b000,
+    rd0_once   = 3'b001,
+    rd1_once   = 3'b010,
+    rd0_twice  = 3'b011,
+    rd1_twice  = 3'b100;
+
+// Next-State Logic
+always @(state_reg or din_bit) begin
+    case (state_reg)
+
+        start:
+            if (din_bit == 0)
+                next_state = rd0_once;
+            else if (din_bit == 1)
+                next_state = rd1_once;
+            else
+                next_state = start;
+
+        rd0_once:
+            if (din_bit == 0)
+                next_state = rd0_twice;
+            else if (din_bit == 1)
+                next_state = rd1_once;
+            else
+                next_state = start;
+
+        rd0_twice:
+            if (din_bit == 0)
+                next_state = rd0_twice;
+            else if (din_bit == 1)
+                next_state = rd1_once;
+            else
+                next_state = start;
+
+        rd1_once:
+            if (din_bit == 0)
+                next_state = rd0_once;
+            else if (din_bit == 1)
+                next_state = rd1_twice;
+            else
+                next_state = start;
+
+        rd1_twice:
+            if (din_bit == 0)
+                next_state = rd0_once;
+            else if (din_bit == 1)
+                next_state = rd1_twice;
+            else
+                next_state = start;
+
+        default:
+            next_state = start;
+
+    endcase
 end
 
-endmodule
-
-
-module cct (
-    input stim1,
-    input stim2
-);
-
-mod Amod (stim1),
-    Bmod (stim2);
-
-endmodule
-
-
-module mod (
-    input in
-);
-
-always @(posedge in) begin : keep
-    reg hold;
-
-    hold = in;
+// State Register
+always @(posedge clk or posedge rst) begin
+    if (rst == 1)
+        state_reg &lt;= start;
+    else
+        state_reg &lt;= next_state;
 end
+
+// Mealy Output Logic
+assign dout_bit =
+    (((state_reg == rd0_twice) &amp;&amp; (din_bit == 0)) ||
+     ((state_reg == rd1_twice) &amp;&amp; (din_bit == 1)))
+    ? 1'b1 : 1'b0;
 
 endmodule</code></pre></div>
-<div class="hier">
-<div class="node">wave</div>
-<div class="arrow">↓</div>
-<div class="childrow">
-<div class="node">a : cct</div>
-<div class="node">wave1 : named initial block</div>
-</div>
-<div class="arrow">↓</div>
-<div class="childrow">
-<div class="node">Amod / Bmod</div>
-<div class="node">innerwave</div>
-</div>
-<div class="arrow">↓</div>
-<div class="childrow">
-<div class="node">keep</div>
-<div class="node">hold</div>
-</div>
-</div>
-<h3>20.2 계층 경로 이름 예</h3>
-<div>
-<span class="scope">wave.stim1</span>
-<span class="scope">wave.a</span>
-<span class="scope">wave.a.Amod</span>
-<span class="scope">wave.a.Amod.keep</span>
-<span class="scope">wave.a.Amod.keep.hold</span>
-<span class="scope">wave.wave1</span>
-<span class="scope">wave.wave1.innerwave</span>
-<span class="scope">wave.wave1.innerwave.hold</span>
-</div>
 <div class="rtl">
-<strong>왜 중요한가?</strong><br/>
-계층 이름은 대규모 설계에서 “어느 모듈의 어느 인스턴스 안에 있는 어떤 객체인가”를
-정확히 식별하는 주소와 같다.
-parameter 재정의, 시뮬레이션 신호 관찰, 생성 인스턴스 참조 등에 사용된다.
+<strong>왜 Mealy인가?</strong><br/>
+출력 수식에 <code>state_reg</code>뿐 아니라 현재 입력 <code>din_bit</code>도 직접 들어간다.
+즉 같은 상태에서도 din_bit 값에 따라 dout_bit가 달라질 수 있다.
 </div>
-<h3>20.3 형제 블록 객체 상호 참조</h3>
-<div class="example-title">코드 6-21</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>begin
-    fork : mod_1
-        reg x;
-        mod_2.x = 1;
-    join
-
-    fork : mod_2
-        reg x;
-        mod_1.x = 0;
-    join
-end</code></pre></div>
-</section><section class="section" id="upward">
-<h2><span class="num">20</span> 6.5.1 상향 이름 참조</h2>
-<p>
-하위계층 모듈에서도 상위계층의 모듈/인스턴스 이름을 알고 있다면
-계층적 경로를 통해 상위 객체를 참조할 수 있다.
-</p>
-<div class="syntax">
-<code>module_name.item_name
-
-module_instance_name.item_name
-
-generate_module_name.item_name</code>
-</div>
-<p>
-인스턴스 이름을 현재 범위에서 먼저 찾고,
-없으면 상위 계층으로 올라가며 같은 이름을 찾는 방식으로 설명한다.
-</p>
-<h3>21.1 여러 복사본이 있는 계층에서 이름 참조</h3>
-<div class="example-title">코드 6-22</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">a.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module a;
-    integer i;
-
-    b a_b1();
-endmodule
-
-
-module b;
-    integer i;
-
-    c b_c1(),
-      b_c2();
-
-    initial
-        #10 b_c1.i = 2;
-endmodule
-
-
-module c;
-    integer i;
-
-    initial begin
-        i = 1;
-
-        b.i = 1;
-    end
-endmodule
-
-
-module d;
-    integer i;
-
-    b d_b1();
-
-    initial begin
-        a.i = 1;
-        d.i = 5;
-
-        a.a_b1.i = 2;
-        a.a_b1.b_c1.i = 3;
-        a.a_b1.b_c2.i = 4;
-
-        d.d_b1.i = 6;
-        d.d_b1.b_c1.i = 7;
-        d.d_b1.b_c2.i = 8;
-    end
-endmodule</code></pre></div>
-<h3>21.2 계층 구조 해석</h3>
-<div class="hier">
-<div class="childrow">
-<div class="node">root: a</div>
-<div class="node">root: d</div>
-</div>
-<div class="arrow">↓ 각각 b 인스턴스</div>
-<div class="childrow">
-<div class="node">a.a_b1</div>
-<div class="node">d.d_b1</div>
-</div>
-<div class="arrow">↓ 각각 c 두 개</div>
-<div class="childrow">
-<div class="node">b_c1</div>
-<div class="node">b_c2</div>
-<div class="node">b_c1</div>
-<div class="node">b_c2</div>
-</div>
-</div>
-<p>
-따라서 <code>c.i</code>는 설계 전체에서 네 개의 복사본이 존재하며,
-전체 경로를 이용하면 각 복사본을 개별적으로 식별할 수 있다.
-</p>
-<div>
-<span class="scope">a.a_b1.b_c1.i</span>
-<span class="scope">a.a_b1.b_c2.i</span>
-<span class="scope">d.d_b1.b_c1.i</span>
-<span class="scope">d.d_b1.b_c2.i</span>
+<div class="task">
+<div class="title">설계과제 11-19</div>
+<p>비트패턴 <code>0110</code>을 검출하는 Mealy FSM을 설계하고, 비동기식 active-high reset 조건에서 시뮬레이션으로 검증한다.</p>
 </div>
 </section><section class="section" id="summary">
-<h2><span class="num">21</span> 최종 핵심 정리</h2>
+<h2><span class="num">14</span> 최종 핵심 정리</h2>
 <table>
-<thead><tr><th>주제</th><th>핵심 내용</th><th>하드웨어 의미</th></tr></thead>
+<thead><tr><th>주제</th><th>핵심 RTL 표현</th><th>합성되는 하드웨어</th></tr></thead>
 <tbody>
-<tr><td>module</td><td>독립적인 하드웨어 설계 단위</td><td>재사용 가능한 기능 블록</td></tr>
-<tr><td>instance</td><td>상위 모듈 안에 배치된 모듈 복사본</td><td>실제 하위 하드웨어 블록 생성</td></tr>
-<tr><td>ordered port</td><td>선언 순서대로 포트 연결</td><td>순서 오류 주의</td></tr>
-<tr><td>named port</td><td>포트 이름으로 연결</td><td>연결 의도가 명확</td></tr>
-<tr><td>instance array</td><td>동일 모듈 여러 개 반복 생성</td><td>버스·레지스터 배열 구조</td></tr>
-<tr><td>parameter</td><td>외부에서 값 변경 가능</td><td>폭·깊이·구현을 재사용 가능하게 만듦</td></tr>
-<tr><td>localparam</td><td>외부에서 직접 변경 불가</td><td>내부 파생 상수</td></tr>
-<tr><td>defparam</td><td>계층 이름으로 parameter 변경</td><td>특정 인스턴스 맞춤화</td></tr>
-<tr><td>generate-for</td><td>elaboration 시 반복 생성</td><td>동일 하드웨어 블록 여러 개 전개</td></tr>
-<tr><td>generate-if/case</td><td>상수 조건에 따라 구현 선택</td><td>하드웨어 구조 자체를 선택</td></tr>
-<tr><td>genvar</td><td>generate 전용 인덱스</td><td>시뮬레이션 중 존재하지 않음</td></tr>
-<tr><td>hierarchical name</td><td>점으로 이어진 객체 경로</td><td>대규모 계층 설계의 정확한 객체 식별</td></tr>
+<tr><td>D Latch</td><td>level-sensitive always + 불완전 할당</td><td>Latch</td></tr>
+<tr><td>D Flip-Flop</td><td><code>always @(posedge/negedge clk)</code></td><td>DFF</td></tr>
+<tr><td>Async Reset</td><td>clock edge + reset edge 감지</td><td>비동기 reset FF</td></tr>
+<tr><td>Sync Reset</td><td>clock edge만 감지</td><td>동기 reset FF</td></tr>
+<tr><td>Blocking</td><td><code>=</code></td><td>문장 순서에 따라 같은 블록 내 값 전달 가능</td></tr>
+<tr><td>Nonblocking</td><td><code>&lt;=</code></td><td>이전 상태를 기준으로 동시에 레지스터 갱신</td></tr>
+<tr><td>Counter</td><td><code>cnt &lt;= cnt + 1</code></td><td>Adder + Register</td></tr>
+<tr><td>Divider</td><td>Counter + Comparator + Output FF</td><td>분주 pulse/clock 생성</td></tr>
+<tr><td>Shift Register</td><td>nonblocking + vector/shift/concat</td><td>직렬 연결 FF</td></tr>
+<tr><td>LFSR</td><td>shift + XOR feedback</td><td>의사난수 sequence generator</td></tr>
+<tr><td>Moore FSM</td><td>state register + next-state + state-only output</td><td>상태 기반 제어회로</td></tr>
+<tr><td>Mealy FSM</td><td>state register + next-state + state/input output</td><td>입력 반응형 제어회로</td></tr>
 </tbody>
 </table>
 <div class="note">
-<strong>CHAPTER 06을 읽을 때 가장 중요한 질문</strong><br/>
-① 어떤 모듈이 상위이고 어떤 모듈이 하위인가?<br/>
-② 하위 모듈은 몇 개의 인스턴스로 생성되는가?<br/>
-③ 각 포트에는 상위의 어떤 신호가 연결되는가?<br/>
-④ parameter가 바뀌면 비트 폭·깊이·생성 개수가 어떻게 달라지는가?<br/>
-⑤ generate가 시뮬레이션 중 반복되는 것인가, elaboration에서 하드웨어를 생성하는 것인가?<br/>
-⑥ 특정 신호나 인스턴스의 전체 계층 경로는 무엇인가?
+<strong>CHAPTER 11을 읽는 핵심 질문</strong><br/>
+① 이 값은 어느 clock edge에서 바뀌는가?<br/>
+② reset은 동기식인가 비동기식인가?<br/>
+③ active-high인가 active-low인가?<br/>
+④ 상태 변수에는 nonblocking이 사용되었는가?<br/>
+⑤ 하나의 clock에서 여러 register가 “이전 값 기준”으로 동시에 이동해야 하는가?<br/>
+⑥ counter/shift/FSM의 상태 bit width는 충분한가?<br/>
+⑦ FSM의 next-state와 output logic이 명확히 분리되어 있는가?
 </div>
 <div class="rtl">
-<strong>Digital Design → Verilog RTL → Synthesis 연결</strong><br/>
-하위 기능 블록을 모듈로 정의하고
-상위 모듈에서 인스턴스와 wire를 이용해 연결하면
-실제 합성 결과도 같은 계층적 하드웨어 블록 구조로 전개된다.
-parameter와 generate는 한 개의 RTL 소스로
-다른 비트 폭·깊이·구현 구조를 만드는 수단이다.
-다만 실제 합성 결과의 세부 최적화, 자원 사용량, 타이밍은
-합성/구현 보고서가 없으면 임의로 단정하지 않는다.
+<strong>Digital Design → Verilog RTL → RTL Synthesis</strong><br/>
+순차회로의 본질은 <strong>조합논리 + 저장소자</strong>이다.
+Verilog의 <code>posedge/negedge</code>와 nonblocking 할당은
+“클록 에지에서 값을 저장하는 레지스터”를 표현하고,
+counter의 <code>+1</code>은 Adder,
+shift register의 벡터 이동은 연속된 FF 체인,
+FSM의 state 변수는 상태 레지스터로 합성된다.
+따라서 순차회로를 읽을 때는 코드 문법보다
+<strong>현재 상태 → 조합논리 → 다음 상태 → clock edge 저장</strong> 흐름으로 이해하는 것이 핵심이다.
 </div>
 <div class="flow">
-<span>Module Definition</span>
+<span>Current State Register</span>
 <span class="arrow">→</span>
-<span>Instance</span>
+<span>Combinational Logic</span>
 <span class="arrow">→</span>
-<span>Port Connection</span>
-<span class="arrow">→</span>
-<span>Parameter / Generate</span>
-<span class="arrow">→</span>
-<span>Hierarchical Hardware</span>
+<span>Next State / Next Data</span>
+<span class="arrow">→ posedge clk</span>
+<span>Register 저장</span>
 </div>
 </section>
 <div class="chapter-links" id="chapter-links"></div>
 </main>
 </div>
-<footer class="footer">디지털시스템설계 · RTL · Verilog · v01 · 코드 상태: iverilog 컴파일 통과 표시 외에는 미검증 · 보드 동작은 실제 환경에서 검증</footer>
-<script>window.COURSE={"title": "디지털시스템설계 · RTL · Verilog", "chapters": [{"id": "ch01", "number": 1, "title": "Verilog HDL 기초", "file": "ch01_verilog_basics_v01.html"}, {"id": "ch02", "number": 2, "title": "자료형과 연산자", "file": "ch02_datatypes_operators_v01.html"}, {"id": "ch03", "number": 3, "title": "게이트 수준 모델링", "file": "ch03_gate_level_modeling_v01.html"}, {"id": "ch04", "number": 4, "title": "할당문", "file": "ch04_assignments_v01.html"}, {"id": "ch05", "number": 5, "title": "행위수준 모델링", "file": "ch05_behavioral_modeling_v01.html"}, {"id": "ch06", "number": 6, "title": "구조적 모델링", "file": "ch06_structural_modeling_v01.html"}, {"id": "ch07", "number": 7, "title": "함수와 태스크", "file": "ch07_functions_tasks_v01.html"}, {"id": "ch08", "number": 8, "title": "컴파일러 지시어", "file": "ch08_compiler_directives_v01.html"}, {"id": "ch09", "number": 9, "title": "시스템 태스크와 시스템 함수", "file": "ch09_system_tasks_functions_v01.html"}, {"id": "ch10", "number": 10, "title": "조합회로 모델링", "file": "ch10_combinational_modeling_v01.html"}, {"id": "ch11", "number": 11, "title": "순차회로 모델링", "file": "ch11_sequential_modeling_v01.html"}, {"id": "ch12", "number": 12, "title": "순차회로의 FPGA 구현 실습", "file": "ch12_sequential_fpga_lab_v01.html"}]};</script>
+<footer class="footer">디지털시스템설계 · RTL · Verilog</footer>
+<script>window.COURSE={"title": "디지털시스템설계 · RTL · Verilog", "chapters": [{"id": "ch01", "number": 1, "title": "Verilog HDL 기초", "file": "ch01_verilog_basics_v02.html"}, {"id": "ch02", "number": 2, "title": "자료형과 연산자", "file": "ch02_datatypes_operators_v02.html"}, {"id": "ch03", "number": 3, "title": "게이트 수준 모델링", "file": "ch03_gate_level_modeling_v02.html"}, {"id": "ch04", "number": 4, "title": "할당문", "file": "ch04_assignments_v02.html"}, {"id": "ch05", "number": 5, "title": "행위수준 모델링", "file": "ch05_behavioral_modeling_v02.html"}, {"id": "ch06", "number": 6, "title": "구조적 모델링", "file": "ch06_structural_modeling_v02.html"}, {"id": "ch07", "number": 7, "title": "함수와 태스크", "file": "ch07_functions_tasks_v02.html"}, {"id": "ch08", "number": 8, "title": "컴파일러 지시어", "file": "ch08_compiler_directives_v02.html"}, {"id": "ch09", "number": 9, "title": "시스템 태스크와 시스템 함수", "file": "ch09_system_tasks_functions_v02.html"}, {"id": "ch10", "number": 10, "title": "조합회로 모델링", "file": "ch10_combinational_modeling_v02.html"}, {"id": "ch11", "number": 11, "title": "순차회로 모델링", "file": "ch11_sequential_modeling_v02.html"}, {"id": "ch12", "number": 12, "title": "순차회로의 FPGA 구현 실습", "file": "ch12_sequential_fpga_lab_v02.html"}]};</script>
 <script>/* 공통 탐색 및 코드 복사 — 페이지 본문을 변경하지 않음 */
 (()=>{'use strict';
  const data=window.COURSE||{title:'교육과정',chapters:[]};

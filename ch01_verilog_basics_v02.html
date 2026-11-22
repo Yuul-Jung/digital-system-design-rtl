@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="기본 논리 게이트 프리미티브 · buf/not · 3상태 버퍼 · 프리미티브 배열 · 게이트 지연 · net 지연 · 관성지연">
-<title>제03장 · 게이트 수준 모델링 · 디지털시스템설계 · RTL · Verilog</title>
+<meta name="description" content="어휘 토큰과 규칙 · 모듈 · 모델링 방법 · 테스트벤치">
+<title>제01장 · Verilog HDL 기초 · 디지털시스템설계 · RTL · Verilog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -37,220 +37,696 @@ code{background:#f6ede2}
   --c-bg:#faf9f7; --c-paper:#ffffff; --c-ink:#331f17; --c-muted:#7a655c;
   --c-line:#eee7df; --c-blue:#9a4927; --c-blue2:#faf0ec; --c-teal:#6a331b;
   --c-code:#221510; --c-codeink:#fcf4f1; --c-warn:#fff7df; --c-ok:#eef9f2;
-  --c-soft:#fdfaf8;
 }
 .card{background:var(--c-paper);border:1px solid var(--c-line);border-radius:14px}
-.badge{display:inline-block;border-radius:999px;padding:3px 9px;
-  font-size:.78rem;font-weight:700;background:var(--c-blue2);
-  color:#864022;margin-right:6px}
-.note,.warn,.tip{border-left:5px solid var(--c-blue);padding:14px 16px;
-  border-radius:8px;margin:16px 0}
+.badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:700;
+  background:var(--c-blue2);color:#864022;margin-right:6px}
+.note,.warn,.tip{border-left:5px solid var(--c-blue);padding:14px 16px;border-radius:8px;margin:16px 0}
 .note{background:#fcf4f1}
 .warn{background:var(--c-warn);border-color:#d49b17}
 .tip{background:var(--c-ok);border-color:#2b8a57}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
 .card{padding:16px 18px}
 .k{font-weight:700;color:#7a3a1f}
-.example-title{font-size:.92rem;color:#8d5137;font-weight:700;
-  margin:18px 0 8px}
-.flow,.path{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
-.flow span,.path span{background:#fbf1ed;border:1px solid #e9e1d7;
-  border-radius:8px;padding:8px 11px}
-.flow .arrow,.path .arrow{background:none;border:none;padding:0;color:#557}
-.syntax{background:#f9f7f4;border:1px solid #e5dbce;border-radius:10px;
-  padding:14px 16px;margin:14px 0}
-.syntax code{color:#5b2d19}
-.compare td:first-child{font-weight:700;color:#7e3f24;width:24%}
-.gate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:12px;margin:14px 0}
-.gate{border:1px solid var(--c-line);border-radius:12px;background:#fefdfc;
-  padding:14px 16px;text-align:center}
-.gate .name{font-size:1.1rem;font-weight:800;color:#7f3c20}
-.gate .desc{font-size:.92rem;color:var(--c-muted)}
-.logic{display:flex;align-items:center;justify-content:center;gap:10px;
-  flex-wrap:wrap;margin:18px 0}
-.logic .box{min-width:100px;border:2px solid #c3937f;background:#fdfaf8;
-  padding:10px 14px;border-radius:12px;text-align:center;font-weight:700}
-.logic .sig{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
-.delaybox{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:12px;margin:14px 0}
-.delay{border:1px solid #e8dfd3;border-radius:10px;background:#fdf9f8;
-  padding:14px 16px}
-.delay strong{color:#864022}
-.truth{max-width:760px;margin:14px auto}
-.truth td,.truth th{text-align:center}
-.timeline{border:1px solid var(--c-line);border-radius:12px;padding:16px;background:#fefbfa;margin:16px 0}
-.pulse{display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:center;margin:8px 0}
-.pulse .label{font-family:"JetBrains Mono","D2Coding","Consolas",monospace;font-weight:700}
-.wave{height:34px;border-bottom:2px solid #9b7d70;position:relative}
-.wave.short:before{content:"";position:absolute;left:46%;width:18%;top:2px;height:24px;
-  border-left:2px solid #9a4927;border-top:2px solid #9a4927;border-right:2px solid #9a4927}
-.wave.pass:before{content:"";position:absolute;left:20%;width:42%;top:2px;height:24px;
-  border-left:2px solid #9a4927;border-top:2px solid #9a4927;border-right:2px solid #9a4927}
-.small{font-size:.92rem;color:var(--c-muted)}
+.example-title{font-size:.92rem;color:#8d5137;font-weight:700;margin:18px 0 8px}
+.keyword-grid{columns:4 150px;column-gap:28px;background:#faf9f7;border:1px solid var(--c-line);
+  padding:18px 24px;border-radius:10px;font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+.keyword-grid div{break-inside:avoid;padding:1px 0}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span{background:#fbf1ed;border:1px solid #e9e1d7;border-radius:8px;padding:8px 11px}
+.arrow{background:none!important;border:none!important;padding:0!important;color:#557!important}
+@media(max-width:720px){.keyword-grid{columns:2 130px}}
 </style>
 </head>
-<body data-chapter="ch03">
+<body data-chapter="ch01">
 <a class="skip" href="#main-content">본문 바로가기</a>
 <button type="button" class="mobile-menu" id="mobile-menu" aria-controls="course-nav" aria-expanded="false">☰ 장·목차</button>
 <div class="shade" id="shade"></div>
-<header class="hero"><div class="hero-inner"><p class="kicker">DIGITAL SYSTEM DESIGN · CHAPTER 03</p><h1>제03장 · 게이트 수준 모델링</h1><p>기본 논리 게이트 프리미티브 · buf/not · 3상태 버퍼 · 프리미티브 배열 · 게이트 지연 · net 지연 · 관성지연</p><div class="chips"></div></div></header>
+<header class="hero"><div class="hero-inner"><p class="kicker">DIGITAL SYSTEM DESIGN · CHAPTER 01</p><h1>제01장 · Verilog HDL 기초</h1><p>어휘 토큰과 규칙 · 모듈 · 모델링 방법 · 테스트벤치</p><div class="chips"><span class="chip">SECTION 1.4 · 어휘 토큰</span><span class="chip">SECTION 1.5 · 모델링 방법</span></div></div></header>
 <div class="wrap">
 <nav class="toc" id="course-nav" aria-label="장과 절 탐색"></nav>
 <main class="content" id="main-content">
-<section class="section" id="intro">
-<h2><span class="num">00</span> CHAPTER 03 개요</h2>
+<section class="section" id="overview">
+<h2><span class="num">00</span> 전체 개요</h2>
+<p>Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)의 소스 코드는 여러 종류의 <strong>어휘 토큰(lexical token, 렉시컬 토큰)</strong>으로 구성된다. 이 절에서는 소스 코드에서 가장 기본이 되는 표현 규칙을 다룬다.</p>
+<div class="flow">
+<span>여백</span><span class="arrow">→</span>
+<span>주석</span><span class="arrow">→</span>
+<span>연산자</span><span class="arrow">→</span>
+<span>수</span><span class="arrow">→</span>
+<span>문자열</span><span class="arrow">→</span>
+<span>식별자</span><span class="arrow">→</span>
+<span>키워드</span>
+</div>
+<div class="note"><strong>핵심 관점</strong><br/>
+Verilog 코드를 읽을 때 먼저 “문자가 어떤 토큰으로 분해되는가”를 이해하면, 수의 비트 폭, 부호, 문자열의 저장 방식, 이름 규칙, 시뮬레이션용 명령과 합성용 속성을 훨씬 정확하게 해석할 수 있다.</div>
+</section><section class="section" id="space-comment">
+<h2><span class="num">01</span> 여백과 주석</h2>
+<h3>2.1 여백(white space)</h3>
+<p>빈칸(space), 탭(tab), 줄바꿈 등은 토큰을 서로 구분하기 위해 사용되는 경우를 제외하면 일반적으로 무시된다. 단, <strong>문자열 안의 공백과 탭은 실제 데이터</strong>이므로 의미가 있다.</p>
+<h3>2.2 주석(comment)</h3>
+<table>
+<thead><tr><th>형식</th><th>범위</th><th>특징</th></tr></thead>
+<tbody>
+<tr><td><code>// ...</code></td><td>현재 위치부터 줄 끝까지</td><td>단일 라인 주석</td></tr>
+<tr><td><code>/* ... */</code></td><td>시작 기호부터 종료 기호까지</td><td>블록 주석. 블록 주석 내부에 또 다른 블록 주석을 중첩할 수 없음</td></tr>
+</tbody>
+</table>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>// 한 줄 주석
+
+/* 여러 줄에 걸쳐
+   작성할 수 있는
+   블록 주석 */</code></pre></div>
+<div class="tip"><strong>읽기 포인트</strong><br/>
+<code>//</code>는 블록 주석 내부에서는 별도의 주석 시작 기호로 처리되지 않는다. 이미 <code>/* ... */</code> 범위 전체가 주석이기 때문이다.</div>
+</section><section class="section" id="number">
+<h2><span class="num">02</span> 수 표현</h2>
+<p>Verilog HDL의 상수 값은 크게 <strong>정수형(integer)</strong>과 <strong>실수형(real)</strong>으로 구분된다. 정수형 상수는 2진수, 8진수, 10진수, 16진수로 표현할 수 있다.</p>
+<h3>3.1 기본 형식</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>[size_constant]'[s]base_format number_value</code></pre></div>
+<table>
+<thead><tr><th>구성</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td><code>size_constant</code></td><td>상수의 비트 수. 0이 아닌 unsigned 10진수 사용. 생략하면 unsized 상수</td></tr>
+<tr><td><code>s</code></td><td>선택적인 signed 지정자. 비트 패턴 자체를 바꾸는 것이 아니라 그 패턴의 해석 방식에 영향을 줌</td></tr>
+<tr><td><code>base_format</code></td><td><code>b/B</code>: 2진수, <code>o/O</code>: 8진수, <code>d/D</code>: 10진수, <code>h/H</code>: 16진수</td></tr>
+<tr><td><code>number_value</code></td><td>지정한 밑수에 맞는 숫자 값</td></tr>
+</tbody>
+</table>
+<div class="grid">
+<div class="card"><span class="k">2진수</span><br/><code>8'b1010_0011</code></div>
+<div class="card"><span class="k">8진수</span><br/><code>12'o735</code></div>
+<div class="card"><span class="k">10진수</span><br/><code>8'd25</code></div>
+<div class="card"><span class="k">16진수</span><br/><code>16'hABCD</code></div>
+</div>
+<div class="note"><strong>문법상 중요</strong><br/>
+인용부호(<code>'</code>)와 밑수 지정 문자는 붙여 쓴다. 밑수 지정 문자와 실제 숫자 값 사이에 <code>+</code>, <code>-</code>를 넣을 수 없으며, 부호를 사용할 때는 상수 전체 앞에 둔다.</div>
+<h3>3.2 Unsized 상수 예</h3>
+<div class="example-title">예시 1-1</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>659       // 단순 10진수 표현
+'h837FF   // size가 생략된 16진수
+'o7460    // size가 생략된 8진수
+4af       // 문법 오류: 16진수라면 'h가 필요하고, 10진수에는 a, f를 사용할 수 없음</code></pre></div>
+<p>비트 크기와 밑수 지정이 없는 단순 10진수를 signed 정수로 설명하며, 밑수만 지정하면 unsigned, <code>s</code>와 밑수를 함께 지정하면 signed로 취급된다고 설명한다.</p>
+<h3>3.3 Sized 상수 예</h3>
+<div class="example-title">예시 1-2</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>4'b1001   // 4비트 2진수 1001
+5'D3      // 5비트 10진수 3
+3'b01x    // LSB가 x인 3비트 01x
+12'hx     // 12비트의 x
+16'hz     // 16비트의 z</code></pre></div>
+<table>
+<thead><tr><th>특수 값</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td><code>x</code></td><td>unknown(언노운, 알 수 없는 값)</td></tr>
+<tr><td><code>z</code></td><td>high-impedance(하이 임피던스, 고임피던스 상태)</td></tr>
+</tbody>
+</table>
+<h3>3.4 부호와 2의 보수</h3>
+<div class="example-title">예시 1-3</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>8'd-6     // 문법 오류: d와 값 사이에 부호를 넣을 수 없음
+-8'd6     // -(8'd6), 즉 -6
+
+4'shf     // 4비트 1111을 signed로 해석
+           // 2의 보수 기준 10진수 -1
+
+-4'sd15   // 4비트 signed 값에 단항 - 적용
+
+-'d12     // 밑수만 지정 → unsigned 해석
+-'sd12    // s와 밑수 지정 → signed 해석</code></pre></div>
+<div class="tip"><strong>핵심 이해</strong><br/>
+<code>s</code>는 비트 패턴을 바꾸는 기호가 아니다. 동일한 비트열이라도 <strong>signed인지 unsigned인지에 따라 수치 해석이 달라진다.</strong> 음수는 2의 보수(two's complement, 투스 컴플리먼트) 형식으로 표현된다.</div>
+<h3>3.5 밑줄을 이용한 가독성 향상</h3>
+<div class="example-title">예시 1-4</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>27_195_000
+16'b0011_0101_0001_1111
+32'h12ab_f001</code></pre></div>
+<p>밑줄(<code>_</code>)은 값을 바꾸지 않으며, 긴 숫자를 읽기 쉽게 구분하기 위한 용도로 사용할 수 있다.</p>
+<h3>3.6 지정된 비트 폭과 자동 확장</h3>
+<div class="example-title">예시 1-5</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>reg [11:0] a, b, c, d;
+
+initial begin
+    a = 'hx;    // 상위 쪽에 x가 확장
+    b = 'h3x;   // 상위 쪽에 0이 확장
+    c = 'hz3;   // 상위 쪽에 z가 확장
+    d = 'h0z3;  // 지정된 값 그대로 할당
+end</code></pre></div>
+<p>지정된 비트 수보다 값의 자릿수가 작을 때 상위 비트 쪽에 <code>0</code>, <code>x</code>, <code>z</code>가 상황에 맞게 채워지는 동작을 설명한다.</p>
+<h3>3.7 실수형 상수</h3>
+<p>실수형 상수는 10진 실수 또는 과학 표기법으로 표현한다. 지수는 <code>e</code> 또는 <code>E</code>를 사용할 수 있다. 소수점을 사용할 때는 소수점 좌우에 숫자가 있어야 한다.</p>
+<div class="example-title">예시 1-6: 유효한 실수형 표현</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>1.2
+2394.26331
+1.2E12
+1.30e-2
+0.1e-0
+29E-2
+236.123_763_e-12</code></pre></div>
+<div class="example-title">예시 1-7: 문법 오류</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>.12
+9.
+4.E3
+.2e-7</code></pre></div>
+<div class="warn"><strong>정수 객체에 실수 값을 넣을 때</strong><br/>
+실수 값이 정수형 객체에 할당되면 가장 가까운 정수로 반올림되어 변환된다고 설명한다. 예: 35.7 → 36, 35.5 → 36, -1.5 → -2.</div>
+</section><section class="section" id="string">
+<h2><span class="num">03</span> 문자열</h2>
+<p>두 개의 이중 인용부호(<code>" "</code>) 사이에 있는 문자들의 연속을 문자열(string, 스트링)이라고 한다. 문자열은 한 줄 안에 존재해야 하며, 여러 줄에 직접 걸친 문자열은 허용되지 않는다.</p>
+<p>문자열을 <strong>각 문자당 8비트 ASCII 값의 연속</strong>으로 취급하며, 문자열을 저장하는 <code>reg</code> 변수의 폭은 필요한 문자 수 × 8비트로 계산한다.</p>
+<div class="example-title">예시 1-8: 12문자 문자열 저장</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>reg [8*12:1] string_var;
+
+initial begin
+    string_var = "Hello world!";
+end</code></pre></div>
+<div class="flow">
+<span>문자 1개</span><span class="arrow">→</span><span>8비트 ASCII</span>
+<span class="arrow">→</span><span>12문자</span><span class="arrow">→</span><span>96비트</span>
+</div>
+<h3>4.1 문자열 폭이 변수 폭과 다를 때</h3>
+<ul>
+<li>변수의 비트 폭이 문자열보다 크면 변수의 왼쪽에 <code>0</code>이 채워진다.</li>
+<li>변수의 비트 폭이 문자열보다 작으면 문자열의 오른쪽부터 저장되고, 왼쪽 부분은 잘려 나간다.</li>
+</ul>
+<div class="example-title">예시 1-9: 문자열 출력</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">string_test.v</span><span>VERILOG</span></span></div><pre><code>module string_test;
+    reg [8*14:1] string_var;
+
+    initial begin
+        string_var = "Hello world";
+        $display("%s is stored as %h", string_var, string_var);
+
+        string_var = {string_var, "!!!"};
+        $display("%s is stored as %h", string_var, string_var);
+    end
+endmodule</code></pre></div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>TEXT</span></span></div><pre><code>Hello world is stored as 00000048656c6c6f20776f726c64
+Hello world!!! is stored as 48656c6c6f20776f726c64212121</code></pre></div>
+<h3>4.2 이스케이프 문자</h3>
+<table>
+<thead><tr><th>표현</th><th>생성되는 문자</th></tr></thead>
+<tbody>
+<tr><td><code>\n</code></td><td>줄바꿈</td></tr>
+<tr><td><code>\t</code></td><td>탭(tab)</td></tr>
+<tr><td><code>\\</code></td><td>백슬래시 <code>\</code></td></tr>
+<tr><td><code>\"</code></td><td>큰따옴표 <code>"</code></td></tr>
+<tr><td><code>\ddd</code></td><td>1~3자리 8진수(octal digits)로 지정한 문자</td></tr>
+</tbody>
+</table>
+</section><section class="section" id="identifier">
+<h2><span class="num">04</span> 식별자와 키워드</h2>
+<h3>5.1 식별자(identifier)</h3>
+<p>식별자는 객체에 이름을 붙이기 위해 사용한다. 단순 식별자와 확장 식별자로 구분한다.</p>
+<ul>
+<li>알파벳, 숫자, <code>$</code>, 밑줄(<code>_</code>) 등을 사용할 수 있다.</li>
+<li>첫 문자는 알파벳 또는 밑줄이어야 한다.</li>
+<li>첫 문자로 숫자나 <code>$</code>는 사용할 수 없다.</li>
+<li>대문자와 소문자를 서로 다른 문자로 취급한다.</li>
+</ul>
+<div class="example-title">예시 1-10: 유효한 식별자</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>shiftreg_a
+busa_index
+error_condition
+merge_ab
+_bus3
+n$657</code></pre></div>
+<div class="note">식별자의 최대 길이가 도구에 따라 제한될 수 있으며, 표준상 최대 1,024문자 이내라고 설명한다.</div>
+<h3>5.2 키워드(keyword)</h3>
+<p>Verilog HDL 문법을 구성하기 위해 미리 정의된 식별자를 키워드라고 한다. <strong>모든 키워드가 소문자로 정의</strong>된다고 설명한다.</p>
+<div class="keyword-grid">
+<div>always</div><div>and</div><div>assign</div><div>automatic</div><div>begin</div><div>buf</div><div>bufif0</div><div>bufif1</div>
+<div>case</div><div>casex</div><div>casez</div><div>cell</div><div>cmos</div><div>config</div><div>deassign</div><div>default</div>
+<div>defparam</div><div>design</div><div>disable</div><div>edge</div><div>else</div><div>end</div><div>endcase</div><div>endconfig</div>
+<div>endfunction</div><div>endgenerate</div><div>endmodule</div><div>endprimitive</div><div>endspecify</div><div>endtable</div><div>endtask</div><div>event</div>
+<div>for</div><div>force</div><div>forever</div><div>fork</div><div>function</div><div>generate</div><div>genvar</div><div>highz0</div>
+<div>highz1</div><div>if</div><div>ifnone</div><div>incdir</div><div>include</div><div>initial</div><div>inout</div><div>input</div>
+<div>instance</div><div>integer</div><div>join</div><div>large</div><div>liblist</div><div>library</div><div>localparam</div><div>macromodule</div>
+<div>medium</div><div>module</div><div>nand</div><div>negedge</div><div>nmos</div><div>nor</div><div>noshowcancelled</div><div>not</div>
+<div>notif0</div><div>notif1</div><div>or</div><div>output</div><div>parameter</div><div>pmos</div><div>posedge</div><div>primitive</div>
+<div>pull0</div><div>pull1</div><div>pulldown</div><div>pullup</div><div>pulsestyle_onevent</div><div>pulsestyle_ondetect</div><div>rcmos</div><div>real</div>
+<div>realtime</div><div>reg</div><div>release</div><div>repeat</div><div>rnmos</div><div>rpmos</div><div>rtran</div><div>rtranif0</div>
+<div>rtranif1</div><div>scalared</div><div>showcancelled</div><div>signed</div><div>small</div><div>specify</div><div>specparam</div><div>strong0</div>
+<div>strong1</div><div>supply0</div><div>supply1</div><div>table</div><div>task</div><div>time</div><div>tran</div><div>tranif0</div>
+<div>tranif1</div><div>tri</div><div>tri0</div><div>tri1</div><div>triand</div><div>trior</div><div>trireg</div><div>unsigned</div>
+<div>use</div><div>vectored</div><div>wait</div><div>wand</div><div>weak0</div><div>weak1</div><div>while</div><div>wire</div>
+<div>wor</div><div>xnor</div><div>xor</div>
+</div>
+</section><section class="section" id="system">
+<h2><span class="num">05</span> 시스템 태스크와 시스템 함수</h2>
+<p>문자 <code>$</code>는 시스템 태스크(system task, 시스템 태스크)와 시스템 함수(system function, 시스템 함수)를 호출할 때 사용된다. <code>$</code> 뒤의 식별자는 시스템 태스크 또는 시스템 함수로 해석된다.</p>
+<div class="example-title">예시 1-11</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>$display("display a message");  // 문자열 출력
+$finish;                        // 시뮬레이션 종료</code></pre></div>
+<div class="tip"><strong>구분해서 이해</strong><br/>
+이 절의 예는 회로 자체의 데이터패스가 아니라 <strong>시뮬레이션 동작을 제어하거나 확인하는 코드</strong>의 대표적인 형태다.</div>
+</section><section class="section" id="directive">
+<h2><span class="num">06</span> 컴파일러 지시어</h2>
+<p>grave accent 또는 backtick(<code>`</code>)은 컴파일러 지시어(compiler directive, 컴파일러 디렉티브)를 지정할 때 사용된다. 지시어는 Verilog 소스의 컴파일 과정에 영향을 주며, 읽힌 시점부터 효력이 발생한다.</p>
+<div class="example-title">예시 1-12</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>`define wordsize 8</code></pre></div>
+<p>이 예에서 소스 코드 안의 <code>wordsize</code> 매크로는 <code>8</code>로 치환되어 컴파일된다.</p>
+</section><section class="section" id="attribute">
+<h2><span class="num">07</span> 속성(attribute)</h2>
+<p>속성은 Verilog HDL을 지원하는 시뮬레이터나 회로 합성 툴의 동작을 제어하기 위해 객체, 문장, 문장 그룹에 부가할 수 있다. 기본 형식은 다음과 같다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>(* attribute_name = value *)</code></pre></div>
+<div class="warn"><strong>주의</strong><br/>
+속성의 구체적인 의미와 지원 여부는 사용하는 EDA(Electronic Design Automation, 전자설계자동화) 툴의 설명서를 확인하도록 안내한다.</div>
+<h3>8.1 case 문에 속성 부가</h3>
+<div class="example-title">예시 1-13</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>(* full_case, parallel_case *)
+case (foo)
+    &lt;case_statements&gt;
+
+(* full_case = 1, parallel_case = 1 *)
+case (foo)
+    &lt;case_statements&gt;</code></pre></div>
+<h3>8.2 일부 속성만 지정</h3>
+<div class="example-title">예시 1-14</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>(* full_case *)  // parallel_case not specified
+case (foo)
+    &lt;case_statements&gt;
+
+(* full_case = 1, parallel_case = 0 *)
+case (foo)
+    &lt;case_statements&gt;</code></pre></div>
+<h3>8.3 여러 위치에 속성 지정</h3>
+<div class="example-title">예시 1-15</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mod1.v</span><span>VERILOG</span></span></div><pre><code>(* optimize_power = 1 *)
+module mod1 (
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    output y
+);
+
+wire sum;
+
+assign sum = b + c;
+assign y   = a ? sum : d;
+
+// 속성은 연산자나 조건 연산자 위치에도 지정할 수 있다.
+// 예:
+// assign sum = b + (* mode = "cla" *) c;
+// assign y   = a ? (* no_glitch *) c : d;
+
+endmodule
+
+
+module top_attr (
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    output y
+);
+
+(* optimize_power = 0 *)
+mod1 synth1 (
+    .a(a),
+    .b(b),
+    .c(c),
+    .d(d),
+    .y(y)
+);
+
+endmodule</code></pre></div>
+<table>
+<thead><tr><th>지정 위치</th><th>예시</th></tr></thead>
+<tbody>
+<tr><td>모듈 정의</td><td><code>(* optimize_power=1 *) module ...</code></td></tr>
+<tr><td>모듈 인스턴스</td><td><code>(* optimize_power=0 *) mod1 synth1(...)</code></td></tr>
+<tr><td>연산자</td><td><code>b + (* mode="cla" *) c</code></td></tr>
+<tr><td>함수 호출</td><td><code>add (* mode="cla" *) (b,c)</code></td></tr>
+<tr><td>조건 연산자</td><td><code>? (* no_glitch *)</code></td></tr>
+</tbody>
+</table>
+</section><section class="section" id="s08">
+<h2><span class="num">08</span> 최종 핵심 정리</h2>
+<table>
+<thead><tr><th>항목</th><th>핵심</th></tr></thead>
+<tbody>
+<tr><td>여백</td><td>토큰 구분 외에는 대체로 무시되지만 문자열 내부에서는 의미가 있음</td></tr>
+<tr><td>주석</td><td><code>//</code> 단일 라인, <code>/* ... */</code> 블록. 블록 주석은 중첩 불가</td></tr>
+<tr><td>수 표현</td><td>비트 폭, signed 여부, 밑수, 값의 조합으로 해석</td></tr>
+<tr><td><code>x</code>/<code>z</code></td><td>unknown / high-impedance 상태 표현</td></tr>
+<tr><td>문자열</td><td>문자당 8비트 ASCII 값의 연속으로 취급</td></tr>
+<tr><td>식별자</td><td>첫 문자는 알파벳 또는 <code>_</code>, 대소문자 구분</td></tr>
+<tr><td>키워드</td><td>언어가 미리 정의한 예약어, 소문자로 정의</td></tr>
+<tr><td><code>$</code></td><td>시스템 태스크/함수 호출</td></tr>
+<tr><td><code>`</code></td><td>컴파일러 지시어</td></tr>
+<tr><td><code>(* ... *)</code></td><td>시뮬레이터·합성 툴에 전달하는 속성</td></tr>
+</tbody>
+</table>
+<div class="note"><strong>이 절을 공부할 때 가장 중요한 질문</strong><br/>
+“이 숫자는 몇 비트인가?”, “signed인가 unsigned인가?”, “이 코드는 실제 회로 표현인가, 시뮬레이션/컴파일 제어인가?”, “툴 속성인가?”를 구분하면 이후 RTL 코드를 읽을 때 혼동이 크게 줄어든다.</div>
+</section><section class="section" id="overview-2">
+<h2><span class="num">09</span> Verilog HDL 모델링 방법 전체 개요</h2>
 <p>
-Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)은
-논리 게이트 수준의 모델링을 위해 미리 정의된
-<strong>gate primitive(게이트 프리미티브, 기본 게이트 요소)</strong>를 제공한다.
-이 프리미티브는 별도의 모듈 정의 없이 바로 사용할 수 있다.
+Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)의 구문은 크게
+<strong>회로 합성용</strong>, <strong>시뮬레이션용</strong>,
+<strong>라이브러리 설계용</strong>의 세 유형으로 구분한다.
 </p>
 <div class="grid">
 <div class="card">
-<span class="k">기본 논리 게이트</span>
-<p><code>and</code>, <code>nand</code>, <code>nor</code>, <code>or</code>, <code>xor</code>, <code>xnor</code></p>
+<span class="k">① 회로 합성 지원</span>
+<p><code>assign</code>, <code>always</code>, <code>if~else</code>, <code>case</code>, <code>for</code>, <code>repeat</code>, <code>bufif0</code>, <code>generate</code>, <code>function</code> 등</p>
 </div>
 <div class="card">
-<span class="k">다출력 게이트</span>
-<p><code>buf</code>, <code>not</code></p>
+<span class="k">② 시뮬레이션 지원</span>
+<p><code>initial</code>, <code>forever</code>, <code>$finish</code>, <code>$display</code> 등</p>
 </div>
 <div class="card">
-<span class="k">3상태 게이트</span>
-<p><code>bufif0</code>, <code>bufif1</code>, <code>notif0</code>, <code>notif1</code></p>
-</div>
-<div class="card">
-<span class="k">기타 프리미티브</span>
-<p>pull gate, MOS switch, bidirectional switch 등이 존재한다.</p>
+<span class="k">③ 라이브러리 설계</span>
+<p><code>specify</code>, <code>table</code>, <code>$width</code> 등</p>
 </div>
 </div>
 <div class="note">
-<strong>범위</strong><br/>
-이 장은 기본 논리 게이트 프리미티브를 이용한 하드웨어 설계를 중심으로 다루며,
-스위치 수준 모델링은 합성용 셀 라이브러리 표현에 사용될 수 있다고 소개만 하고 상세히 다루지 않는다.
+<strong>핵심 구분</strong><br/>
+RTL(Register Transfer Level, 레지스터 전송 수준) 회로 모델링에서는
+<strong>합성이 지원되는 구문을 사용</strong>해야 하며,
+테스트벤치 작성에는 시뮬레이션 전용 구문이 사용된다.
+라이브러리 설계용 구문은 셀의 기능·지연·핀 정보 등을 정의하는 데 사용된다.
 </div>
-<h3>1.1 프리미티브 사용 위치</h3>
-<div class="warn">
-<strong>중요 문법</strong><br/>
-게이트 및 스위치 프리미티브는 <strong>모듈 몸체에서 사용</strong>한다.
-이를 <code>initial</code> 또는 <code>always</code> 블록 내부에서는 사용할 수 없다고 설명한다.
-</div>
-<div class="flow">
-<span>module</span>
-<span class="arrow">→</span>
-<span>게이트 프리미티브 인스턴스</span>
-<span class="arrow">→</span>
-<span>endmodule</span>
-</div>
-</section><section class="section" id="primitive">
-<h2><span class="num">01</span> 3.1 기본 논리 게이트 프리미티브</h2>
-<p>
-게이트 수준 회로 모델링에는
-<code>and</code>, <code>nand</code>, <code>or</code>, <code>nor</code>,
-<code>xor</code>, <code>xnor</code>를 사용할 수 있다.
-이 기본 게이트들은 <strong>하나의 출력과 두 개 이상의 입력</strong>을 갖는다.
-</p>
-<div class="gate-grid">
-<div class="gate"><div class="name">and</div><div class="desc">모든 입력이 1일 때 출력 1</div></div>
-<div class="gate"><div class="name">nand</div><div class="desc">AND 결과의 반전</div></div>
-<div class="gate"><div class="name">or</div><div class="desc">입력 중 하나 이상이 1이면 출력 1</div></div>
-<div class="gate"><div class="name">nor</div><div class="desc">OR 결과의 반전</div></div>
-<div class="gate"><div class="name">xor</div><div class="desc">입력의 배타적 OR</div></div>
-<div class="gate"><div class="name">xnor</div><div class="desc">XOR 결과의 반전</div></div>
-</div>
-<h3>2.1 기본 문법</h3>
-<div class="syntax">
-<code>primitive_gate_name [#(n1, n2)] [instance_name] (output, input1, input2, ...);</code>
-</div>
+<h3>1.1 세 종류의 구문을 한눈에 보기</h3>
 <table class="compare">
-<thead><tr><th>구성</th><th>의미</th></tr></thead>
+<thead>
+<tr><th>분류</th><th>주요 목적</th><th>대표 예</th></tr>
+</thead>
 <tbody>
 <tr>
-<td><code>primitive_gate_name</code></td>
-<td><code>and</code>, <code>nand</code>, <code>or</code> 등 사용할 게이트 종류</td>
+<td>회로 합성용</td>
+<td>실제 논리회로 구조와 동작을 기술</td>
+<td><code>assign</code>, <code>always</code>, <code>if</code>, <code>case</code></td>
 </tr>
 <tr>
-<td><code>#(n1,n2)</code></td>
-<td>선택적인 전달지연. 첫 값은 상승지연, 둘째 값은 하강지연</td>
+<td>시뮬레이션용</td>
+<td>입력 생성, 결과 표시, 시뮬레이션 종료 등 검증 환경 구성</td>
+<td><code>initial</code>, <code>#delay</code>, <code>$display</code>, <code>$finish</code></td>
 </tr>
 <tr>
-<td><code>instance_name</code></td>
-<td>일반 인스턴스에서는 생략 가능. 프리미티브 배열에서는 필요</td>
-</tr>
-<tr>
-<td>포트 순서</td>
-<td><strong>출력을 먼저</strong> 쓰고 그 뒤에 입력들을 나열</td>
+<td>라이브러리 설계용</td>
+<td>셀 라이브러리의 기능·타이밍·핀 특성 기술</td>
+<td><code>specify</code>, <code>table</code></td>
 </tr>
 </tbody>
 </table>
-<div class="tip">
-<strong>포트 연결 방법</strong><br/>
-기본 게이트 프리미티브는 하위모듈 인스턴스와 달리
-<strong>순서에 의한 포트 매핑만 사용</strong>한다.
-즉, <code>.a(a)</code> 같은 이름 기반 포트 연결은 사용하지 않는다.
+</section><section class="section" id="module">
+<h2><span class="num">10</span> Verilog HDL 모듈</h2>
+<p>
+Verilog HDL은 <strong>module(모듈)</strong>을 기본 설계 단위로 한다.
+모듈은 <code>module</code>로 시작하여 <code>endmodule</code>로 끝나며,
+모듈을 <strong>머리부 → 선언부 → 몸체부</strong>의 세 부분으로 구분한다.
+</p>
+<div class="module-box">
+<div class="module-title">module module_name (port_list);</div>
+<div class="module-part">
+<strong>머리부</strong><br/> module 이름 · 포트 목록 </div>
+<div class="module-part">
+<strong>선언부</strong><br/> port 선언 · reg 선언 · wire 선언 · parameter 선언 </div>
+<div class="module-part">
+<strong>몸체부</strong><br/> 하위모듈 인스턴스 · 게이트 프리미티브 · always/initial 블록 · assign 문 · function/task 정의와 호출 </div>
+<div class="module-title" style="border:0;margin:12px 0 0;padding:0;">endmodule</div>
 </div>
-<h3>2.2 게이트 인스턴스 예</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>nand U1 (out_nd2, a, b);
-nor       (out_nr3, a, b, c);
-
-and #2 U3 (out_and2, a, b);
-xnor #(3, 4) U4 (out_xnor3, c, b, a);</code></pre></div>
-<div class="delaybox">
-<div class="delay">
-<strong><code>#2</code></strong><br/> 상승/하강 전달지연이 모두 2 time unit </div>
-<div class="delay">
-<strong><code>#(3,4)</code></strong><br/> 상승지연 3, 하강지연 4 </div>
-<div class="delay">
-<strong>지연 생략</strong><br/> default 전달지연 0 </div>
+<h3>2.1 머리부</h3>
+<ul>
+<li><code>module</code> 키워드로 시작한다.</li>
+<li>모듈 이름과 포트 목록을 작성하고 세미콜론(<code>;</code>)으로 끝낸다.</li>
+<li>모듈 이름식별자 규칙을 따르며 Verilog 키워드와 같은 이름은 사용할 수 없다.</li>
+<li>가독성을 위해 밑줄(<code>_</code>)을 사용할 수 있다.</li>
+<li>모듈 기능을 함축적으로 나타내는 이름을 사용하는 것이 바람직하다.</li>
+<li>테스트벤치 모듈은 외부 포트가 없으므로 포트 목록을 생략할 수 있다.</li>
+</ul>
+<h3>2.2 선언부</h3>
+<p>
+입력·출력 포트, 자료형, <code>parameter</code> 등 모듈 내부에서 필요한 객체를 선언한다.
+포트 목록에서 포트 방향과 자료형까지 선언한 경우에는 선언부에서 동일 포트를 다시 선언하지 않는다.
+</p>
+<h3>2.3 몸체부</h3>
+<p>
+모듈의 실제 기능과 구조가 표현되는 영역이다.
+게이트 프리미티브, 하위모듈 인스턴스, <code>always</code>,
+<code>initial</code>, <code>assign</code>, 함수와 태스크 등을 조합해 모델링한다.
+</p>
+<div class="tip">
+<strong>Verilog를 C 언어처럼 위에서 아래로 읽으면 안 되는 이유</strong><br/>
+모듈 몸체에 있는 여러 문장은 기본적으로 <strong>병행(concurrent) 동작</strong>한다.
+따라서 서로 독립적인 <code>assign</code> 문이나 게이트 인스턴스는
+소스에 적힌 순서대로 한 줄씩 실행되는 것이 아니다.
+반면 <code>always</code>, <code>initial</code>, function, task 내부의 문장은
+블록 내부의 절차적 순서가 결과에 영향을 줄 수 있다.
+</div>
+<h3>2.4 모듈 내부 신호 흐름</h3>
+<div class="diagram">
+<div class="box">
+<strong>외부 입력</strong><br/> wire 또는 reg </div>
+<div class="center">→</div>
+<div class="box">
+<strong>input 포트</strong><br/> 모듈 내부에서는 net 계열로 전달 </div>
+</div>
+<div class="diagram">
+<div class="box">
+<strong>모듈 내부</strong><br/> net / variable<br/> gate · assign · always · 하위모듈 </div>
+<div class="center">→</div>
+<div class="box">
+<strong>output 포트</strong><br/> 내부: net 또는 reg<br/> 외부: net으로 연결 </div>
 </div>
 <div class="note">
-<strong>두 개의 지연 값과 x</strong><br/>
-두 지연 값이 지정된 경우 출력이 <code>x</code>로 변하는 지연은
-두 값 중 작은 값으로 결정된다고 설명한다.
+<strong>의 내부 구성 그림이 강조하는 내용</strong><br/>
+모듈 내부에서는 연결을 표현하는 <strong>net 자료형</strong>과,
+<code>always</code> 또는 <code>initial</code> 블록에서 값을 다루는
+<strong>variable 자료형</strong>이 서로 다른 역할을 한다.
 </div>
-</section><section class="section" id="fulladder">
-<h2><span class="num">02</span> 게이트 프리미티브를 이용한 전가산기 모델링</h2>
+</section><section class="section" id="modeling">
+<h2><span class="num">11</span> 회로 모델링 방법</h2>
 <p>
-전가산기(full adder, 풀 애더)를
-기본 게이트 프리미티브로 직접 구성한다.
-내부 연결선 <code>s1</code>, <code>c1</code>, <code>c2</code>가
-회로도상의 실제 중간 신호선에 대응한다.
+동일한 디지털 회로를 표현하는 방법으로
+<strong>게이트 프리미티브 모델링</strong>,
+<strong>연속 할당 모델링</strong>,
+<strong>행위수준 모델링</strong>,
+<strong>하위모듈 인스턴스를 이용한 구조적 모델링</strong>을 소개한다.
+</p>
+<table class="compare">
+<thead>
+<tr><th>방법</th><th>무엇을 직접 표현하는가</th><th>대표 구문</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>게이트 프리미티브</td>
+<td>AND, OR, XOR, NOT 등의 논리 게이트 연결</td>
+<td><code>and</code>, <code>or</code>, <code>xor</code>, <code>not</code></td>
+</tr>
+<tr>
+<td>연속 할당</td>
+<td>논리식과 신호의 조합 관계</td>
+<td><code>assign</code></td>
+</tr>
+<tr>
+<td>행위수준</td>
+<td>입력 조건에 따른 회로의 동작</td>
+<td><code>always</code>, <code>if</code>, <code>case</code></td>
+</tr>
+<tr>
+<td>구조적 모델링</td>
+<td>여러 하위모듈을 연결한 계층 구조</td>
+<td>module instance</td>
+</tr>
+</tbody>
+</table>
+</section><section class="section" id="gate">
+<h2><span class="num">12</span> 게이트 프리미티브를 이용한 모델링</h2>
+<p>의 반가산기(half adder, 하프 애더)는 입력 <code>a</code>, <code>b</code>와
+출력 <code>sum</code>, <code>cout</code>으로 구성된다.
+XOR 게이트와 NAND → NOT 경로를 사용해 반가산기를 구성한다.
 </p>
 <div class="logic">
-<span class="sig">a,b</span>
+<span class="sig">a, b</span>
 <span>→</span>
-<div class="box">XOR</div>
-<span>→</span>
-<span class="sig">s1</span>
-<span>→</span>
-<div class="box">XOR + cin</div>
+<div class="gate">XOR</div>
 <span>→</span>
 <span class="sig">sum</span>
 </div>
 <div class="logic">
-<span class="sig">a,b</span>
+<span class="sig">a, b</span>
 <span>→</span>
-<div class="box">AND</div>
+<div class="gate">NAND</div>
 <span>→</span>
-<span class="sig">c1</span>
-</div>
-<div class="logic">
-<span class="sig">s1,cin</span>
-<span>→</span>
-<div class="box">AND</div>
-<span>→</span>
-<span class="sig">c2</span>
-</div>
-<div class="logic">
-<span class="sig">c1,c2</span>
-<span>→</span>
-<div class="box">XOR</div>
+<div class="gate">NOT</div>
 <span>→</span>
 <span class="sig">cout</span>
 </div>
-<div class="example-title">코드 3-1</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">full_adder_g.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module full_adder_g (
+<div class="example-title">그림 1-9(b)의 모델링 코드</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">half_adder.v</span><span>VERILOG</span></span></div><pre><code>module half_adder (
+    input  a,
+    input  b,
+    output sum,
+    output cout
+);
+
+wire cout_bar;
+
+xor U0(sum, a, b);
+nand   (cout_bar, a, b);
+not    (cout, cout_bar);
+
+endmodule</code></pre></div>
+<h3>4.1 실제 회로 구조</h3>
+<ul>
+<li><code>xor U0(sum, a, b);</code> → 입력 <code>a</code>, <code>b</code>를 받는 XOR 게이트</li>
+<li><code>nand(cout_bar, a, b);</code> → NAND 게이트 출력이 내부선 <code>cout_bar</code>로 전달</li>
+<li><code>not(cout, cout_bar);</code> → <code>cout_bar</code>를 반전하여 <code>cout</code> 생성</li>
+</ul>
+<div class="tip">
+<strong>병행 동작</strong><br/>
+세 게이트 인스턴스는 위에서 아래로 실행되는 명령이 아니다.
+하드웨어에서 세 회로가 동시에 존재하며 입력이 바뀌면 각 게이트의 출력이 함께 반응한다.
+</div>
+</section><section class="section" id="assign">
+<h2><span class="num">13</span> 연속 할당문을 이용한 모델링</h2>
+<p>
+같은 반가산기를 게이트 인스턴스 대신 논리식으로 직접 표현할 수도 있다.
+연속 할당은 <code>assign</code> 문을 사용한다.
+</p>
+<div class="example-title">코드 1-1: 연속 할당문을 이용한 반가산기</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">half_adder2.v</span><span>VERILOG</span></span></div><pre><code>module half_adder2 (
+    input  a,
+    input  b,
+    output sum,
+    output cout
+);
+
+assign cout = a &amp; b;
+assign sum  = a ^ b;
+
+endmodule</code></pre></div>
+<div class="grid">
+<div class="card">
+<span class="k">Carry</span><br/>
+<code>cout = a &amp; b</code><br/> 두 입력이 모두 1일 때 1 </div>
+<div class="card">
+<span class="k">Sum</span><br/>
+<code>sum = a ^ b</code><br/> 두 입력이 서로 다를 때 1 </div>
+</div>
+<div class="note">
+<strong>CODE → 회로</strong><br/>
+<code>assign cout = a &amp; b;</code>는 AND 조합논리,
+<code>assign sum = a ^ b;</code>는 XOR 조합논리에 대응한다.
+두 문장은 클록 없이 입력 변화에 따라 연속적으로 출력이 결정된다.
+</div>
+</section><section class="section" id="behavior">
+<h2><span class="num">14</span> 행위수준 모델링</h2>
+<p>
+행위수준 모델링은 조합회로와 순차회로를 모두 기술할 수 있으며,
+테스트벤치 작성에도 사용된다.
+2비트 2:1 멀티플렉서와 D 플립플롭을 예제로 제시한다.
+</p>
+<h3>6.1 2비트 2:1 멀티플렉서</h3>
+<div class="logic">
+<span class="sig">in0[1:0]</span>
+<span>↘</span>
+<div class="gate">2:1 MUX<br/><small>sel</small></div>
+<span>→</span>
+<span class="sig">out[1:0]</span>
+<span>↗</span>
+<span class="sig">in1[1:0]</span>
+</div>
+<div class="example-title">그림 1-10(b)</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux2b_if.v</span><span>VERILOG</span></span></div><pre><code>module mux2b_if (
+    input  [1:0] in0,
+    input  [1:0] in1,
+    input        sel,
+    output reg [1:0] out
+);
+
+always @(sel or in0 or in1) begin
+    if (sel == 0)
+        out = in0;
+    else
+        out = in1;
+end
+
+endmodule</code></pre></div>
+<table>
+<thead><tr><th>sel</th><th>out</th><th>회로 동작</th></tr></thead>
+<tbody>
+<tr><td>0</td><td><code>in0</code></td><td>첫 번째 2비트 입력 선택</td></tr>
+<tr><td>1</td><td><code>in1</code></td><td>두 번째 2비트 입력 선택</td></tr>
+</tbody>
+</table>
+<div class="tip">
+<strong>조합논리라는 점이 중요</strong><br/>
+<code>sel</code>, <code>in0</code>, <code>in1</code> 중 하나가 변하면
+<code>always</code> 블록이 다시 평가되어 <code>out</code>이 결정된다.
+여기에는 클록에 의해 저장되는 상태가 없다.
+</div>
+<h3>6.2 D 플립플롭</h3>
+<div class="logic">
+<span class="sig">din</span>
+<span>→</span>
+<div class="gate">D Flip-Flop<br/><small>posedge clk</small></div>
+<span>→</span>
+<span class="sig">q</span>
+</div>
+<div class="example-title">그림 1-11(b)</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">D_ff.v</span><span>VERILOG</span></span></div><pre><code>module D_ff (
+    input  clk,
+    input  din,
+    input  rst,
+    output reg q
+);
+
+always @(posedge clk or posedge rst) begin
+    if (rst == 1)
+        q &lt;= 1'b0;
+    else
+        q &lt;= din;
+end
+
+endmodule</code></pre></div>
+<h4>회로 기준으로 해석</h4>
+<div class="flow">
+<span>rst 상승</span>
+<span class="arrow">→</span>
+<span>q를 0으로 리셋</span>
+</div>
+<div class="flow">
+<span>clk 상승에지</span>
+<span class="arrow">→</span>
+<span>현재 din 값 샘플링</span>
+<span class="arrow">→</span>
+<span>q 레지스터 저장</span>
+</div>
+<div class="note">
+<strong>조합회로와 순차회로의 차이</strong><br/>
+멀티플렉서는 입력이 변하면 출력이 결정되지만,
+D 플립플롭의 <code>q</code>는 <strong>클록 상승에지</strong>에서
+<code>din</code> 값을 저장하는 순차논리다.
+</div>
+</section><section class="section" id="structural">
+<h2><span class="num">15</span> 하위모듈 인스턴스를 이용한 구조적 모델링</h2>
+<p>에서는 1비트 전가산기(full adder, 풀 애더)를
+<strong>2개의 반가산기 + 1개의 OR 게이트</strong>로 구성한다.
+</p>
+<div class="logic">
+<div class="gate">half_adder U1</div>
+<span class="sig">w1, w2</span>
+<span>→</span>
+<div class="gate">half_adder U2</div>
+<span>→</span>
+<span class="sig">sum</span>
+</div>
+<div class="logic">
+<span class="sig">w2</span>
+<span>↘</span>
+<div class="gate">OR U3</div>
+<span>→</span>
+<span class="sig">cout</span>
+<span>↗</span>
+<span class="sig">w3</span>
+</div>
+<div class="example-title">코드 1-2: 모듈 인스턴스를 이용한 전가산기</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">full_add.v</span><span>VERILOG</span></span></div><pre><code>module full_add (
     input  a,
     input  b,
     input  cin,
@@ -258,474 +734,268 @@ xnor #(3, 4) U4 (out_xnor3, c, b, a);</code></pre></div>
     output cout
 );
 
-wire s1, c1, c2;   // 1비트 내부 연결선
+wire w1, w2, w3;
 
-xor    (s1, a, b);
-and    (c1, a, b);
-and G3 (c2, s1, cin);
-xor G4 (sum, s1, cin);
-xor G5 (cout, c1, c2);
-
-endmodule</code></pre></div>
-<div class="tip">
-<strong>CODE → 실제 회로</strong><br/>
-각 게이트 인스턴스는 함수 호출이 아니라
-실제 논리 게이트 한 개를 회로에 배치하는 것과 같은 의미이다.
-동일한 이름의 <code>wire</code>는 회로도에서 같은 물리적 연결선을 나타낸다.
-</div>
-<div class="note">
-<strong>cout에 XOR를 사용한 이유를 이해할 때</strong><br/>
-이 회로에서는 <code>c1 = a &amp; b</code>와
-<code>c2 = (a ^ b) &amp; cin</code>이 동시에 1이 되는 입력 조합이 없으므로
-두 신호를 XOR해도 전가산기의 carry 출력 기능을 만족한다.
-</div>
-</section><section class="section" id="bufnot">
-<h2><span class="num">03</span> 3.2 buf 게이트와 not 게이트 프리미티브</h2>
-<p>
-<code>buf</code>는 입력 논리값을 그대로 전달하는 디지털 버퍼이고,
-<code>not</code>은 입력을 반전시키는 인버터이다.
-두 프리미티브 모두 <strong>입력은 하나이고 출력은 하나 이상</strong>을 가질 수 있다.
-</p>
-<table class="truth">
-<thead><tr><th>입력</th><th>buf 출력</th><th>not 출력</th></tr></thead>
-<tbody>
-<tr><td>0</td><td>0</td><td>1</td></tr>
-<tr><td>1</td><td>1</td><td>0</td></tr>
-<tr><td>x</td><td>x</td><td>x</td></tr>
-<tr><td>z</td><td>x</td><td>x</td></tr>
-</tbody>
-</table>
-<h3>4.1 포트 순서</h3>
-<div class="syntax">
-<code>buf (output1, output2, ..., input);</code><br/>
-<code>not (output1, output2, ..., input);</code>
-</div>
-<p>
-출력이 여러 개라면 출력들을 먼저 나열하고,
-<strong>마지막 포트 하나가 입력</strong>이 된다.
-</p>
-<div class="example-title">그림 3-4의 인스턴스 예</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>buf #(2, 1) bf1 (out_buf, in);
-
-not #3 (out_inv, in);
-
-buf bf2 (
-    out1_buf, out2_buf, out3_buf,
-    in
+half_adder U1(
+    .a(a), .b(b), .sum(w1), .cout(w2)
 );
 
-not (
-    out1_inv, out2_inv,
-    in
-);</code></pre></div>
-<div class="delaybox">
-<div class="delay"><strong>buf #(2,1)</strong><br/>상승지연 2, 하강지연 1</div>
-<div class="delay"><strong>not #3</strong><br/>상승/하강지연 모두 3</div>
-<div class="delay"><strong>지연 생략</strong><br/>default 지연 0</div>
-</div>
-</section><section class="section" id="tristate">
-<h2><span class="num">04</span> 3.3 3상태 버퍼 게이트 프리미티브</h2>
-<p>
-<code>bufif0</code>, <code>bufif1</code>,
-<code>notif0</code>, <code>notif1</code>는
-3상태 드라이버(tri-state driver, 트라이스테이트 드라이버)를 모델링한다.
-출력은 <code>0</code>, <code>1</code>, <code>z</code>가 될 수 있다.
-</p>
-<div class="syntax">
-<code>primitive (output, data, control);</code>
+half_adder U2(w1, cin, sum, w3);
+
+or U3(cout, w2, w3);
+
+endmodule</code></pre></div>
+<h3>7.1 신호 흐름</h3>
+<div class="flow">
+<span>a, b</span>
+<span class="arrow">→</span>
+<span>U1 half_adder</span>
+<span class="arrow">→</span>
+<span>w1, w2</span>
 </div>
 <div class="flow">
-<span>output</span>
-<span class="arrow">←</span>
-<span>data</span>
-<span class="arrow">+</span>
-<span>control</span>
+<span>w1, cin</span>
+<span class="arrow">→</span>
+<span>U2 half_adder</span>
+<span class="arrow">→</span>
+<span>sum, w3</span>
 </div>
-<table class="compare">
-<thead><tr><th>프리미티브</th><th>제어가 활성일 때</th><th>비활성일 때</th></tr></thead>
-<tbody>
-<tr><td><code>bufif1</code></td><td>data 그대로 출력</td><td>z</td></tr>
-<tr><td><code>bufif0</code></td><td>control=0일 때 data 출력</td><td>z</td></tr>
-<tr><td><code>notif1</code></td><td>data 반전 출력</td><td>z</td></tr>
-<tr><td><code>notif0</code></td><td>control=0일 때 data 반전 출력</td><td>z</td></tr>
-</tbody>
-</table>
-<div class="note">
-<strong>H / L 상태</strong><br/>
-제어 또는 데이터가 <code>x</code>인 일부 조합에서는 출력이
-<code>0 또는 z</code>일 수 있는 상태를 L,
-<code>1 또는 z</code>일 수 있는 상태를 H로 표시한다.
+<div class="flow">
+<span>w2, w3</span>
+<span class="arrow">→</span>
+<span>OR U3</span>
+<span class="arrow">→</span>
+<span>cout</span>
 </div>
-<h3>5.1 3상태 게이트의 지연값</h3>
-<p>
-3상태 게이트에는 최대 세 개의 지연값을 지정할 수 있다.
-</p>
+<h3>7.2 두 가지 포트 연결 방법</h3>
 <table>
-<thead><tr><th>지연 순서</th><th>의미</th></tr></thead>
-<tbody>
-<tr><td>첫 번째</td><td>출력이 1로 천이하는 상승지연</td></tr>
-<tr><td>두 번째</td><td>출력이 0으로 천이하는 하강지연</td></tr>
-<tr><td>세 번째</td><td>출력이 z로 천이하는 턴-오프 지연</td></tr>
-</tbody>
-</table>
-<div class="example-title">예시 3-1</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>bufif1 #(10, 12, 11) (out3, in, control);
-
-bufif0 #(3, 5) U1 (out1, in, control);
-
-notif0 #3 U3 (out2, in, control);
-
-notif1 U4 (out4, in, control);</code></pre></div>
-<div class="grid">
-<div class="card">
-<span class="k">3개 지정</span>
-<p>rise / fall / turn-off 각각 지정</p>
-</div>
-<div class="card">
-<span class="k">2개 지정</span>
-<p>rise / fall 지정, x 또는 z 관련 지연은 작은 값 사용</p>
-</div>
-<div class="card">
-<span class="k">1개 지정</span>
-<p>모든 출력 변화에 동일한 지연</p>
-</div>
-<div class="card">
-<span class="k">생략</span>
-<p>전달지연 0</p>
-</div>
-</div>
-</section><section class="section" id="array">
-<h2><span class="num">05</span> 3.4 게이트 프리미티브 인스턴스의 배열</h2>
-<p>
-같은 형태의 게이트를 여러 개 반복할 때
-인스턴스 이름 뒤에 범위를 지정하여
-<strong>게이트 프리미티브 배열</strong>을 만들 수 있다.
-</p>
-<div class="syntax">
-<code>gate_type instance_name [range] (ports...);</code>
-</div>
-<h3>6.1 배열 범위</h3>
-<p>
-<code>[n:m]</code>으로 지정된 연속 범위에 따라
-여러 인스턴스가 생성되며, 어느 한쪽이 반드시 0일 필요는 없고
-오름차순/내림차순 모두 가능하다고 설명한다.
-</p>
-<div class="example-title">문법 오류 예</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">invalid_array_example.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module invalid_array_example (
-    input  [7:0] a,
-    input  [7:0] b,
-    output [7:0] y
-);
-
-// 문법 오류: 동일한 인스턴스 이름 I_nand를
-// 분리된 두 배열 범위에 다시 사용
-nand I_nand [0:3] (
-    y[3:0], a[3:0], b[3:0]
-),
-     I_nand [4:7] (
-    y[7:4], a[7:4], b[7:4]
-);
-
-endmodule</code></pre></div>
-<p>
-동일한 인스턴스 식별자 <code>I_nand</code>를
-서로 분리된 두 인스턴스 배열 범위에 다시 사용했기 때문에 오류가 된다.
-</p>
-<div class="example-title">올바른 표현</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">valid_array_example.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module valid_array_example (
-    input  [7:0] a,
-    input  [7:0] b,
-    output [7:0] y_all,
-    output [7:0] y_split
-);
-
-// 하나의 연속 배열 범위
-nand I_nand [0:7] (
-    y_all, a, b
-);
-
-// 서로 다른 인스턴스 이름을 사용한 두 배열
-nand x_nand [0:3] (
-    y_split[3:0], a[3:0], b[3:0]
-),
-     y_nand [4:7] (
-    y_split[7:4], a[7:4], b[7:4]
-);
-
-endmodule</code></pre></div>
-<h3>6.2 4비트 2입력 NOR 게이트</h3>
-<div class="example-title">코드 3-2: 배열 표현</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">nor_gate_4b.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module nor_gate_4b (
-    input  [3:0] a,
-    input  [3:0] b,
-    output [3:0] y
-);
-
-nor U0 [3:0] (y, a, b);
-
-endmodule</code></pre></div>
-<div class="example-title">코드 3-3: 개별 인스턴스로 풀어쓴 표현</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">nor_gate_4b_eq.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module nor_gate_4b_eq (
-    input  [3:0] a,
-    input  [3:0] b,
-    output [3:0] y
-);
-
-nor U3 (y[3], a[3], b[3]);
-nor U2 (y[2], a[2], b[2]);
-nor U1 (y[1], a[1], b[1]);
-nor U0 (y[0], a[0], b[0]);
-
-endmodule</code></pre></div>
-<div class="tip">
-<strong>비트별로 풀어보면</strong><br/>
-<code>nor U0 [3:0] (y, a, b);</code>는
-4개의 2입력 NOR 게이트를 병렬로 만든다.
-즉, <code>y[3:0]</code>의 각 비트는 같은 인덱스의
-<code>a</code>와 <code>b</code>를 입력으로 갖는다.
-</div>
-</section><section class="section" id="delay">
-<h2><span class="num">06</span> 3.5 게이트 지연과 net 지연</h2>
-<p>
-실제 하드웨어에서는 입력이 변한 순간 출력이 즉시 바뀌지 않는다.
-이 전달 시간을 더 정확하게 표현하기 위해
-<strong>게이트 지연(gate delay)</strong>과
-<strong>net 지연(net delay)</strong>을 설명한다.
-</p>
-<table class="compare">
-<thead><tr><th>구분</th><th>의미</th></tr></thead>
+<thead><tr><th>연결 방법</th><th>예</th><th>특징</th></tr></thead>
 <tbody>
 <tr>
-<td>게이트 지연</td>
-<td>논리 게이트 입력 변화가 출력에 나타날 때까지의 전달지연</td>
+<td>이름에 의한 연결</td>
+<td><code>.a(a), .b(b), .sum(w1), .cout(w2)</code></td>
+<td>포트 이름을 직접 지정</td>
 </tr>
 <tr>
-<td>net 지연</td>
-<td>net을 구동하는 구동자 값이 변한 뒤 실제 net 값이 갱신될 때까지의 지연</td>
+<td>순서에 의한 연결</td>
+<td><code>U2(w1, cin, sum, w3)</code></td>
+<td>하위모듈의 포트 선언 순서에 맞춰 연결</td>
 </tr>
 </tbody>
 </table>
-<h3>7.1 세 가지 전달지연</h3>
-<div class="delaybox">
-<div class="delay">
-<strong>d1 : 상승지연</strong><br/> 출력이 논리 1로 천이할 때의 지연 </div>
-<div class="delay">
-<strong>d2 : 하강지연</strong><br/> 출력이 논리 0으로 천이할 때의 지연 </div>
-<div class="delay">
-<strong>d3 : 턴-오프 지연</strong><br/> 출력이 z로 천이할 때의 지연 </div>
-</div>
-<div class="note">
-<strong>x로 천이할 때</strong><br/>
-세 값이 지정된 경우 <code>x</code>로 변하는 지연은
-<code>min(d1,d2,d3)</code>,
-두 값만 지정된 경우에는 <code>min(d1,d2)</code>가 적용된다.
-</div>
-<h3>7.2 지연값 지정 예</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>and    #10         u0 (out, in1, in2);
-nor    #(10, 12)   u1 (out, in1, in2);
-bufif0 #(10,12,11) u3 (out, in, ctrl);</code></pre></div>
-<table>
-<thead><tr><th>표현</th><th>의미</th></tr></thead>
-<tbody>
-<tr><td><code>#10</code></td><td>모든 전달 변화에 동일한 지연 10</td></tr>
-<tr><td><code>#(10,12)</code></td><td>상승 10, 하강 12</td></tr>
-<tr><td><code>#(10,12,11)</code></td><td>상승 10, 하강 12, turn-off 11</td></tr>
-</tbody>
-</table>
-<h3>7.3 전달지연 규칙</h3>
-<table class="truth">
-<thead>
-<tr><th>시작</th><th>종료</th><th>2개 지연 d1,d2</th><th>3개 지연 d1,d2,d3</th></tr>
-</thead>
-<tbody>
-<tr><td>0</td><td>1</td><td>d1</td><td>d1</td></tr>
-<tr><td>0</td><td>x</td><td>min(d1,d2)</td><td>min(d1,d2,d3)</td></tr>
-<tr><td>0</td><td>z</td><td>min(d1,d2)</td><td>d3</td></tr>
-<tr><td>1</td><td>0</td><td>d2</td><td>d2</td></tr>
-<tr><td>1</td><td>x</td><td>min(d1,d2)</td><td>min(d1,d2,d3)</td></tr>
-<tr><td>1</td><td>z</td><td>min(d1,d2)</td><td>d3</td></tr>
-<tr><td>x</td><td>0</td><td>d2</td><td>d2</td></tr>
-<tr><td>x</td><td>1</td><td>d1</td><td>d1</td></tr>
-<tr><td>x</td><td>z</td><td>min(d1,d2)</td><td>d3</td></tr>
-<tr><td>z</td><td>0</td><td>d2</td><td>d2</td></tr>
-<tr><td>z</td><td>1</td><td>d1</td><td>d1</td></tr>
-<tr><td>z</td><td>x</td><td>min(d1,d2)</td><td>min(d1,d2,d3)</td></tr>
-</tbody>
-</table>
-</section><section class="section" id="latch">
-<h2><span class="num">07</span> 지연이 포함된 3상태 출력 래치</h2>
-<p>
-코드 3-4는
-<code>not</code>, <code>nand</code>, <code>bufif1</code>을 이용해
-3상태 출력을 갖는 래치 회로를 구성한다.
-각 게이트에는 서로 다른 전달지연이 지정되어 있다.
-</p>
-<div class="example-title">코드 3-4</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tri_latch.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tri_latch (
-    input  clock,
-    input  data,
-    input  enable,
-    output qout,
-    output qbout
-);
-
-tri qout, qbout;
-
-not #5 u0 (ndata, data);
-
-nand #(3,5)
-    u1 (wa, data, clock),
-    n3 (wb, ndata, clock);
-
-nand #(12,15)
-    u2 (q,  qb, wa),
-    n5 (qb, q,  wb);
-
-bufif1 #(3,7,13)
-    u3 (qout,  q,  enable),
-    u4 (qbout, qb, enable);
-
-endmodule</code></pre></div>
-<div class="note">
-<strong>동일 지연을 갖는 인스턴스 묶기</strong><br/>
-같은 프리미티브이면서 같은 지연값을 갖는 여러 게이트를
-한 문장 안에 함께 인스턴스할 수 있음을 보여준다.
-</div>
-<div class="flow">
-<span>data</span>
-<span class="arrow">→</span>
-<span>입력 NAND 경로</span>
-<span class="arrow">→</span>
-<span>교차결합 NAND 래치</span>
-<span class="arrow">→</span>
-<span>bufif1</span>
-<span class="arrow">→</span>
-<span>qout / qbout</span>
-</div>
 <div class="tip">
-<strong>경로별 전달지연</strong><br/>
-입력에서 출력까지의 전체 지연은 한 숫자로 고정되는 것이 아니라,
-실제로 신호가 통과한 게이트 경로의 지연들이 누적되어 결정된다.
+<strong>구조적 모델링핵심</strong><br/>
+이미 만들어진 모듈을 하나의 독립된 하드웨어 블록처럼 사용한다.
+따라서 큰 회로를 여러 하위 기능 블록으로 나누고 다시 연결하는
+계층적 설계가 가능하다.
 </div>
-</section><section class="section" id="inertial">
-<h2><span class="num">08</span> 관성지연</h2>
+</section><section class="section" id="testbench">
+<h2><span class="num">16</span> 테스트벤치 모듈</h2>
 <p>
-Verilog HDL의 게이트 지연에는
-<strong>inertial delay(관성지연, 짧은 펄스를 걸러내는 지연 특성)</strong>가 기본적으로 적용된다.
-입력 변화가 게이트 전달지연보다 짧게 유지되면
-그 변화가 출력까지 전달되지 않을 수 있다.
+회로 모델링이 완료되면 시뮬레이션을 통해 기능과 동작 타이밍을 검증해야 한다.
+설계된 모듈에 시험 입력을 넣고 응답을 관찰하기 위한 Verilog HDL 모듈을
+<strong>testbench(테스트벤치)</strong>라고 한다.
 </p>
-<div class="example-title">코드 3-5</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">inertial_delay_gate.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module inertial_delay_gate;
+<div class="flow">
+<span>Stimulus<br/>입력 생성</span>
+<span class="arrow">→</span>
+<span>DUT<br/>시뮬레이션 대상 모듈</span>
+<span class="arrow">→</span>
+<span>Response<br/>결과 관찰</span>
+</div>
+<h3>8.1 테스트벤치의 세 구성 요소</h3>
+<ol>
+<li>시뮬레이션 대상 모듈의 인스턴스</li>
+<li>시뮬레이션 입력을 생성하는 <code>initial</code> 또는 <code>always</code> 문</li>
+<li>시뮬레이션 제어와 출력 응답을 관찰하는 구문</li>
+</ol>
+<div class="note">
+<strong>테스트벤치는 실제 FPGA 회로가 아니다</strong><br/>
+테스트벤치를 회로 설계 모듈과 분리하여 별도 파일로 작성하는 것이 일반적이라고 설명한다.
+<code>#delay</code>, <code>$finish</code>, <code>$monitor</code>,
+<code>$display</code>, <code>$write</code> 등은 시뮬레이션 검증에서 사용된다.
+</div>
+<h3>8.2 기본 테스트벤치 예</h3>
+<div class="example-title">그림 1-14(a)의 개념</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">test_fix.v</span><span>VERILOG</span></span></div><pre><code>module test_fix();
 
-reg a, b;
+reg a, b, c;
 
-and #30 (out, a, b);
+Mod_A U0(a, b, c, Out);
 
 initial begin
-    a = 1'b0; b = 1'b0;
+    a = 1'b0; b = 1'b1; c = 1'b0;
 
-    #50 a = 1'b1; b = 1'b1;
-    #50 a = 1'b0; b = 1'b0;
-    #50 a = 1'b1; b = 1'b1;
-
-    #20 b = 1'b0;
-
-    #50;
+    #50 a = 1'b1;
+    #50 a = 1'b0; c = 1'b1;
+    #50 c = 1'b0;
+    #50 $finish;
 end
 
 endmodule</code></pre></div>
-<h3>9.1 시간 흐름</h3>
+<h4>시간에 따른 입력 변화</h4>
+<table>
+<thead><tr><th>시각</th><th>a</th><th>b</th><th>c</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+<tr><td>50</td><td>1</td><td>1</td><td>0</td></tr>
+<tr><td>100</td><td>0</td><td>1</td><td>1</td></tr>
+<tr><td>150</td><td>0</td><td>1</td><td>0</td></tr>
+<tr><td>200</td><td colspan="3"><code>$finish</code>로 시뮬레이션 종료</td></tr>
+</tbody>
+</table>
+<h3>8.3 반가산기 테스트벤치</h3>
+<div class="example-title">코드 1-3</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_half_adder.v</span><span>VERILOG</span></span></div><pre><code>module tb_half_adder;
+
+reg a, b;
+
+half_adder U0_half_adder(a, b, sum, cout);
+
+initial begin
+    a = 0; b = 0;
+
+    #10 a = 1;
+    #10 a = 0; b = 1;
+    #10 a = 1;
+    #10 a = 0; b = 0;
+    #10 $finish;
+end
+
+endmodule</code></pre></div>
+<h4>Stimulus 흐름</h4>
 <div class="flow">
-<span>t=0</span>
-<span class="arrow">→</span>
-<span>a=0, b=0</span>
-<span class="arrow">→</span>
-<span>out=0</span>
+<span>00</span><span class="arrow">→ 10 time</span>
+<span>10</span><span class="arrow">→ 10 time</span>
+<span>01</span><span class="arrow">→ 10 time</span>
+<span>11</span><span class="arrow">→ 10 time</span>
+<span>00</span>
 </div>
+<div class="tip">
+<strong>반가산기 검증 관점</strong><br/>
+2개의 1비트 입력 <code>a</code>, <code>b</code>가 가질 수 있는
+4가지 조합인 <code>00, 01, 10, 11</code>을 모두 입력해 보는 구조다.
+즉, 가능한 입력 조건을 빠짐없이 자극하여 결과를 확인한다.
+</div>
+<h3>8.4 D 플립플롭 테스트벤치와 클록 생성</h3>
+<p>의 예는 <code>dff_sr</code> 모듈 검증을 위해
+클록 생성용 <code>initial</code> 블록과
+<code>set</code>, <code>reset</code>, <code>din</code>을 만드는
+또 하나의 <code>initial</code> 블록을 사용한다.
+</p>
+<div class="example-title">코드 1-4</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dff_sr.v</span><span>VERILOG</span></span></div><pre><code>module tb_dff_sr;
+
+reg set, reset, clock, din;
+
+dff_sr U0_dff_sr(set, reset, clock, din, q, qb);
+
+initial begin
+    clock = 1'b0;
+
+    forever begin
+        #10 clock = ~clock;
+    end
+end
+
+initial begin
+    forever begin
+        din = 0; reset = 1; set = 1;
+
+        #15 din = 1;
+        #30 reset = 0;
+        #10 reset = 1;
+        #25 din = 0;
+        #20 set = 0;
+        #10 set = 1;
+        #30 din = 0;
+    end
+end
+
+endmodule</code></pre></div>
+<h4>클록이 만들어지는 과정</h4>
 <div class="flow">
-<span>t=50</span>
-<span class="arrow">→</span>
-<span>a=1, b=1</span>
-<span class="arrow">30ns 지연</span>
-<span>out에 변화 반영</span>
-</div>
-<div class="flow">
-<span>t=150</span>
-<span class="arrow">→</span>
-<span>a=1, b=1</span>
-<span class="arrow">20ns 후</span>
-<span>b=0</span>
-</div>
-<div class="timeline">
-<div class="pulse">
-<div class="label">입력 펄스</div>
-</div>
-<div class="pulse">
-<div class="label">지연 30ns</div>
-<div>입력 HIGH 유지시간은 20ns → 게이트 지연보다 짧음</div>
-</div>
-<div class="pulse">
-<div class="label">출력</div>
-<div>짧은 HIGH 펄스가 출력까지 전달되지 않음</div>
-</div>
-</div>
-<div class="warn">
-<strong>핵심 예</strong><br/>
-150ns에서 170ns까지 <code>b</code>가 1을 유지하는 시간은 20ns인데,
-AND 게이트의 지연은 30ns이다.
-따라서 이 20ns 폭의 입력 변화는 출력에 영향을 주지 못한다.
+<span>clock = 0</span>
+<span class="arrow">→ #10</span>
+<span>clock = 1</span>
+<span class="arrow">→ #10</span>
+<span>clock = 0</span>
+<span class="arrow">→ 반복</span>
 </div>
 <div class="note">
-<strong>Simulation과 실제 FPGA 구분</strong><br/>
-이 절의 <code>#30</code>은 Verilog 시뮬레이션에서 게이트 전달지연을 표현하기 위한 모델이다.
-실제 FPGA의 물리적 지연은 구현 후 Timing Analysis(타이밍 분석) 결과로 확인해야 하며,
-소스의 <code>#</code> 지연값을 실제 FPGA 지연으로 그대로 간주하면 안 된다.
+<strong>클록 주기</strong><br/>
+클록은 10 time unit마다 반전되므로,
+LOW 10 + HIGH 10의 한 주기는 <strong>20 time unit</strong>이다.
+이를 20 ns 주기의 클록으로 설명한다.
+</div>
+<div class="warn">
+<strong>초기화가 필요한 이유</strong><br/>
+<code>reg</code>의 초기값이 기본적으로 <code>x</code>(unknown)이므로
+<code>clock = ~clock;</code> 방식으로 클록을 생성하려면
+먼저 <code>clock = 1'b0;</code>처럼 확정된 값으로 초기화해야 한다고 설명한다.
 </div>
 </section><section class="section" id="summary">
-<h2><span class="num">09</span> 최종 핵심 정리</h2>
+<h2><span class="num">17</span> 최종 핵심 정리</h2>
 <table>
 <thead><tr><th>항목</th><th>핵심 내용</th></tr></thead>
 <tbody>
-<tr><td>게이트 프리미티브</td><td>미리 정의된 논리 게이트를 모듈 내부에 직접 인스턴스</td></tr>
-<tr><td>포트 순서</td><td>기본 게이트는 출력이 먼저, 그 뒤에 입력</td></tr>
-<tr><td>인스턴스 이름</td><td>일반 게이트는 생략 가능, 배열에서는 필요</td></tr>
-<tr><td>기본 게이트</td><td><code>and nand or nor xor xnor</code></td></tr>
-<tr><td>buf / not</td><td>입력 1개, 출력 1개 이상 가능</td></tr>
-<tr><td>3상태 게이트</td><td><code>bufif0/1</code>, <code>notif0/1</code>, 출력 z 가능</td></tr>
-<tr><td>프리미티브 배열</td><td>같은 게이트 여러 개를 벡터처럼 반복 인스턴스</td></tr>
-<tr><td>상승지연</td><td>출력이 1로 바뀔 때의 전달지연</td></tr>
-<tr><td>하강지연</td><td>출력이 0으로 바뀔 때의 전달지연</td></tr>
-<tr><td>턴-오프 지연</td><td>출력이 z로 바뀔 때의 전달지연</td></tr>
-<tr><td>관성지연</td><td>게이트 지연보다 짧은 입력 펄스가 출력에 전달되지 않을 수 있음</td></tr>
+<tr>
+<td>Verilog 구문 분류</td>
+<td>회로 합성용 · 시뮬레이션용 · 라이브러리 설계용</td>
+</tr>
+<tr>
+<td>모듈 기본 구조</td>
+<td>머리부 → 선언부 → 몸체부</td>
+</tr>
+<tr>
+<td>병행성</td>
+<td>모듈 몸체의 독립 문장은 기본적으로 동시에 동작하는 하드웨어를 표현</td>
+</tr>
+<tr>
+<td>게이트 모델링</td>
+<td>게이트 자체를 직접 인스턴스하여 회로 구조 표현</td>
+</tr>
+<tr>
+<td>연속 할당</td>
+<td><code>assign</code>으로 조합논리의 논리식을 직접 표현</td>
+</tr>
+<tr>
+<td>행위수준 모델링</td>
+<td><code>always</code>, <code>if</code> 등으로 회로의 동작 조건을 기술</td>
+</tr>
+<tr>
+<td>순차회로</td>
+<td><code>posedge clk</code> 등 특정 클록 에지에서 레지스터 값이 갱신</td>
+</tr>
+<tr>
+<td>구조적 모델링</td>
+<td>하위모듈을 인스턴스하여 상위 회로를 계층적으로 구성</td>
+</tr>
+<tr>
+<td>테스트벤치</td>
+<td>Stimulus → DUT → Response 구조로 설계 회로의 기능과 타이밍을 검증</td>
+</tr>
+<tr>
+<td><code>#delay</code></td>
+<td>테스트벤치에서 입력 변화 시점을 제어하는 시뮬레이션 지연 표현</td>
+</tr>
 </tbody>
 </table>
 <div class="note">
-<strong>이 장을 회로 설계 관점으로 정리하면</strong><br/>
-Verilog 게이트 프리미티브 한 줄
-→ 실제 논리 게이트 하나 또는 게이트 배열
-→ <code>wire</code>가 게이트 사이의 물리적 연결선
-→ <code>#delay</code>가 시뮬레이션상의 전달지연
-→ 여러 게이트 경로를 통과하면 지연이 누적
-→ 짧은 펄스는 관성지연에 의해 제거될 수 있다.
-</div>
-<div class="flow">
-<span>Gate Primitive</span>
-<span class="arrow">→</span>
-<span>Gate-level RTL/Model</span>
-<span class="arrow">→</span>
-<span>Signal Path</span>
-<span class="arrow">→</span>
-<span>Propagation Delay</span>
-<span class="arrow">→</span>
-<span>Simulation Waveform</span>
+<strong>이 절에서 연결해야 할 핵심 흐름</strong><br/>
+회로 기능을 먼저 정한다
+→ 적합한 모델링 방법을 선택한다
+→ Verilog 모듈로 기술한다
+→ 테스트벤치에서 입력을 만든다
+→ 시뮬레이션 응답을 확인한다
+→ 합성 가능한 RTL은 실제 하드웨어 구조로 변환된다.
 </div>
 </section>
 <div class="chapter-links" id="chapter-links"></div>
 </main>
 </div>
-<footer class="footer">디지털시스템설계 · RTL · Verilog · v01 · 코드 상태: iverilog 컴파일 통과 표시 외에는 미검증 · 보드 동작은 실제 환경에서 검증</footer>
-<script>window.COURSE={"title": "디지털시스템설계 · RTL · Verilog", "chapters": [{"id": "ch01", "number": 1, "title": "Verilog HDL 기초", "file": "ch01_verilog_basics_v01.html"}, {"id": "ch02", "number": 2, "title": "자료형과 연산자", "file": "ch02_datatypes_operators_v01.html"}, {"id": "ch03", "number": 3, "title": "게이트 수준 모델링", "file": "ch03_gate_level_modeling_v01.html"}, {"id": "ch04", "number": 4, "title": "할당문", "file": "ch04_assignments_v01.html"}, {"id": "ch05", "number": 5, "title": "행위수준 모델링", "file": "ch05_behavioral_modeling_v01.html"}, {"id": "ch06", "number": 6, "title": "구조적 모델링", "file": "ch06_structural_modeling_v01.html"}, {"id": "ch07", "number": 7, "title": "함수와 태스크", "file": "ch07_functions_tasks_v01.html"}, {"id": "ch08", "number": 8, "title": "컴파일러 지시어", "file": "ch08_compiler_directives_v01.html"}, {"id": "ch09", "number": 9, "title": "시스템 태스크와 시스템 함수", "file": "ch09_system_tasks_functions_v01.html"}, {"id": "ch10", "number": 10, "title": "조합회로 모델링", "file": "ch10_combinational_modeling_v01.html"}, {"id": "ch11", "number": 11, "title": "순차회로 모델링", "file": "ch11_sequential_modeling_v01.html"}, {"id": "ch12", "number": 12, "title": "순차회로의 FPGA 구현 실습", "file": "ch12_sequential_fpga_lab_v01.html"}]};</script>
+<footer class="footer">디지털시스템설계 · RTL · Verilog</footer>
+<script>window.COURSE={"title": "디지털시스템설계 · RTL · Verilog", "chapters": [{"id": "ch01", "number": 1, "title": "Verilog HDL 기초", "file": "ch01_verilog_basics_v02.html"}, {"id": "ch02", "number": 2, "title": "자료형과 연산자", "file": "ch02_datatypes_operators_v02.html"}, {"id": "ch03", "number": 3, "title": "게이트 수준 모델링", "file": "ch03_gate_level_modeling_v02.html"}, {"id": "ch04", "number": 4, "title": "할당문", "file": "ch04_assignments_v02.html"}, {"id": "ch05", "number": 5, "title": "행위수준 모델링", "file": "ch05_behavioral_modeling_v02.html"}, {"id": "ch06", "number": 6, "title": "구조적 모델링", "file": "ch06_structural_modeling_v02.html"}, {"id": "ch07", "number": 7, "title": "함수와 태스크", "file": "ch07_functions_tasks_v02.html"}, {"id": "ch08", "number": 8, "title": "컴파일러 지시어", "file": "ch08_compiler_directives_v02.html"}, {"id": "ch09", "number": 9, "title": "시스템 태스크와 시스템 함수", "file": "ch09_system_tasks_functions_v02.html"}, {"id": "ch10", "number": 10, "title": "조합회로 모델링", "file": "ch10_combinational_modeling_v02.html"}, {"id": "ch11", "number": 11, "title": "순차회로 모델링", "file": "ch11_sequential_modeling_v02.html"}, {"id": "ch12", "number": 12, "title": "순차회로의 FPGA 구현 실습", "file": "ch12_sequential_fpga_lab_v02.html"}]};</script>
 <script>/* 공통 탐색 및 코드 복사 — 페이지 본문을 변경하지 않음 */
 (()=>{'use strict';
  const data=window.COURSE||{title:'교육과정',chapters:[]};

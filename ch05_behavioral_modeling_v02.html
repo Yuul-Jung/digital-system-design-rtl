@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="래치 · 플립플롭 · Blocking/Nonblocking · 계수기 · 분주기 · 시프트 레지스터 · LFSR · Moore/Mealy FSM">
-<title>제11장 · 순차회로 모델링 · 디지털시스템설계 · RTL · Verilog</title>
+<meta name="description" content="always · initial · blocking/nonblocking · if · case/casez/casex · 반복문 · 타이밍 제어 · named event · wait · intra-assignment · begin-end · fork-join">
+<title>제05장 · 행위수준 모델링 · 디지털시스템설계 · RTL · Verilog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -34,259 +34,166 @@ code{background:#f6ede2}
 </style>
 <style>
 :root{
-  --c-bg:#faf9f7; --c-paper:#fff; --c-ink:#331f17; --c-muted:#7b665d;
-  --c-line:#eee8e0; --c-blue:#9a4927; --c-blue2:#faf0ec; --c-teal:#6a331b;
+  --c-bg:#faf9f7; --c-paper:#ffffff; --c-ink:#331f17; --c-muted:#7a655c;
+  --c-line:#eee7df; --c-blue:#9a4927; --c-blue2:#faf0ec; --c-teal:#6a331b;
   --c-code:#221510; --c-codeink:#fcf4f1; --c-warn:#fff7df; --c-ok:#eef9f2;
-  --c-danger:#fff0f0; --c-dangerline:#b94c4c; --c-purple:#7154a7;
-  --c-orange:#b56a10; --c-soft:#fdfaf8;
+  --c-danger:#fff0f0; --c-dangerline:#b94c4c; --c-soft:#fdfaf8;
 }
 .card{background:var(--c-paper);border:1px solid var(--c-line);border-radius:14px}
 .badge{display:inline-block;border-radius:999px;padding:3px 9px;
   font-size:.78rem;font-weight:700;background:var(--c-blue2);
   color:#864022;margin-right:6px}
-.note,.warn,.tip,.danger,.rtl,.source-note,.verify{border-left:5px solid var(--c-blue);padding:14px 16px;border-radius:8px;margin:16px 0}
+.note,.warn,.tip,.danger,.rtl{border-left:5px solid var(--c-blue);padding:14px 16px;
+  border-radius:8px;margin:16px 0}
 .note{background:#fcf4f1}
 .warn{background:var(--c-warn);border-color:#d49b17}
 .tip{background:var(--c-ok);border-color:#2b8a57}
 .danger{background:var(--c-danger);border-color:var(--c-dangerline)}
-.rtl{background:#f5f0ff;border-color:var(--c-purple)}
-.source-note{background:#faf9f7;border-color:#84726a}
-.verify{background:#fff4e8;border-color:var(--c-orange)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:12px}
+.rtl{background:#f5f0ff;border-color:#7456a6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:12px}
 .card{padding:16px 18px}
 .k{font-weight:700;color:#7a3a1f}
-.example-title{font-size:.92rem;color:#8d5137;font-weight:700;margin:18px 0 8px}
-.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
-.flow span{background:#fbf1ed;border:1px solid #e9e1d7;border-radius:8px;padding:8px 11px}
-.flow .arrow{background:none;border:none;padding:0;color:#557}
-.logic{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}
-.logic .box{min-width:128px;border:2px solid #c3937f;background:#fdfaf8;
+.example-title{font-size:.92rem;color:#8d5137;font-weight:700;
+  margin:18px 0 8px}
+.flow,.path{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.flow span,.path span{background:#fbf1ed;border:1px solid #e9e1d7;
+  border-radius:8px;padding:8px 11px}
+.flow .arrow,.path .arrow{background:none;border:none;padding:0;color:#557}
+.syntax{background:#f9f7f4;border:1px solid #e5dbce;border-radius:10px;
+  padding:14px 16px;margin:14px 0}
+.syntax code{color:#5b2d19}
+.compare td:first-child{font-weight:700;color:#7e3f24;width:23%}
+.logic{display:flex;align-items:center;justify-content:center;gap:10px;
+  flex-wrap:wrap;margin:18px 0}
+.logic .box{min-width:110px;border:2px solid #c3937f;background:#fdfaf8;
   padding:10px 14px;border-radius:12px;text-align:center;font-weight:700}
 .logic .sig{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
+.timeline{border:1px solid var(--c-line);border-radius:12px;padding:14px 16px;
+  background:#fefbfa;margin:14px 0;overflow:auto}
+.timeline table{margin:0;min-width:680px}
+.timeline th,.timeline td{text-align:center}
 .step{border:1px solid #ebe4da;border-radius:10px;background:#fefdfc;
   padding:12px 14px;margin:10px 0}
 .step strong{color:#864022}
-.task{border:1px solid #e7ddd2;border-radius:12px;background:#fefdfc;
-  padding:16px 18px;margin:16px 0}
-.task .title{font-weight:800;color:#864022;margin-bottom:8px}
-.truth{max-width:940px;margin:14px auto}
-.truth td,.truth th{text-align:center}
-.compare td:first-child{font-weight:700;color:#7e3f24;width:23%}
+.operator{display:inline-block;font-family:"JetBrains Mono","D2Coding","Consolas",monospace;
+  font-weight:800;color:#7a3a1f;background:#faf0ec;border-radius:6px;padding:2px 7px}
+.small{font-size:.92rem;color:var(--c-muted)}
 .chip{display:inline-block;background:#f7f4f0;border:1px solid #e6ddd1;
   border-radius:999px;padding:2px 8px;margin:2px;font-size:.84rem}
-.small{font-size:.92rem;color:var(--c-muted)}
 </style>
 </head>
-<body data-chapter="ch11">
+<body data-chapter="ch05">
 <a class="skip" href="#main-content">본문 바로가기</a>
 <button type="button" class="mobile-menu" id="mobile-menu" aria-controls="course-nav" aria-expanded="false">☰ 장·목차</button>
 <div class="shade" id="shade"></div>
-<header class="hero"><div class="hero-inner"><p class="kicker">DIGITAL SYSTEM DESIGN · CHAPTER 11</p><h1>제11장 · 순차회로 모델링</h1><p>래치 · 플립플롭 · Blocking/Nonblocking · 계수기 · 분주기 · 시프트 레지스터 · LFSR · Moore/Mealy FSM</p><div class="chips"></div></div></header>
+<header class="hero"><div class="hero-inner"><p class="kicker">DIGITAL SYSTEM DESIGN · CHAPTER 05</p><h1>제05장 · 행위수준 모델링</h1><p>always · initial · blocking/nonblocking · if · case/casez/casex · 반복문 · 타이밍 제어 · named event · wait · intra-assignment · begin-end · fork-join</p><div class="chips"></div></div></header>
 <div class="wrap">
 <nav class="toc" id="course-nav" aria-label="장과 절 탐색"></nav>
 <main class="content" id="main-content">
 <section class="section" id="overview">
-<h2><span class="num">00</span> CHAPTER 11 전체 개요</h2>
+<h2><span class="num">00</span> CHAPTER 05 전체 개요</h2>
 <p>
-순차회로(sequential circuit)는 현재 입력뿐 아니라
-<strong>과거 입력과 회로에 저장된 현재 상태</strong>에 의해 출력이 결정되는 회로이다.
-따라서 조합회로와 달리 과거 정보를 기억하기 위한 저장소자가 필요하며,
-대표 저장소자가 latch(래치)와 flip-flop(플립플롭)이다.
+앞 장의 게이트 프리미티브, 연속 할당문, 구조적 모델링은
+회로의 <strong>구조</strong>를 직접 표현하는 성격이 강하다.
+반면 행위수준 모델링(behavioral modeling, 비헤이비어럴 모델링)은
+회로가 “어떻게 동작해야 하는가”를 조건, 이벤트, 반복, 순차적 문장으로 표현한다.
 </p>
 <div class="grid">
-<div class="card"><span class="k">Latch</span><p>클록/enable의 <strong>레벨</strong>에 반응하는 저장소자</p></div>
-<div class="card"><span class="k">Flip-Flop</span><p>클록의 상승 또는 하강 <strong>에지</strong>에서 상태 갱신</p></div>
-<div class="card"><span class="k">Counter</span><p>클록마다 값을 증가/감소시키는 상태기계</p></div>
-<div class="card"><span class="k">Shift Register</span><p>클록마다 저장 데이터를 한 비트씩 이동</p></div>
-<div class="card"><span class="k">LFSR</span><p>귀환 XOR/XNOR로 의사난수 비트열 생성</p></div>
-<div class="card"><span class="k">FSM</span><p>상태 레지스터 + 다음 상태 로직 + 출력 로직</p></div>
+<div class="card">
+<span class="k">조합회로</span>
+<p><code>always @(*)</code>, <code>if</code>, <code>case</code> 등을 사용해 입력 조건과 출력 동작을 기술한다.</p>
+</div>
+<div class="card">
+<span class="k">순차회로</span>
+<p><code>always @(posedge clk)</code>처럼 클록 에지에서 상태를 갱신한다.</p>
+</div>
+<div class="card">
+<span class="k">테스트벤치</span>
+<p><code>initial</code>, <code>forever</code>, <code>#delay</code>, event 등을 이용해 파형과 검증 시나리오를 만든다.</p>
+</div>
+</div>
+<div class="note">
+<strong>가장 중요한 구분</strong><br/>
+모듈 내부의 여러 <code>always</code>/<code>initial</code> 블록은 서로 독립적으로 병렬 동작한다.
+그러나 <strong>각 블록 내부의 절차형 문장</strong>은 blocking/nonblocking의 규칙과 문장 순서에 따라
+실행 결과가 달라질 수 있다.
 </div>
 <div class="rtl">
-<strong>Clock 중심으로 읽는 법</strong><br/>
-순차회로는 “이 값이 무엇인가?”보다 먼저
-<strong>“언제 이 값이 바뀌는가?”</strong>를 확인해야 한다.
-<code>posedge</code>, <code>negedge</code>, enable, reset이 상태 갱신 시점을 결정한다.
+<strong>RTL 해석 보강</strong><br/>
+Verilog를 C 언어처럼 소스 전체가 위에서 아래로 한 줄씩 실행된다고 보면 안 된다.
+하드웨어에서는 여러 <code>always</code> 블록이 동시에 존재하며,
+클록·입력·이벤트가 조건을 만족하는 순간 각 블록이 독립적으로 활성화된다.
 </div>
-<h3>1.1 동기식과 비동기식</h3>
-<table>
-<thead><tr><th>구분</th><th>동작 원리</th><th>특징</th></tr></thead>
-<tbody>
-<tr><td>동기식 순차회로</td><td>공통 clock에 맞춰 상태 갱신</td><td>설계·검증이 명확하고 일반적인 디지털 시스템의 기본 구조</td></tr>
-<tr><td>비동기식 순차회로</td><td>각 저장소자가 서로 다른 시점 또는 사건에 의해 변화</td><td>전파지연과 상태변화 순서에 더 민감</td></tr>
-</tbody>
-</table>
-<p>
-이 장에서 대부분의 디지털 시스템 설계에 사용되는
-<strong>동기식 순차회로</strong>를 중심으로 설명한다.
-</p>
-</section><section class="section" id="latch">
-<h2><span class="num">01</span> 11.1 래치와 플립플롭</h2>
-<h3>2.1 Latch와 Flip-Flop의 차이</h3>
-<table>
-<thead><tr><th>구분</th><th>Latch</th><th>Flip-Flop</th></tr></thead>
-<tbody>
-<tr><td>감응 기준</td><td>클록/enable의 레벨</td><td>클록의 에지</td></tr>
-<tr><td>대표 이벤트</td><td><code>if(clock)</code></td><td><code>@(posedge clk)</code>, <code>@(negedge clk)</code></td></tr>
-<tr><td>상태 변경</td><td>활성 레벨 동안 입력 변화가 출력에 전달될 수 있음</td><td>에지 순간에 입력을 저장</td></tr>
-<tr><td>대표 용도</td><td>레벨 민감 저장</td><td>동기식 레지스터, 카운터, FSM 상태 저장</td></tr>
-</tbody>
-</table>
-<h3>2.2 11.1.1 Positive D Latch</h3>
-<p>
-positive D latch는 clock=1인 동안 입력 <code>din</code>이 출력 <code>qout</code>으로 전달되고,
-clock=0인 동안에는 이전 <code>qout</code> 값을 유지한다.
-11-1은 이 투명(transparent) 구간과 유지 구간을 파형으로 보여준다.
-</p>
-<div class="logic">
-<span class="sig">din</span>
-<span>→</span>
-<div class="box">D Latch<br/>clock=1일 때 투명</div>
-<span>→</span>
-<span class="sig">qout</span>
-</div>
-<h4>코드 11-1 — Positive D Latch</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_pos.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dlatch_pos (
-    input  clock,
-    input  din,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout
-);
-
-always @(clock or din) begin
-    if (clock)
-        qout = din;
-end
-
-endmodule</code></pre></div>
-<div class="note">
-<strong>else가 없는 이유</strong><br/>
-clock=0일 때 새로운 값을 할당하지 않아야 이전 qout을 유지한다.
-이 “값 유지”가 바로 latch의 저장 기능이다.
-</div>
-<h4>코드 11-2 — 테스트벤치</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dlatch.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dlatch;
-
-reg clock, din;
-
-dlatch_pos U0 (
-    clock,
-    din,
-    qout
-);
-
-initial begin
-    clock = 1'b0;
-    forever #10 clock = ~clock;
-end
-
-initial begin
-    din = 1'b0;
-
-    #15 din = 1'b1;
-    #10 din = 1'b0;
-    #10 din = 1'b1;
-    #10 din = 1'b0;
-    #20 din = 1'b1;
-    #10 din = 1'b0;
-
-    #20 $finish;
-end
-
-endmodule</code></pre></div>
-<div class="task">
-<div class="title">설계과제 11-1</div>
-<p>8비트 negative D latch를 설계하고 테스트벤치로 기능을 검증한다.</p>
-</div>
-<h3>2.3 비동기식 Active-High Reset을 갖는 Positive D Latch</h3>
-<h4>코드 11-3</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_pos_AHrst.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dlatch_pos_AHrst (
-    input  clock,
-    input  rst,
-    input  din,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout
-);
-
-always @(clock or rst or din) begin
-    if (rst)
-        qout = 1'b0;
-    else if (clock)
-        qout = din;
-end
-
-endmodule</code></pre></div>
+<h3>1.1 이 장의 전체 흐름</h3>
 <div class="flow">
-<span>rst=1</span>
+<span>always / initial</span>
 <span class="arrow">→</span>
-<span>qout=0 즉시</span>
-<span class="arrow">/ rst=0</span>
-<span>clock=1일 때 din 통과</span>
+<span>절차형 할당</span>
+<span class="arrow">→</span>
+<span>if / case</span>
+<span class="arrow">→</span>
+<span>반복문</span>
+<span class="arrow">→</span>
+<span>타이밍 제어</span>
+<span class="arrow">→</span>
+<span>begin-end / fork-join</span>
 </div>
-<h4>코드 11-4 — 테스트벤치</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dlatch_rst.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dlatch_rst;
-
-reg clock, din, rst;
-
-dlatch_pos_AHrst U0 (
-    clock,
-    rst,
-    din,
-    qout
+</section><section class="section" id="always">
+<h2><span class="num">01</span> 5.1 always 구문과 initial 구문</h2>
+<h3>2.1 always 구문</h3>
+<p>
+<code>always</code>는 행위수준 모델링의 대표적인 구문이다.
+조합회로, 순차회로, 테스트벤치에 폭넓게 사용할 수 있으며
+시뮬레이션 동안 반복적으로 실행되는 구조라고 설명한다.
+</p>
+<div class="syntax">
+<code>always [@(sensitivity_list)] begin
+    blocking_or_nonblocking statements;
+end</code>
+</div>
+<ul>
+<li><code>@(...)</code> 안에는 블록 실행을 트리거할 감지신호목록(sensitivity list)이 들어간다.</li>
+<li>감지신호에 event가 발생하면 <code>begin-end</code> 내부 문장이 실행된다.</li>
+<li>블록 내부는 절차형 문장들로 구성된다.</li>
+<li>blocking/nonblocking의 선택에 따라 시뮬레이션과 합성 의미가 달라질 수 있다.</li>
+</ul>
+<h3>2.2 조합회로 예 — 2입력 OR</h3>
+<div class="example-title">코드 5-1</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">or2.v</span><span>VERILOG</span></span></div><pre><code>module or2 (
+    input  a,
+    input  b,
+    output reg out
 );
 
-initial begin
-    clock = 1'b0;
-    forever #10 clock = ~clock;
-end
-
-initial begin
-    din = 1'b0;
-    rst = 1'b0;
-
-    #15 din = 1'b1;
-    #10 din = 1'b0;
-    #10 din = 1'b1;
-
-    #30 rst = 1'b1;
-    #10 rst = 1'b0;
-
-    #10 din = 1'b0;
-    #20 din = 1'b1;
-    #10 din = 1'b0;
-
-    #20 $finish;
+always @(a or b) begin
+    if (a == 1'b1 || b == 1'b1)
+        out = 1'b1;
+    else
+        out = 1'b0;
 end
 
 endmodule</code></pre></div>
-<div class="task">
-<div class="title">설계과제 11-2</div>
-<p>비동기식 active-low set/reset을 갖는 4비트 negative D latch를 설계한다.</p>
-</div>
-</section><section class="section" id="ff">
-<h2><span class="num">02</span> 11.1.2 D 플립플롭</h2>
-<p>
-D Flip-Flop(DFF)은 clock의 천이 에지에서만 입력을 샘플링하고,
-다음 유효 에지까지 그 값을 유지한다.
-따라서 동기식 디지털 시스템의 기본 저장소자로 사용된다.
-</p>
 <div class="logic">
-<span class="sig">din</span>
+<span class="sig">a,b 변화</span>
 <span>→</span>
-<div class="box">DFF<br/>posedge clk</div>
+<div class="box">always 실행</div>
 <span>→</span>
-<span class="sig">qout</span>
+<div class="box">if 판단</div>
+<span>→</span>
+<span class="sig">out 갱신</span>
 </div>
-<div class="note">
-<strong>감지신호목록</strong><br/>
-일반적인 edge-triggered DFF는 <code>always @(posedge clk)</code>처럼
-clock만 감지한다.
-비동기 reset/set이 있다면 해당 reset/set edge도 함께 넣는다.
+<div class="rtl">
+<strong>합성 후 회로</strong><br/>
+이 코드는 상태를 저장하지 않는다.
+입력 <code>a</code>, <code>b</code>가 바뀔 때마다 출력이 다시 계산되므로
+실제 합성 결과는 2입력 OR 조합논리에 대응한다.
 </div>
-<h3>3.1 코드 11-9 — 상승에지 DFF</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_pos.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_pos (
+<h3>2.3 순차회로 예 — D 플립플롭</h3>
+<div class="example-title">코드 5-2</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span></span></div><pre><code>module dff (
     input  clk,
     input  din,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
     output reg qout
 );
 
@@ -295,1263 +202,1277 @@ always @(posedge clk)
 
 endmodule</code></pre></div>
 <div class="flow">
+<span>현재 din</span>
+<span class="arrow">→</span>
 <span>posedge clk</span>
 <span class="arrow">→</span>
-<span>din 샘플링</span>
-<span class="arrow">→</span>
-<span>qout Register 저장</span>
-<span class="arrow">→</span>
-<span>다음 posedge까지 유지</span>
+<span>qout 레지스터 저장</span>
 </div>
-<h3>3.2 코드 11-10 — 테스트벤치</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dff;
-
-reg clk, din;
-
-dff_pos U0 (
-    clk,
-    din,
-    qout
-);
-
-initial begin
-    clk = 1'b0;
-    forever #10 clk = ~clk;
-end
-
-initial begin
-    din = 1'b0;
-
-    #15 din = 1'b1;
-    #10 din = 1'b0;
-    #10 din = 1'b1;
-    #10 din = 1'b0;
-    #20 din = 1'b1;
-    #10 din = 1'b0;
-
-    #20 $finish;
-end
-
-endmodule</code></pre></div>
-<h3>3.3 qout과 qout_bar를 갖는 DFF</h3>
+<div class="rtl">
+<strong>Clock 기준 해석</strong><br/>
+<code>din</code>이 아무리 많이 변해도 <code>clk</code> 상승에지가 오기 전에는
+<code>qout</code>이 갱신되지 않는다.
+즉, 코드핵심은 “값”보다 <strong>언제 저장되는가</strong>이다.
+</div>
+</section><section class="section" id="sensitivity">
+<h2><span class="num">02</span> 조합회로와 감지신호목록</h2>
 <p>
-코드 11-11은 qout과 qout_bar를 모두 sequential block에서 만드는 경우와,
-qout만 register로 만들고 qout_bar를 조합논리로 만드는 경우를 비교한다.
+조합회로를 <code>always</code> 블록으로 기술할 때는
+블록 내부에서 참조되는 모든 입력이 감지신호목록에 들어가야 한다.
+일부 입력이 빠지면 RTL 시뮬레이션에서 해당 신호 변화가 블록 실행을 트리거하지 않아
+의도한 조합회로와 다른 파형이 나올 수 있다.
 </p>
-<h4>코드 11-11(a) — 두 출력 모두 nonblocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Bad1.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_Bad1 (
-    input  clk,
-    input  din,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout_bar
+<div class="example-title">코드 5-3: sel이 감지신호목록에서 빠진 경우</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_omit_sel.v</span><span>VERILOG</span></span></div><pre><code>module mux21_omit_sel (
+    input  [1:0] a,
+    input  [1:0] b,
+    input        sel,
+    output reg [1:0] out
 );
 
-always @(posedge clk) begin
-    qout     &lt;= din;
-    qout_bar &lt;= ~din;
-end
-
-endmodule</code></pre></div>
-<h4>코드 11-11(b) — 두 출력 모두 blocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Bad2.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_Bad2 (
-    input  clk,
-    input  din,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout_bar
-);
-
-always @(posedge clk) begin
-    qout     = din;
-    qout_bar = ~din;
-end
-
-endmodule</code></pre></div>
-<h4>코드 11-11(c) — qout만 register, qout_bar는 조합논리</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Good.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_Good (
-    input  clk,
-    input  din,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout,
-    output qout_bar
-);
-
-assign qout_bar = ~qout;
-
-always @(posedge clk)
-    qout &lt;= din;
-
-endmodule</code></pre></div>
-<table>
-<thead><tr><th>모델</th><th>합성되는 저장소자</th><th>의미</th></tr></thead>
-<tbody>
-<tr><td>11-11(a)</td><td>qout용 FF + qout_bar용 FF</td><td>1비트 저장에 FF 2개 사용</td></tr>
-<tr><td>11-11(b)</td><td>마찬가지로 FF 2개</td><td>clocked always의 좌변 reg는 저장소자로 추론</td></tr>
-<tr><td>11-11(c)</td><td>qout용 FF 1개 + 인버터</td><td>가장 자연스러운 구조</td></tr>
-</tbody>
-</table>
-<div class="task">
-<div class="title">설계과제 11-5</div>
-<p><code>qout_bar &lt;= ~qout;</code>로 작성하면 단순 보수 출력 DFF가 아닌 다른 회로가 되는 이유를 시뮬레이션과 합성으로 확인한다.</p>
-</div>
-</section><section class="section" id="reset">
-<h2><span class="num">03</span> Set/Reset을 갖는 플립플롭</h2>
-<h3>4.1 동기식 Active-Low Reset</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_sync_ALrst.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_sync_ALrst (
-    input  clk,
-    input  din,
-    input  rstn,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout
-);
-
-always @(posedge clk) begin
-    if (!rstn)
-        qout &lt;= 1'b0;
+always @(a or b) begin   // sel이 없음
+    if (sel == 1'b0)
+        out = a;
     else
-        qout &lt;= din;
+        out = b;
 end
-
-endmodule</code></pre></div>
-<div class="note">
-<strong>동기식 reset핵심</strong><br/>
-reset이 바뀌어도 즉시 qout이 변하지 않는다.
-반드시 다음 <code>posedge clk</code>에서 reset 상태를 확인한 뒤 qout을 0으로 만든다.
-</div>
-<h3>4.2 비동기식 Active-Low Reset</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_async_ALrst.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_async_ALrst (
-    input  clk,
-    input  din,
-    input  rst_n,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout
-);
-
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n)
-        qout &lt;= 1'b0;
-    else
-        qout &lt;= din;
-end
-
-endmodule</code></pre></div>
-<div class="flow">
-<span>posedge clk</span>
-<span class="arrow">또는</span>
-<span>negedge rst_n</span>
-<span class="arrow">→</span>
-<span>always block 실행</span>
-</div>
-<div class="task">
-<div class="title">설계과제 11-6</div>
-<ol>
-<li>동기식 active-high reset DFF</li>
-<li>동기식 active-high set DFF</li>
-<li>동기식 active-low set/reset DFF</li>
-<li>비동기식 active-high reset DFF</li>
-<li>비동기식 active-high set DFF</li>
-<li>비동기식 active-low set/reset DFF</li>
-</ol>
-</div>
-</section><section class="section" id="assign">
-<h2><span class="num">04</span> 11.2 순차회로에서 Blocking과 Nonblocking</h2>
-<p>
-이 장에서 가장 중요한 핵심 중 하나는
-<strong>순차회로의 상태를 표현할 때 blocking(<code>=</code>)과 nonblocking(<code>&lt;=</code>)의 의미가 다르다</strong>는 점이다.
-</p>
-<h3>5.1 래치 회로에서의 차이 — 코드 11-5 / 11-6</h3>
-<h4>Blocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_blocking.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dlatch_blocking (
-    input  en,
-    input  a,
-    input  b,
-    input  c,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg y_out
-);
-
-reg m;
-
-always @(en, a, b, c) begin
-    if (en) begin
-        m     = ~(a | b);
-        y_out = ~(m &amp; c);
-    end
-end
-
-endmodule</code></pre></div>
-<div class="flow">
-<span>m = ~(a|b)</span>
-<span class="arrow">→ 즉시 m 갱신</span>
-<span>y_out = ~(새 m &amp; c)</span>
-</div>
-<p>
-합성 결과에서는 <code>m</code>은 조합논리 결과가 되고,
-<code>y_out</code>만 latch가 된다.
-</p>
-<h4>Nonblocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_Nonblocking.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dlatch_Nonblocking (
-    input  en,
-    input  a,
-    input  b,
-    input  c,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg y_out
-);
-
-reg m;
-
-always @(en, a, b, c) begin
-    if (en) begin
-        m     &lt;= ~(a | b);
-        y_out &lt;= ~(m &amp; c);
-    end
-end
-
-endmodule</code></pre></div>
-<div class="flow">
-<span>우변 m 평가</span>
-<span class="arrow">→ 이전 m 사용</span>
-<span class="arrow">→</span>
-<span>m과 y_out 모두 상태 유지 필요</span>
-<span class="arrow">→</span>
-<span>Latch 2개</span>
-</div>
-<h3>5.2 플립플롭 회로에서의 차이 — 코드 11-16 / 11-17</h3>
-<h4>코드 11-16 — Blocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_blocking.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module seq_blocking (
-    input  clk,
-    input  a,
-    input  b,
-    input  c,
-    input  d,
-    input  e,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg yout
-);
-
-reg m, n;
-
-always @(posedge clk) begin
-    m    = ~(a &amp; b);
-    n    = c | d;
-    yout = ~(m | n | e);
-end
-
-endmodule</code></pre></div>
-<p>
-blocking이므로 m과 n의 새 값이 같은 always 실행 안에서 yout 계산에 바로 사용된다.
-11-11에서는 최종 yout만 FF에 저장되는 구조로 합성된다.
-</p>
-<h4>코드 11-17 — Nonblocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_Nonblocking.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module seq_Nonblocking (
-    input  clk,
-    input  a,
-    input  b,
-    input  c,
-    input  d,
-    input  e,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg yout
-);
-
-reg m, n;
-
-always @(posedge clk) begin
-    m    &lt;= ~(a &amp; b);
-    n    &lt;= c | d;
-    yout &lt;= ~(m | n | e);
-end
-
-endmodule</code></pre></div>
-<p>
-nonblocking에서는 같은 clock edge에서 우변들이 이전 상태를 기준으로 평가되므로
-<code>m</code>, <code>n</code>, <code>yout</code>가 모두 상태로 저장된다.
-11-12는 3개의 FF가 생성되는 모습을 보여준다.
-</p>
-<h3>5.3 4단 Shift Register에서 순서의 영향</h3>
-<h4>코드 11-19(a) — Blocking, 앞에서 뒤로</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>always @(posedge clk) begin
-    q0 = din;
-    q1 = q0;
-    q2 = q1;
-    q3 = q2;
-end</code></pre></div>
-<p>
-blocking에서는 새 q0가 즉시 q1에 전달되고,
-다시 q2, q3로 같은 clock event 안에서 연쇄적으로 전달된다.
-따라서 4단 shift register가 아니라 사실상 한 단계에 값이 연쇄 전달되는 구조가 된다.
-</p>
-<h4>코드 11-19(b) — Blocking, 뒤에서 앞으로</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>always @(posedge clk) begin
-    q3 = q2;
-    q2 = q1;
-    q1 = q0;
-    q0 = din;
-end</code></pre></div>
-<p>
-이 순서는 앞 단계의 “이전 값”을 뒤 단계에 먼저 복사하므로
-4단 shift register가 된다.
-즉 blocking은 <strong>문장 순서에 따라 회로 의미가 바뀔 수 있다.</strong>
-</p>
-<h4>코드 11-20 — Nonblocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>always @(posedge clk) begin
-    q0 &lt;= din;
-    q1 &lt;= q0;
-    q2 &lt;= q1;
-    q3 &lt;= q2;
-end</code></pre></div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>always @(posedge clk) begin
-    q3 &lt;= q2;
-    q2 &lt;= q1;
-    q1 &lt;= q0;
-    q0 &lt;= din;
-end</code></pre></div>
-<p>
-두 코드 모두 우변이 edge 직전 값으로 평가되므로 동일한 4단 shift register가 된다.
-</p>
-</section><section class="section" id="guideline">
-<h2><span class="num">05</span> 순차회로 코딩 가이드라인</h2>
-<ol>
-<li><strong>플립플롭 또는 래치</strong>를 모델링하는 always 블록에서는 nonblocking(<code>&lt;=</code>)을 사용한다.</li>
-<li><strong>조합회로</strong>를 모델링하는 always 블록에서는 blocking(<code>=</code>)을 사용한다.</li>
-<li>동일 always 블록에서 순차회로와 조합회로를 함께 표현해야 한다면 nonblocking을 권장한다.</li>
-<li>동일 always 블록에서 blocking과 nonblocking을 혼합하지 않는 것이 바람직하다.</li>
-<li>여러 always 블록이 동일 reg를 구동하지 않도록 한다.</li>
-</ol>
-<h3>6.1 코드 11-21 — 권장/비권장 코딩</h3>
-<h4>비권장 — 혼합 사용</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>always @(posedge clk or negedge rstn)
-    if (!rstn)
-        qout &lt;= 1'b0;
-    else begin
-        tmp = a &amp; b;
-        qout &lt;= tmp;
-    end</code></pre></div>
-<h4>권장 — 조합식을 nonblocking 우변으로 직접 사용</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>always @(posedge clk or negedge rstn)
-    if (!rstn)
-        qout &lt;= 1'b0;
-    else
-        qout &lt;= a &amp; b;</code></pre></div>
-<h4>권장 — 조합논리를 assign으로 분리</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>assign tmp = a &amp; b;
-
-always @(posedge clk or negedge rstn)
-    if (!rstn)
-        qout &lt;= 1'b0;
-    else
-        qout &lt;= tmp;</code></pre></div>
-<h3>6.2 코드 11-22 — Multiple Driver</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">Not_recommend_3.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module Not_recommend_3 (
-    input  clk,
-    input  rstn,
-    input  d1,
-    input  d2,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg qout
-);
-
-always @(posedge clk or negedge rstn)
-    if (!rstn)
-        qout &lt;= 1'b0;
-    else
-        qout &lt;= d1;
-
-always @(posedge clk or negedge rstn)
-    if (!rstn)
-        qout &lt;= 1'b0;
-    else
-        qout &lt;= d2;
 
 endmodule</code></pre></div>
 <div class="danger">
-<strong>다중 구동</strong><br/>
-같은 <code>qout</code>을 두 개의 always block이 동시에 구동하면
-합성 오류나 합성 전/후 불일치의 원인이 될 수 있다.
-한 상태 변수는 한 순차 always block에서만 갱신하는 구조가 기본이다.
+<strong>문제점</strong><br/>
+<code>sel</code>만 바뀌고 <code>a</code>, <code>b</code>는 그대로라면
+<code>always</code>가 다시 실행되지 않는다.
+따라서 RTL 시뮬레이션에서 출력이 즉시 바뀌지 않는다.
+이 경우 합성 전 RTL 시뮬레이션과 합성 후 결과가 달라질 수 있음을 지적한다.
 </div>
-</section><section class="section" id="counter">
-<h2><span class="num">06</span> 11.3 계수기와 시프트 레지스터</h2>
+<h3>3.1 @(*) 사용</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(*) begin
+    y = (a &amp; b) | (c &amp; d);
+end</code></pre></div>
 <p>
-Counter(계수기)는 clock마다 상태값을 증가/감소시키며,
-주파수 분주, 시간 계수, 제어신호 생성 등에 널리 사용된다.
+<code>@(*)</code> 또는 <code>@*</code>는 블록에서 읽는 관련 신호들을
+감지신호목록에 자동으로 포함시키는 함축적 표현이다.
 </p>
-<h3>7.1 동기식 vs 비동기식 계수기</h3>
-<table>
-<thead><tr><th>구분</th><th>동기식</th><th>비동기식(Ripple)</th></tr></thead>
-<tbody>
-<tr><td>Clock</td><td>모든 FF가 같은 clock 사용</td><td>앞단 출력이 다음 FF의 clock 역할</td></tr>
-<tr><td>상태변화</td><td>동시에 갱신</td><td>앞단부터 순차 전파</td></tr>
-<tr><td>장점</td><td>빠르고 분석이 명확</td><td>구조가 단순</td></tr>
-<tr><td>단점</td><td>조합논리가 더 필요할 수 있음</td><td>전파지연 누적</td></tr>
-</tbody>
-</table>
-<h3>7.2 11.3.1 8비트 증가계수기</h3>
-<h4>코드 11-23</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">counter_up.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module counter_up (
-    input        clk,
-    input        rstn,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] cnt_out
-);
-
-always @(posedge clk or negedge rstn) begin
-    if (!rstn)
-        cnt_out &lt;= 0;
-    else
-        cnt_out &lt;= cnt_out + 1;
-end
-
-endmodule</code></pre></div>
-<div class="flow">
-<span>현재 cnt_out</span>
-<span class="arrow">→ +1 Adder</span>
-<span>cnt_out + 1</span>
-<span class="arrow">→ posedge clk</span>
-<span>8-bit Register 저장</span>
+<div class="tip">
+<strong>조합회로 기본 습관</strong><br/>
+전통 Verilog에서 조합회로를 <code>always</code>로 기술할 때는
+수동 감지신호 목록보다 <code>always @(*)</code>를 사용하는 편이
+누락 위험을 줄이는 데 유리하다.
 </div>
-<div class="note">
-<strong>Bit Width</strong><br/>
-8비트 unsigned counter는 0~255를 표현한다.
-255에서 +1을 하면 상위 carry는 잘리고 0으로 wrap-around된다.
-</div>
-<h4>코드 11-24 — 테스트벤치</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_counter.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_counter;
+</section><section class="section" id="initial">
+<h2><span class="num">03</span> zero-delay 무한루프와 initial 구문</h2>
+<h3>4.1 zero-delay infinite loop</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always clk = ~clk;</code></pre></div>
+<p>
+위 코드는 시간 진행을 일으키는 지연이나 이벤트 제어가 없다.
+따라서 같은 시뮬레이션 시간에서 무한히 반복되어
+시뮬레이션이 진행되지 않는 zero-delay 무한루프가 발생한다.
+</p>
+<h3>4.2 20ns 주기의 클록 생성</h3>
+<div class="example-title">코드 5-4</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">clk_gen.v</span><span>VERILOG</span></span></div><pre><code>module clk_gen;
 
-reg clk, rstn;
-wire [7:0] cnt_out;
+reg clk;
 
-counter_up u0 (
-    clk,
-    rstn,
-    cnt_out
-);
-
-initial begin
-    clk  = 1'b0;
-    rstn = 1'b0;
-
-    #5   rstn = 1'b1;
-    #100 rstn = 1'b0;
-    #20  rstn = 1'b1;
-
-    #300 $finish;
-end
+initial
+    clk = 1'b0;
 
 always
     #10 clk = ~clk;
 
 endmodule</code></pre></div>
-<div class="task">
-<div class="title">설계과제 11-8 ~ 11-10</div>
-<ul>
-<li>active-high enable을 갖는 8비트 down counter</li>
-<li>mode에 따라 up/down이 바뀌는 8비트 counter</li>
-<li>parallel load 기능까지 추가한 up/down counter</li>
-</ul>
-</div>
-</section><section class="section" id="divider">
-<h2><span class="num">07</span> 11.3.2 주파수 분주기</h2>
-<p>
-1MHz master clock에서 100kHz pulse를 만드는 1/10 분주기를 예로 든다.
-0~9까지 10개의 clock edge를 계수하고 cnt=9일 때 1 clock 동안 출력 pulse를 1로 만든다.
-</p>
-<h3>8.1 코드 11-25 — Duty 10% 1/10 분주</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">freq_div10.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module freq_div10 (
-    input  mclk,
-    input  rst,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg clk_div
-);
-
-reg [3:0] cnt;
-
-always @(posedge mclk or posedge rst) begin
-    if (rst) begin
-        cnt     &lt;= 0;
-        clk_div &lt;= 0;
-    end
-    else begin
-        if (cnt == 9) begin
-            cnt     &lt;= 0;
-            clk_div &lt;= 1'b1;
-        end
-        else begin
-            clk_div &lt;= 1'b0;
-            cnt     &lt;= cnt + 1;
-        end
-    end
-end
-
-endmodule</code></pre></div>
 <div class="flow">
-<span>mclk 10주기</span>
+<span>clk=0</span>
+<span class="arrow">10ns</span>
+<span>clk=1</span>
+<span class="arrow">10ns</span>
+<span>clk=0</span>
 <span class="arrow">→</span>
-<span>cnt 0→9</span>
-<span class="arrow">→</span>
-<span>clk_div 1주기 HIGH</span>
+<span>주기 20ns</span>
 </div>
 <div class="note">
-<strong>Duty Cycle</strong><br/>
-출력은 10개의 입력 clock 주기 중 1주기만 HIGH이므로 duty cycle은 10%이다.
+<strong>왜 초기화가 필요한가?</strong><br/>
+<code>reg</code>의 시뮬레이션 초기값은 기본적으로 <code>x</code>이다.
+<code>~x</code> 역시 <code>x</code>이므로,
+초기화하지 않으면 클록이 계속 unknown 상태를 유지할 수 있다.
 </div>
-<div class="task">
-<div class="title">설계과제 11-11</div>
-<p>비동기식 active-high reset을 갖고 duty cycle 50%인 대칭 1/10 분주기를 설계한다.</p>
+<h3>4.3 initial 구문</h3>
+<div class="syntax">
+<code>initial begin
+    blocking_or_nonblocking statements;
+end</code>
 </div>
-</section><section class="section" id="shift">
-<h2><span class="num">08</span> 11.3.3 직렬입력-직렬출력 Shift Register</h2>
 <p>
-8비트 SISO(Serial-In Serial-Out) shift register는
-클록 상승에지마다 데이터를 왼쪽으로 한 비트 이동시키고
-<code>s_in</code>을 LSB로 받아 <code>s_out</code>을 MSB에서 출력한다.
+<code>initial</code>을 시뮬레이션 동안 한 번 실행되는 구문으로 설명하며,
+테스트벤치에서 초기화와 입력 파형 생성에 사용한다.
 </p>
-<div class="flow">
-<span>s_in</span>
-<span class="arrow">→</span>
-<span>q[0]</span>
-<span class="arrow">→</span>
-<span>q[1]</span>
-<span class="arrow">→ ... →</span>
-<span>q[7]</span>
-<span class="arrow">→</span>
-<span>s_out</span>
-</div>
-<h3>9.1 코드 11-26 — 비트별 nonblocking</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">shift_reg_nblk1.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module shift_reg_nblk1 (
-    input  clk,
-    input  rst,
-    input  s_in,
-    output s_out
-);
+<div class="example-title">예시 5-3: 초기화</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>initial begin
+    areg = 0;
 
-reg [7:0] q;
+    for (index = 0; index &lt; size; index = index + 1)
+        memory[index] = 0;
+end</code></pre></div>
+<div class="example-title">예시 5-4: 입력 벡터 생성</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>initial begin
+    din = 6'b000000;
+    #10 din = 6'b011001;
+    #10 din = 6'b011011;
+    #10 din = 6'b011000;
+    #10 din = 6'b001000;
+end</code></pre></div>
+<div class="warn">initial은 테스트벤치의 초기화와 입력 파형 생성에 사용하는 시뮬레이션 구문으로 다룬다.</div>
+<h3>4.4 서로 다른 주기의 두 신호</h3>
+<div class="example-title">코드 5-5</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">periodic_sig_gen.v</span><span>VERILOG</span></span></div><pre><code>module periodic_sig_gen;
 
-assign s_out = q[7];
+reg a, b;
 
-always @(posedge clk) begin
-    if (rst)
-        q &lt;= 8'h00;
-    else begin
-        q[0] &lt;= s_in;
-        q[1] &lt;= q[0];
-        q[2] &lt;= q[1];
-        q[3] &lt;= q[2];
-        q[4] &lt;= q[3];
-        q[5] &lt;= q[4];
-        q[6] &lt;= q[5];
-        q[7] &lt;= q[6];
-    end
+initial begin
+    a = 1'b1;
+    b = 1'b0;
 end
 
-endmodule</code></pre></div>
-<h3>9.2 코드 11-27 — 벡터 할당</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">shift_reg_nblk2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module shift_reg_nblk2 (
-    input  clk,
-    input  rst,
-    input  s_in,
-    output s_out
-);
+always
+    #50 a = ~a;
 
-reg [7:0] q;
-
-assign s_out = q[7];
-
-always @(posedge clk) begin
-    if (rst)
-        q &lt;= 8'h00;
-    else begin
-        q[0]   &lt;= s_in;
-        q[7:1] &lt;= q[6:0];
-    end
-end
+always
+    #100 b = ~b;
 
 endmodule</code></pre></div>
-<div class="note">
-<strong>비트별로 풀어쓴 동작</strong><br/>
-<code>q[7:1] &lt;= q[6:0]</code>은
-q[7]←q[6], q[6]←q[5], …, q[1]←q[0]을 동시에 수행한다.
-</div>
-<div class="task">
-<div class="title">설계과제 11-12</div>
-<p>같은 8비트 SISO shift register를 다음 세 방법으로 다시 모델링한다.</p>
-<ol>
-<li>Concatenation(결합 연산자)</li>
-<li>Shift operator(시프트 연산자)</li>
-<li><code>for</code> 반복문</li>
-</ol>
-</div>
-<h3>9.3 11.3.4 병렬입력-병렬출력 Shift Register</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pload_shift_reg.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pload_shift_reg (
-    input        clk,
-    input        rstn,
-    input        load,
-    input  [7:0] din,
-    output [7:0] pout
-);
-
-reg [7:0] shift_reg;
-
-assign pout = shift_reg;
-
-always @(posedge clk) begin
-    if (!rstn)
-        shift_reg &lt;= 0;
-    else if (load)
-        shift_reg &lt;= din;
-    else
-        shift_reg &lt;= shift_reg &lt;&lt; 1;
-end
-
-endmodule</code></pre></div>
-<div class="flow">
-<span>load=1</span>
-<span class="arrow">→</span>
-<span>din 병렬 로드</span>
-<span class="arrow">/ load=0</span>
-<span>왼쪽 shift</span>
-</div>
-<div class="task">
-<div class="title">설계과제 11-13</div>
-<p>비동기식 active-high reset을 갖는 SIPO(직렬입력-병렬출력) 8비트 shift register를 설계한다.</p>
-</div>
-</section><section class="section" id="spio">
-<h2><span class="num">09</span> 직렬/병렬 입출력을 갖는 가변폭 Shift Register</h2>
-<p>
-serial I/O와 parallel I/O를 모두 갖고,
-parameter로 폭을 바꿀 수 있는 shift register를 모델링한다.
-<code>data_io</code>는 병렬 입력과 출력을 함께 수행하므로 <code>inout</code>이다.
-</p>
 <table>
-<thead><tr><th>신호</th><th>기능</th></tr></thead>
+<thead><tr><th>신호</th><th>초기값</th><th>반전 간격</th><th>주기</th></tr></thead>
 <tbody>
-<tr><td>clk</td><td>clock</td></tr>
-<tr><td>rstn</td><td>active-low reset</td></tr>
-<tr><td>shift_en</td><td>active-low shift enable</td></tr>
-<tr><td>pload_en</td><td>active-low parallel load enable</td></tr>
-<tr><td>pout_en</td><td>active-low parallel output enable</td></tr>
-<tr><td>sin</td><td>serial input</td></tr>
-<tr><td>sout</td><td>serial output</td></tr>
-<tr><td>data_io</td><td>parallel bidirectional data</td></tr>
+<tr><td><code>a</code></td><td>1</td><td>50ns</td><td>100ns</td></tr>
+<tr><td><code>b</code></td><td>0</td><td>100ns</td><td>200ns</td></tr>
 </tbody>
 </table>
-<h3>10.1 코드 11-29</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">shifter_sp_io.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module shifter_sp_io (
-    input                   clk,
-    input                   rstn,
-    input                   shift_en,
-    input                   pload_en,
-    input                   pout_en,
-    input                   sin,
-    output                  sout,
-    inout      [Len-1:0]    data_io
-);
+<div class="rtl">
+<strong>병렬성</strong><br/>
+하나의 <code>initial</code>과 두 개의 <code>always</code> 블록은
+시뮬레이션 시작 시 서로 독립적으로 활성화된다.
+코드에 위아래로 적혀 있어도 세 블록이 순차적으로 “호출”되는 것이 아니다.
+</div>
+</section><section class="section" id="procedural">
+<h2><span class="num">04</span> 5.2 절차형 할당문</h2>
+<p>
+절차형 할당문은 <code>reg</code>, <code>integer</code>, <code>time</code>,
+<code>real</code>, <code>realtime</code>과 같은 variable의 값을 갱신한다.
+</p>
+<table>
+<thead><tr><th>연속 할당</th><th>절차형 할당</th></tr></thead>
+<tbody>
+<tr>
+<td>우변 값 변화가 발생하면 net을 계속 구동</td>
+<td>프로시저 실행 흐름이 해당 문장에 도달했을 때 variable 갱신</td>
+</tr>
+<tr>
+<td>하드웨어적 연속 구동 특성</td>
+<td>블록 내부에서는 문장 실행 순서가 의미를 가짐</td>
+</tr>
+<tr>
+<td><code>assign</code></td>
+<td>blocking <code>=</code>, nonblocking <code>&lt;=</code></td>
+</tr>
+</tbody>
+</table>
+<h3>5.1 절차형 할당의 대상</h3>
+<ul>
+<li>variable 전체</li>
+<li>단일 비트</li>
+<li>연속된 일부 비트(part select)</li>
+<li>메모리의 단일 word</li>
+<li>결합(concatenation)에 의한 여러 좌변</li>
+</ul>
+<div class="note">
+우변 비트 수가 좌변보다 작고 우변이 signed이면,
+좌변 폭에 맞춰 sign extension(부호 확장)이 이루어진다고 설명한다.
+</div>
+</section><section class="section" id="blocking">
+<h2><span class="num">05</span> 5.2.1 blocking 할당문</h2>
+<p>
+blocking 할당은 현재 문장의 실행이 끝난 뒤 다음 문장으로 넘어가는
+순차적 실행 흐름을 갖는다.
+할당 기호는 <span class="operator">=</span>이다.
+</p>
+<div class="syntax">
+<code>reg_lvalue = [delay_or_event_control] expression;</code>
+</div>
+<div class="example-title">예시 5-5</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>initial begin
+    rega = 0;
+    regb[3] = 1;
+    regc[3:5] = 7;
+    mema[address] = 8'hff;
+    {carry, acc} = rega + regb;
+end</code></pre></div>
+<div class="flow">
+<span>문장 1 완료</span>
+<span class="arrow">→</span>
+<span>문장 2 완료</span>
+<span class="arrow">→</span>
+<span>문장 3 완료</span>
+<span class="arrow">→</span>
+<span>...</span>
+</div>
+</section><section class="section" id="nonblocking">
+<h2><span class="num">06</span> 5.2.2 nonblocking 할당문</h2>
+<p>
+nonblocking 할당은 우변을 평가한 뒤 좌변 갱신을 스케줄하며,
+현재 문장의 좌변 갱신이 끝날 때까지 다음 문장을 막지 않는다.
+할당 기호는 <span class="operator">&lt;=</span>이다.
+</p>
+<div class="syntax">
+<code>reg_lvalue &lt;= [delay_or_event_control] expression;</code>
+</div>
+<div class="tip">
+<strong>순차회로에서 중요한 이유</strong><br/>
+여러 레지스터가 같은 클록 에지에서 동시에 이전 값을 샘플링하는 동작을
+자연스럽게 표현할 수 있다.
+시프트 레지스터처럼 각 단계가 이전 단계의 “클록 직전 값”을 받아야 하는 회로에 특히 중요하다.
+</div>
+<h3>7.1 blocking과 nonblocking 비교</h3>
+<div class="example-title">코드 5-6(a): blocking</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">blk.v</span><span>VERILOG</span></span></div><pre><code>module blk;
 
-parameter Len = 8;
+reg clk, a, b;
 
-reg [Len-1:0] shift_reg;
+initial begin
+    a = 0;
+    b = 1;
+    clk = 0;
+end
 
-assign data_io =
-    (!pout_en) ? shift_reg : {Len{1'bz}};
-
-assign sout = shift_reg[Len-1];
+always
+    clk = #5 ~clk;
 
 always @(posedge clk) begin
-    if (!rstn)
-        shift_reg &lt;= {Len{1'b0}};
-    else begin
-        if (!shift_en) begin
-            shift_reg    &lt;= shift_reg &lt;&lt; 1;
-            shift_reg[0] &lt;= sin;
-        end
-        else if (!pload_en)
-            shift_reg &lt;= data_io;
+    a = b;
+    b = a;
+end
+
+endmodule</code></pre></div>
+<div class="flow">
+<span>클록 직전 a=0, b=1</span>
+<span class="arrow">→</span>
+<span>a=b 실행 → a=1</span>
+<span class="arrow">→</span>
+<span>b=a 실행 → b=1</span>
+<span class="arrow">→</span>
+<span>최종 a=1,b=1</span>
+</div>
+<div class="example-title">코드 5-6(b): nonblocking</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">non_blk.v</span><span>VERILOG</span></span></div><pre><code>module non_blk;
+
+reg clk, a, b;
+
+initial begin
+    a = 0;
+    b = 1;
+    clk = 0;
+end
+
+always
+    clk = #5 ~clk;
+
+always @(posedge clk) begin
+    a &lt;= b;
+    b &lt;= a;
+end
+
+endmodule</code></pre></div>
+<div class="step"><strong>1단계 — 우변 평가</strong><br/>
+클록 에지 직전 값 <code>a=0</code>, <code>b=1</code>을 사용하므로
+<code>a</code>에 예약되는 값은 1, <code>b</code>에 예약되는 값은 0이다.
+</div>
+<div class="step"><strong>2단계 — 좌변 갱신</strong><br/>
+스케줄된 갱신이 적용되면서 최종적으로 <code>a=1</code>, <code>b=0</code>이 된다.
+</div>
+<div class="rtl">
+<strong>회로 구조로 보면</strong><br/>
+nonblocking 예는 두 레지스터가 같은 클록 에지에서 서로의 이전 값을 교환하는 구조와 대응한다.
+반면 blocking 예는 첫 번째 할당으로 바뀐 값이 두 번째 문장에 즉시 사용되므로
+시뮬레이션 동작이 다르다.
+</div>
+<h3>7.2 지연이 포함된 blocking / nonblocking</h3>
+<div class="example-title">코드 5-7</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">blk_nonblk_delay.v</span><span>VERILOG</span></span></div><pre><code>module blk_nonblk_delay;
+
+reg blk_a, blk_b, blk_c;
+reg nblk_a, nblk_b, nblk_c;
+
+initial begin
+    blk_a = #15 1'b1;
+    blk_b = #5  1'b0;
+    blk_c = #10 1'b1;
+    #50 $finish;
+end
+
+initial begin
+    nblk_a &lt;= #15 1'b1;
+    nblk_b &lt;= #5  1'b0;
+    nblk_c &lt;= #10 1'b1;
+    #50 $finish;
+end
+
+endmodule</code></pre></div>
+<table>
+<thead><tr><th>형태</th><th>값이 반영되는 시각</th><th>이유</th></tr></thead>
+<tbody>
+<tr>
+<td>blocking</td>
+<td>blk_a: 15ns, blk_b: 20ns, blk_c: 30ns</td>
+<td>각 문장이 이전 문장 완료 뒤 시작되므로 지연이 누적</td>
+</tr>
+<tr>
+<td>nonblocking</td>
+<td>nblk_b: 5ns, nblk_c: 10ns, nblk_a: 15ns</td>
+<td>우변 평가 뒤 각각의 갱신 시점이 독립적으로 예약</td>
+</tr>
+</tbody>
+</table>
+<h3>7.3 동일 변수에 여러 nonblocking 할당</h3>
+<div class="example-title">코드 5-8</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">multiple_nblk.v</span><span>VERILOG</span></span></div><pre><code>module multiple_nblk;
+
+reg a;
+
+initial
+    a = 1'b1;
+
+initial begin
+    a &lt;= #5 1'b1;
+    a &lt;= #5 1'b0;
+
+    #20 $stop;
+end
+
+endmodule</code></pre></div>
+<p>
+두 문장이 동일한 지연 <code>#5</code>를 가지므로
+같은 시각에 같은 변수로 두 갱신이 예약되며,
+문장 순서에 의해 최종적으로 <code>a=0</code>이 된다고 설명한다.
+</p>
+</section><section class="section" id="if">
+<h2><span class="num">07</span> 5.3 if 조건문</h2>
+<div class="syntax">
+<code>if (expression)
+    statement_true;
+else
+    statement_false;</code>
+</div>
+<p>
+조건이 0이 아닌 알려진 값이면 참으로,
+0 또는 x/z이면 거짓 쪽으로 처리된다.
+<code>else</code>는 생략할 수 있다.
+</p>
+<div class="danger">
+<strong>조합회로에서 else 생략 주의</strong><br/>
+조합회로를 모델링하면서 어떤 조건에서 출력에 값이 할당되지 않으면
+이전 값을 유지해야 하므로 latch(래치)가 합성될 수 있다.
+</div>
+<h3>8.1 nested if와 dangling else</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>if (index &gt; 0)
+    if (rega &gt; regb)
+        result = rega;
+    else
+        result = regb;</code></pre></div>
+<p>
+<code>else</code>는 일반적으로 가장 가까운 앞의 <code>if</code>와 결합된다.
+첫 번째 <code>if</code>와 묶으려면 <code>begin-end</code>를 사용해 범위를 명확히 한다.
+</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>if (index &gt; 0) begin
+    if (rega &gt; regb)
+        result = rega;
+end
+else
+    result = regb;</code></pre></div>
+<h3>8.2 if-else-if</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>if (expression1)
+    statement1;
+else if (expression2)
+    statement2;
+else
+    default_statement;</code></pre></div>
+<p>
+조건을 위에서부터 순서대로 평가하며,
+처음으로 참이 되는 조건의 문장을 실행한다.
+</p>
+<h3>8.3 2:1 멀티플렉서</h3>
+<div class="example-title">코드 5-9</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_if.v</span><span>VERILOG</span></span></div><pre><code>module mux21_if (
+    input  [1:0] a,
+    input  [1:0] b,
+    input        sel,
+    output reg [1:0] out
+);
+
+always @(a or b or sel) begin
+    if (sel == 1'b0)
+        out = a;
+    else
+        out = b;
+end
+
+endmodule</code></pre></div>
+<div class="logic">
+<span class="sig">a</span>
+<span>↘</span>
+<div class="box">2:1 MUX<br/>sel</div>
+<span>→</span>
+<span class="sig">out</span>
+<span>↗</span>
+<span class="sig">b</span>
+</div>
+<h3>8.4 비동기 active-low set/reset D 플립플롭</h3>
+<div class="example-title">코드 5-10</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_async_sr.v</span><span>VERILOG</span></span></div><pre><code>module dff_async_sr (
+    input  clk,
+    input  d,
+    input  rb,
+    input  sb,
+    output reg q,
+    output qb
+);
+
+always @(posedge clk or negedge rb or negedge sb) begin
+    if (rb == 0)
+        q &lt;= 0;
+    else if (sb == 0)
+        q &lt;= 1;
+    else
+        q &lt;= d;
+end
+
+assign qb = ~q;
+
+endmodule</code></pre></div>
+<table>
+<thead><tr><th>이벤트/조건</th><th>q 동작</th></tr></thead>
+<tbody>
+<tr><td><code>rb</code>가 0</td><td>클록과 무관하게 q를 0으로 reset</td></tr>
+<tr><td><code>sb</code>가 0</td><td>클록과 무관하게 q를 1로 set</td></tr>
+<tr><td>rb=1, sb=1, posedge clk</td><td>d를 q에 저장</td></tr>
+</tbody>
+</table>
+<div class="rtl">
+<strong>왜 reset/set을 감지신호목록에 넣는가?</strong><br/>
+비동기 신호는 클록 에지를 기다리지 않고 즉시 q를 바꿔야 하므로
+<code>negedge rb</code>, <code>negedge sb</code> 자체가 블록 실행 조건이 되어야 한다.
+</div>
+</section><section class="section" id="case">
+<h2><span class="num">08</span> 5.4 case 문</h2>
+<div class="syntax">
+<code>case (expression)
+    case_item : statement;
+    ...
+    default   : statement;
+endcase</code>
+</div>
+<p>
+<code>case</code>는 하나의 조건식과 여러 case item을 비교하여
+일치하는 항의 문장을 실행한다.
+일치 항이 없고 <code>default</code>가 없으면
+해당 variable은 이전 값을 유지할 수 있다.
+</p>
+<div class="example-title">코드 5-11: case를 이용한 2:1 MUX</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_case.v</span><span>VERILOG</span></span></div><pre><code>module mux21_case (
+    input  [1:0] a,
+    input  [1:0] b,
+    input        sel,
+    output reg [1:0] out
+);
+
+always @(a or b or sel) begin
+    case (sel)
+        0: out = a;
+        1: out = b;
+    endcase
+end
+
+endmodule</code></pre></div>
+<div class="warn">
+<strong>default가 없는 조합회로</strong><br/>
+모든 가능한 입력 조건이 case item에 포함되지 않으면
+출력이 어떤 조건에서 할당되지 않아 이전 값을 유지할 수 있으므로
+래치 추론 가능성을 검토해야 한다.
+</div>
+<h3>9.1 8비트 입력에 따른 10비트 출력</h3>
+<div class="example-title">예시 5-9</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>wire [7:0] din;
+reg  [9:0] result;
+
+always @(din) begin
+    case (din)
+        8'd0: result = 10'b0111111111;
+        8'd1: result = 10'b1011111111;
+        8'd2: result = 10'b1101111111;
+        8'd3: result = 10'b1110111111;
+        8'd4: result = 10'b1111011111;
+        8'd5: result = 10'b1111101111;
+        8'd6: result = 10'b1111110111;
+        8'd7: result = 10'b1111111011;
+        8'd8: result = 10'b1111111101;
+        8'd9: result = 10'b1111111110;
+        default: result = 10'bx;
+    endcase
+end</code></pre></div>
+<h3>9.2 x와 z의 정확한 비교</h3>
+<p>
+기본 <code>case</code>는 0, 1뿐 아니라 x, z도
+비트 단위로 정확히 일치해야 같은 항으로 판단한다.
+</p>
+<div class="example-title">예시 5-10</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>case (select[2:1])
+    2'b00: result = 0;
+    2'b01: result = flaga;
+
+    2'b0x, 2'b0z:
+        result = flaga ? 'bx : 0;
+
+    2'b10: result = flagb;
+
+    2'bx0, 2'bz0:
+        result = flagb ? 'bx : 0;
+
+    default:
+        result = 'bx;
+endcase</code></pre></div>
+<div class="example-title">예시 5-11: x/z 검출</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>case (sig)
+    1'bz:    $display("signal is floating");
+    1'bx:    $display("signal is unknown");
+    default: $display("signal is %b", sig);
+endcase</code></pre></div>
+</section><section class="section" id="casex">
+<h2><span class="num">09</span> 5.4.1 don’t-care를 갖는 case 문</h2>
+<table>
+<thead><tr><th>구문</th><th>don’t-care 처리</th></tr></thead>
+<tbody>
+<tr><td><code>casez</code></td><td>z를 don’t-care로 취급</td></tr>
+<tr><td><code>casex</code></td><td>x와 z를 don’t-care로 취급</td></tr>
+</tbody>
+</table>
+<p>
+<code>casez</code>에서는 <code>?</code>도 don’t-care 비트로 사용할 수 있다.
+</p>
+<h3>10.1 casez 명령어 디코더 형태</h3>
+<div class="example-title">예시 5-12</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>reg [7:0] ir;
+
+casez (ir)
+    8'b1???_????: instruction1(ir);
+    8'b01??_????: instruction2(ir);
+    8'b0001_0???: instruction3(ir);
+    8'b0000_01??: instruction4(ir);
+endcase</code></pre></div>
+<p>
+MSB 쪽에서 먼저 1이 나타나는 위치에 따라
+서로 다른 명령 처리 task를 선택하는 구조이다.
+</p>
+<h3>10.2 casex 우선순위 인코더</h3>
+<div class="example-title">코드 5-12</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_casex.v</span><span>VERILOG</span></span></div><pre><code>module pri_enc_casex (
+    input  [3:0] encode,
+    output reg [1:0] enc
+);
+
+always @(encode) begin
+    casex (encode)
+        4'b1xxx: enc = 2'b11;
+        4'b01xx: enc = 2'b10;
+        4'b001x: enc = 2'b01;
+        4'b0001: enc = 2'b00;
+    endcase
+end
+
+endmodule</code></pre></div>
+<div class="rtl">
+<strong>회로 구조</strong><br/>
+<code>encode[3]</code>이 1이면 나머지 비트를 보지 않고 3을 선택하고,
+그렇지 않으면 bit 2, bit 1, bit 0 순으로 검사한다.
+즉, 상위 비트가 더 높은 우선순위를 갖는 priority encoder(우선순위 인코더)이다.
+</div>
+<h3>10.3 case(1) 형태의 우선순위 인코더</h3>
+<div class="example-title">코드 5-13</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_case.v</span><span>VERILOG</span></span></div><pre><code>module pri_enc_case (
+    input  [3:0] encode,
+    output reg [1:0] enc
+);
+
+always @(encode) begin
+    case (1)
+        encode[3]: enc = 2'b11;
+        encode[2]: enc = 2'b10;
+        encode[1]: enc = 2'b01;
+        encode[0]: enc = 2'b00;
+        default:
+            $display("Error: One of the bits expected ON");
+    endcase
+end
+
+endmodule</code></pre></div>
+</section><section class="section" id="loop">
+<h2><span class="num">10</span> 5.5 반복문</h2>
+<table>
+<thead><tr><th>반복문</th><th>동작</th><th>합성 관점</th></tr></thead>
+<tbody>
+<tr><td><code>forever</code></td><td>무한 반복</td><td>테스트벤치 전용으로 설명</td></tr>
+<tr><td><code>repeat(N)</code></td><td>N회 반복</td><td>반복 횟수가 결정됨</td></tr>
+<tr><td><code>while</code></td><td>조건이 참인 동안 반복</td><td>반복 횟수가 불명확하면 합성 실패 가능</td></tr>
+<tr><td><code>for</code></td><td>초기화-조건-갱신 구조</td><td>고정 반복 구조에 적합</td></tr>
+</tbody>
+</table>
+<div class="rtl">
+<strong>합성 관점 보강</strong><br/>
+RTL의 반복문은 소프트웨어처럼 동일한 하드웨어가 시간에 따라 반복 실행된다는 뜻이 아닐 수 있다.
+조합회로 블록에서 반복 횟수가 정적으로 결정되면
+합성기는 반복문을 여러 단계의 하드웨어로 <strong>전개(unroll)</strong>할 수 있다.
+</div>
+<h3>11.1 repeat를 이용한 shift-add 곱셈기</h3>
+<div class="example-title">코드 5-14</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">multiplier_8b.v</span><span>VERILOG</span></span></div><pre><code>module multiplier_8b #(
+    parameter SIZE = 8,
+    parameter LongSize = 2*SIZE
+)(
+    input  [SIZE-1:0] opa,
+    input  [SIZE-1:0] opb,
+    output reg [LongSize-1:0] result
+);
+
+reg [LongSize-1:0] shift_opa;
+reg [LongSize-1:0] shift_opb;
+
+always @(opa or opb) begin
+    shift_opa = opa;
+    shift_opb = opb;
+    result = 0;
+
+    repeat (SIZE) begin
+        if (shift_opb[0])
+            result = result + shift_opa;
+
+        shift_opa = shift_opa &lt;&lt; 1;
+        shift_opb = shift_opb &gt;&gt; 1;
     end
 end
 
 endmodule</code></pre></div>
-<div class="note">
-<strong>3-state 병렬출력</strong><br/>
-<code>pout_en=0</code>이면 내부 shift_reg가 data_io를 구동하고,
-그 외에는 <code>{Len{1'bz}}</code>로 버스를 해제한다.
+<h4>알고리즘 흐름</h4>
+<div class="flow">
+<span>승수 LSB 확인</span>
+<span class="arrow">→</span>
+<span>1이면 부분곱 가산</span>
+<span class="arrow">→</span>
+<span>피승수 &lt;&lt; 1</span>
+<span class="arrow">→</span>
+<span>승수 &gt;&gt; 1</span>
+<span class="arrow">→</span>
+<span>SIZE회 반복</span>
 </div>
-<div class="warn">
-<strong>제어신호 상호배타성</strong><br/>
-parallel load와 shift가 동시에 활성되지 않아야 하며,
-외부 장치가 data_io를 구동하는 동안 내부 parallel output도 동시에 구동되지 않아야 한다.
+<div class="rtl">
+<strong>중요한 회로 해석</strong><br/>
+이 예는 클록이 없는 <code>always</code> 블록 안에서 repeat를 수행한다.
+따라서 “8클록에 걸쳐 계산”하는 순차 곱셈기로 자동 해석하면 안 된다.
+합성 시에는 반복 단계들이 조합논리 경로로 전개될 가능성을 고려해야 하며,
+실제 구조와 타이밍은 합성 결과에서 확인해야 한다.
 </div>
-<h3>10.2 코드 11-30 — 테스트벤치핵심 구조</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_shifter_sp_io.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>`define PERIOD 20
-
-module tb_shifter_sp_io;
-
-parameter Len = 8;
-
-reg clk;
-reg rstn;
-reg shift_en;
-reg pload_en;
-reg pout_en;
-reg sin;
-
-reg  [Len-1:0] data_drv;
-reg            data_drv_en;
-
-wire [Len-1:0] data_io;
-wire           sout;
-
-shifter_sp_io #(
-    .Len(Len)
-) U0 (
-    .clk(clk),
-    .rstn(rstn),
-    .shift_en(shift_en),
-    .pload_en(pload_en),
-    .pout_en(pout_en),
-    .sin(sin),
-    .sout(sout),
-    .data_io(data_io)
+<h3>11.2 while을 이용한 1의 개수 계수</h3>
+<div class="example-title">코드 5-15</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">count_ones.v</span><span>VERILOG</span></span></div><pre><code>module count_ones (
+    input  [7:0] din,
+    output reg [3:0] count
 );
 
-// Testbench가 parallel load 데이터를 공급할 때만 bus를 구동
-assign data_io =
-    data_drv_en ? data_drv : {Len{1'bz}};
+reg [7:0] temp;
+
+always @(din) begin
+    count = 0;
+    temp  = din;
+
+    while (temp) begin
+        if (temp[0])
+            count = count + 1;
+
+        temp = temp &gt;&gt; 1;
+    end
+end
+
+endmodule</code></pre></div>
+<p>
+<code>temp</code>를 오른쪽으로 한 비트씩 이동하면서
+LSB가 1일 때 <code>count</code>를 증가시킨다.
+</p>
+<div class="warn">
+<strong>Vivado 합성 예</strong><br/>
+이 형태가 반복 횟수를 합성 시점에 명확히 확정하기 어려워
+Vivado에서 loop convergence 오류로 합성 실패할 수 있다고 설명한다.
+</div>
+<h3>11.3 반복 횟수를 명확히 한 형태</h3>
+<div class="example-title">코드 5-16</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">count_ones_syn.v</span><span>VERILOG</span></span></div><pre><code>module count_ones_syn (
+    input  [7:0] din,
+    output reg [3:0] count
+);
+
+reg [3:0] k;
+reg [7:0] temp;
+
+always @(din) begin
+    count = 0;
+    temp  = din;
+    k     = 0;
+
+    while (k &lt; 8) begin
+        if (temp[0])
+            count = count + 1;
+
+        temp = temp &gt;&gt; 1;
+        k = k + 1;
+    end
+end
+
+endmodule</code></pre></div>
+<h3>11.4 for 우선순위 인코더</h3>
+<div class="example-title">코드 5-17</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_for.v</span><span>VERILOG</span></span></div><pre><code>module pri_enc_for (
+    input  [7:0] din,
+    output reg [2:0] enc_out
+);
+
+integer i;
+
+always @(din) begin : LOOP
+    enc_out = 0;
+
+    for (i = 7; i &gt;= 0; i = i - 1) begin
+        if (din[i]) begin
+            enc_out = i;
+            disable LOOP;
+        end
+    end
+end
+
+endmodule</code></pre></div>
+<p>
+MSB부터 검사하여 처음 발견되는 1의 위치를 출력하고,
+<code>disable LOOP</code>으로 현재 named block을 종료한다.
+</p>
+<h3>11.5 forever를 이용한 테스트벤치 파형</h3>
+<div class="example-title">코드 5-18</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dff.v</span><span>VERILOG</span></span></div><pre><code>module tb_dff;
+
+reg clk, din;
+
+dff U1 (clk, din, q);
 
 initial begin
     clk = 1'b0;
-    forever #(`PERIOD/2) clk = ~clk;
-end
 
-task shift_one_bit;
-input bit_value;
-begin
-    @(negedge clk);
-    sin = bit_value;
-
-    @(negedge clk);
+    forever
+        #10 clk = ~clk;
 end
-endtask
 
 initial begin
-    rstn       = 1'b0;
-    shift_en   = 1'b1;
-    pload_en   = 1'b1;
-    pout_en    = 1'b1;
-    sin        = 1'b0;
-    data_drv   = {Len{1'b0}};
-    data_drv_en = 1'b0;
+    din = 1'b0;
 
-    // synchronous reset
-    @(negedge clk);
-    rstn = 1'b1;
-
-    // serial shift: 1,0,1,1
-    shift_en = 1'b0;
-    shift_one_bit(1'b1);
-    shift_one_bit(1'b0);
-    shift_one_bit(1'b1);
-    shift_one_bit(1'b1);
-
-    // parallel output 확인
-    shift_en = 1'b1;
-    pout_en  = 1'b0;
-    @(negedge clk);
-    pout_en  = 1'b1;
-
-    // parallel load: 8'hA5
-    data_drv    = 8'hA5;
-    data_drv_en = 1'b1;
-    pload_en    = 1'b0;
-
-    @(negedge clk);
-    pload_en    = 1'b1;
-    data_drv_en = 1'b0;
-
-    // 다시 serial shift
-    shift_en = 1'b0;
-    shift_one_bit(1'b0);
-    shift_one_bit(1'b1);
-
-    #20 $finish;
+    forever begin
+        #15 din = 1'b1;
+        #20 din = 1'b0;
+        #30 din = 1'b1;
+        #20 din = 1'b0;
+    end
 end
 
 endmodule</code></pre></div>
-<div class="task">
-<div class="title">설계과제 11-14</div>
-<p>코드 11-29에 <code>mode</code>를 추가하여 mode=0이면 오른쪽 shift, mode=1이면 왼쪽 shift가 되도록 양방향 기능을 추가한다.</p>
-</div>
-</section><section class="section" id="lfsr">
-<h2><span class="num">10</span> 11.3.5 선형 귀환 시프트 레지스터(LFSR)</h2>
+<table>
+<thead><tr><th>신호</th><th>특징</th></tr></thead>
+<tbody>
+<tr><td><code>clk</code></td><td>10ns마다 반전 → 주기 20ns</td></tr>
+<tr><td><code>din</code></td><td>15 + 20 + 30 + 20 = 85ns 패턴 반복</td></tr>
+</tbody>
+</table>
+</section><section class="section" id="timing">
+<h2><span class="num">11</span> 5.6 절차형 할당의 타이밍 제어</h2>
 <p>
-LFSR(Linear Feedback Shift Register, 선형 귀환 시프트 레지스터)는
-shift register의 일부 비트를 XOR/XNOR하여 입력으로 되먹임(feedback)함으로써
-의사난수 비트열을 만든다.
+절차형 문장 실행을 제어하는 방법으로
+지연 제어(<code>#</code>), 이벤트 제어(<code>@</code>), <code>wait</code>를 설명한다.
 </p>
 <div class="grid">
-<div class="card"><span class="k">응용 1</span><p>의사난수 sequence 생성</p></div>
-<div class="card"><span class="k">응용 2</span><p>암호화/복호화</p></div>
-<div class="card"><span class="k">응용 3</span><p>CRC·checksum 계열 무결성 검사</p></div>
-<div class="card"><span class="k">응용 4</span><p>BIST 테스트 벡터 생성/응답 분석</p></div>
+<div class="card"><span class="k"># delay</span><p>지정한 시간만큼 실행을 지연</p></div>
+<div class="card"><span class="k">@ event</span><p>특정 값 변화 또는 에지를 기다림</p></div>
+<div class="card"><span class="k">wait()</span><p>조건이 특정 level을 만족할 때까지 기다림</p></div>
 </div>
-<div class="danger">
-<strong>초기값 주의</strong><br/>
-XOR feedback LFSR을 모두 0으로 초기화하면 feedback도 계속 0이 되어
-영원히 000… 상태에 갇힌다.
-XNOR 방식은 반대로 모든 비트를 1로 초기화하지 않도록 주의한다.
-</div>
-<h3>11.1 코드 11-31(a) — 잘못된 Blocking 모델</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">LFSR_Bad1.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module LFSR_Bad1 (
-    input        clk,
-    input        rstn,
-    output [2:0] qout
-);
+<h3>12.1 지연 제어</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>#10 rega = regb;
 
-reg q3, q2, q1;
-wire n1;
+#d rega = regb;
 
-assign qout = {q3, q2, q1};
-assign n1   = q1 ^ q3;
-
-always @(posedge clk or negedge rstn)
-    if (!rstn) begin
-        {q3, q2, q1} = 3'b111;
-    end
-    else begin
-        q3 = q2;
-        q2 = n1;
-        q1 = q3;
-    end
-
-endmodule</code></pre></div>
+#((d + e) / 2)
+rega = regb;</code></pre></div>
 <p>
-blocking으로 인해 q3가 먼저 바뀌고,
-그 새 q3가 같은 edge 처리 중 q1에 다시 사용되면서
-의도한 “동시에 한 칸 이동” 구조가 깨진다.
+<code>#</code>은 해당 문장의 실행을 지정 시간만큼 늦춘다.
+parameter나 수식으로 지연값을 표현할 수도 있다고 설명한다.
 </p>
-<h3>11.2 코드 11-31(b) — 올바른 Nonblocking 모델</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">LFSR_Good1.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module LFSR_Good1 (
-    input        clk,
-    input        rstn,
-    output [2:0] qout
-);
-
-reg q3, q2, q1;
-
-assign qout = {q3, q2, q1};
-
-always @(posedge clk or negedge rstn)
-    if (!rstn) begin
-        {q3, q2, q1} &lt;= 3'b111;
-    end
-    else begin
-        q3 &lt;= q2;
-        q2 &lt;= q1 ^ q3;
-        q1 &lt;= q3;
-    end
-
-endmodule</code></pre></div>
-<h3>11.3 코드 11-31(c) — Concatenation으로 간결화</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">LFSR_Good2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module LFSR_Good2 (
-    input        clk,
-    input        rstn,
-    output [2:0] qout
-);
-
-reg q3, q2, q1;
-
-assign qout = {q3, q2, q1};
-
-always @(posedge clk or negedge rstn)
-    if (!rstn)
-        {q3, q2, q1} &lt;= 3'b111;
-    else
-        {q3, q2, q1}
-            &lt;= {q2, (q1 ^ q3), q3};
-
-endmodule</code></pre></div>
-<h3>11.4 코드 11-31(d) — 잘못된 초기값</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>always @(posedge clk or negedge rstn)
-    if (!rstn)
-        {q3, q2, q1} &lt;= 3'b000;
-    else
-        {q3, q2, q1}
-            &lt;= {q2, (q1 ^ q3), q3};</code></pre></div>
-<div class="task">
-<div class="title">설계과제 11-15</div>
-<p>11-24의 8비트 LFSR을 모델링하고 비동기식 active-low set/reset 조건으로 시뮬레이션한다.</p>
+<h3>12.2 이벤트 제어</h3>
+<div class="syntax">
+<code>@event_identifier
+@(event_expression)
+@*
+@(*)</code>
 </div>
-</section><section class="section" id="fsm">
-<h2><span class="num">11</span> 11.4 유한상태머신(FSM)</h2>
 <p>
-FSM(Finite State Machine, 유한상태머신)은 정해진 수의 상태를 갖고
-입력과 현재상태에 따라 다음 상태로 천이하며 출력을 생성하는 제어회로이다.
+이벤트 식에는 여러 신호를 <code>or</code> 또는 콤마로 연결할 수 있고,
+<code>posedge</code>, <code>negedge</code>로 에지 방향을 지정할 수 있다.
 </p>
-<div class="logic">
-<span class="sig">Input</span>
-<span>→</span>
-<div class="box">Next-State Logic<br/>조합회로</div>
-<span>→</span>
-<div class="box">State Register<br/>순차회로</div>
-<span>→</span>
-<div class="box">Output Logic<br/>조합/순차</div>
-<span>→</span>
-<span class="sig">Output</span>
-</div>
-<h3>12.1 Moore와 Mealy</h3>
+<h3>12.3 posedge / negedge</h3>
 <table>
-<thead><tr><th>구분</th><th>출력 결정 요소</th><th>특징</th></tr></thead>
+<thead><tr><th>변화</th><th>이벤트</th></tr></thead>
 <tbody>
-<tr><td>Moore</td><td>현재 state</td><td>출력이 상태 변화에 맞춰 바뀌며 구조가 명확</td></tr>
-<tr><td>Mealy</td><td>현재 state + input</td><td>입력 변화가 같은 상태에서도 출력에 영향을 줄 수 있음</td></tr>
+<tr><td>0 → 1</td><td>posedge</td></tr>
+<tr><td>0 → x / z</td><td>posedge</td></tr>
+<tr><td>x / z → 1</td><td>posedge</td></tr>
+<tr><td>1 → 0</td><td>negedge</td></tr>
+<tr><td>1 → x / z</td><td>negedge</td></tr>
+<tr><td>x / z → 0</td><td>negedge</td></tr>
 </tbody>
 </table>
-<h3>12.2 상태 인코딩</h3>
-<table class="truth">
-<thead><tr><th>State</th><th>Binary</th><th>Gray</th><th>Johnson</th><th>One-hot</th></tr></thead>
-<tbody>
-<tr><td>0</td><td>000</td><td>000</td><td>0000</td><td>00000001</td></tr>
-<tr><td>1</td><td>001</td><td>001</td><td>0001</td><td>00000010</td></tr>
-<tr><td>2</td><td>010</td><td>011</td><td>0011</td><td>00000100</td></tr>
-<tr><td>3</td><td>011</td><td>010</td><td>0111</td><td>00001000</td></tr>
-<tr><td>4</td><td>100</td><td>110</td><td>1111</td><td>00010000</td></tr>
-<tr><td>5</td><td>101</td><td>111</td><td>1110</td><td>00100000</td></tr>
-<tr><td>6</td><td>110</td><td>101</td><td>1100</td><td>01000000</td></tr>
-<tr><td>7</td><td>111</td><td>100</td><td>1000</td><td>10000000</td></tr>
-</tbody>
-</table>
-<div class="note">
-<strong>Flip-Flop 수</strong><br/>
-N개 상태를 binary로 인코딩하면 대략 <code>ceil(log2(N))</code>개의 state bit가 필요하고,
-one-hot은 상태 수만큼 N개의 bit가 필요하다.
-</div>
-<h3>12.3 FSM 설계 권장사항</h3>
-<ol>
-<li>각 FSM을 독립 모듈로 구성한다.</li>
-<li>상태 이름은 <code>parameter</code>로 정의한다.</li>
-<li>초기 상태가 보장되도록 reset을 둔다.</li>
-<li>Next-State Logic / State Register / Output Logic을 분리한다.</li>
-<li>State Register는 latch보다 flip-flop을 사용한다.</li>
-<li>Next-State Logic은 <code>case</code> 중심으로 작성하고 undefined state는 <code>default</code>로 처리한다.</li>
-</ol>
-</section><section class="section" id="moore">
-<h2><span class="num">12</span> 11.4.1 Moore FSM</h2>
-<p>
-11-28은 네 상태 <code>IDLE → READ → DLY → DONE</code>을 갖는 FSM을 보여준다.
-<code>go</code>와 <code>ws</code>가 전이 조건으로 사용되며,
-출력 <code>rd</code>, <code>ds</code>는 현재 상태에 의해 결정된다.
-</p>
-<h3>13.1 상태 흐름</h3>
-<div class="flow">
-<span>IDLE</span>
-<span class="arrow">go=1 →</span>
-<span>READ</span>
-<span class="arrow">→</span>
-<span>DLY</span>
-<span class="arrow">ws=0 →</span>
-<span>DONE</span>
-<span class="arrow">→</span>
-<span>IDLE</span>
-</div>
-<div class="note">
-<strong>DLY에서 ws=1</strong><br/>
-DONE으로 가지 않고 READ로 되돌아간다.
-</div>
-<h3>13.2 코드 11-32(a) — 출력 assign</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">FSM_ex1.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module FSM_ex1 (
+<div class="example-title">코드 5-19</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span></span></div><pre><code>module dff (
     input  clk,
-    input  rstn,
-    input  go,
-    input  ws,
-    output rd,
-    output ds
+    input  din,
+    output reg qout
 );
 
-parameter
-    IDLE = 2'b00,
-    READ = 2'b01,
-    DLY  = 2'b10,
-    DONE = 2'b11;
+always @(posedge clk)
+    qout &lt;= din;
 
-reg [1:0] state, next;
+endmodule</code></pre></div>
+<div class="note">
+<strong>플립플롭 감지신호목록</strong><br/>
+일반 D 플립플롭에서는 데이터 입력 <code>din</code>이 아니라
+클록 에지 <code>posedge clk</code>가 저장 이벤트이다.
+비동기 reset/set이 있다면 그 비동기 신호의 에지도 함께 감지해야 한다.
+</div>
+</section><section class="section" id="event">
+<h2><span class="num">12</span> 5.6.3 named event와 event or</h2>
+<p>
+Verilog의 <code>event</code> 자료형으로 선언된 named event는
+데이터 값을 저장하지 않고 “사건이 발생했다”는 순간적 트리거를 표현한다.
+</p>
+<div class="syntax">
+<code>event event_name;
+-&gt; event_name;</code>
+</div>
+<div class="warn">
+<strong>합성 범위</strong><br/>
+이벤트 트리거가 Vivado에서 합성되지 않는다고 설명한다.
+따라서 이 부분은 주로 시뮬레이션 프로세스 간 동기화 관점으로 이해한다.
+</div>
+<h3>13.1 named event를 이용한 D 플립플롭 형태</h3>
+<div class="example-title">코드 5-20</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_event.v</span><span>VERILOG</span></span></div><pre><code>module dff_event (
+    input  clock,
+    input  reset,
+    input  din,
+    output reg qout
+);
 
-// State Register
-always @(posedge clk or negedge rstn)
-    if (!rstn)
-        state &lt;= IDLE;
+event upedge;
+
+always @(posedge clock)
+    -&gt; upedge;
+
+always @(upedge or negedge reset) begin
+    if (reset == 0)
+        qout = 0;
     else
-        state &lt;= next;
-
-// Next-State Logic
-always @(state or go or ws) begin
-    next = 2'bx;
-
-    case (state)
-        IDLE:
-            if (go) next = READ;
-            else    next = IDLE;
-
-        READ:
-            next = DLY;
-
-        DLY:
-            if (!ws) next = DONE;
-            else     next = READ;
-
-        DONE:
-            next = IDLE;
-    endcase
+        qout = din;
 end
 
-// Moore Output Logic
-assign rd = (state == READ) ||
-            (state == DLY);
+endmodule</code></pre></div>
+<div class="flow">
+<span>posedge clock</span>
+<span class="arrow">→</span>
+<span>upedge 트리거</span>
+<span class="arrow">→</span>
+<span>두 번째 always 실행</span>
+</div>
+<h3>13.2 count가 5의 배수일 때 event 발생</h3>
+<div class="example-title">코드 5-21</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">named_event.v</span><span>VERILOG</span></span></div><pre><code>module named_event;
 
-assign ds = (state == DONE);
+reg [7:0] count;
+event ready;
+
+initial begin
+    count = 0;
+    #400 $finish;
+end
+
+always begin
+    #2 count &lt;= count + 1;
+
+    if (count % 5 == 0)
+        -&gt; ready;
+end
+
+always @(ready) begin
+    $display($realtime, "The count is %d", count);
+end
 
 endmodule</code></pre></div>
-<h3>13.3 코드 11-32(b) — Next-State block에서 출력도 계산</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>always @(state or go or ws) begin
-    next = 2'bx;
-    rd   = 1'b0;
-    ds   = 1'b0;
+<h3>13.3 event or와 콤마</h3>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(posedge clk_a or posedge clk_b or trig)
+    rega = regb;
 
-    case (state)
-        IDLE:
-            if (go) next = READ;
-            else    next = IDLE;
+always @(posedge clk_a, posedge clk_b, trig)
+    rega = regb;</code></pre></div>
+<p>위 두 표현을 같은 의미로 설명한다.</p>
+</section><section class="section" id="wait">
+<h2><span class="num">13</span> 5.6.5 wait와 5.6.6 intra-assignment 타이밍 제어</h2>
+<h3>14.1 wait</h3>
+<div class="syntax">
+<code>wait (expression)
+    statement;</code>
+</div>
+<p>
+<code>wait</code>는 조건이 참이 될 때까지 실행을 멈추며,
+이를 level-sensitive 이벤트 제어로 설명한다.
+</p>
+<div class="example-title">예시 5-15</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>begin
+    wait (!enable)
+        #10 a = b;
 
-        READ: begin
-            rd   = 1'b1;
-            next = DLY;
-        end
-
-        DLY: begin
-            rd = 1'b1;
-
-            if (!ws) next = DONE;
-            else     next = READ;
-        end
-
-        DONE: begin
-            ds   = 1'b1;
-            next = IDLE;
-        end
-    endcase
+    #10 c = d;
 end</code></pre></div>
-<div class="note">
-<strong>조합출력의 특징</strong><br/>
-state decoding을 통해 rd/ds가 직접 만들어진다.
-조합경로의 입력이 변하면 출력도 조합논리 지연 후 변할 수 있다.
+<div class="flow">
+<span>enable=0 기다림</span>
+<span class="arrow">→</span>
+<span>10ns</span>
+<span class="arrow">→</span>
+<span>a=b</span>
+<span class="arrow">→</span>
+<span>10ns</span>
+<span class="arrow">→</span>
+<span>c=d</span>
 </div>
-<h3>13.4 코드 11-32(c) — Registered Output</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>// 출력값 결정 및 출력 레지스터
-always @(posedge clk or negedge rstn)
-    if (!rstn) begin
-        ds &lt;= 1'b0;
-        rd &lt;= 1'b0;
-    end
-    else begin
-        ds &lt;= 1'b0;
-        rd &lt;= 1'b0;
-
-        case (next)
-            READ: rd &lt;= 1'b1;
-            DLY : rd &lt;= 1'b1;
-            DONE: ds &lt;= 1'b1;
-        endcase
-    end</code></pre></div>
-<div class="rtl">
-<strong>Registered output</strong><br/>
-출력을 별도 FF에 저장하면 clock edge에서만 출력이 바뀌므로
-조합 decode glitch를 줄이는 데 유리하다.
-다만 출력이 register를 거치므로 timing/latency 해석은 상태전이 기준으로 확인해야 한다.
+<h3>14.2 일반 지연과 intra-assignment 지연의 차이</h3>
+<div class="grid">
+<div class="card">
+<span class="k">문장 앞 지연</span>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>#5 q = b;</code></pre></div>
+<p>5시간 단위를 기다린 뒤 b를 평가하고 q에 할당한다.</p>
 </div>
-<div class="task">
-<div class="title">설계과제 11-16 ~ 11-18</div>
-<ul>
-<li>ST0~ST3 Moore FSM 설계</li>
-<li>출력을 register로 바꾼 Moore FSM</li>
-<li>비트패턴 <code>0110</code>을 검출하는 Moore sequence detector</li>
-</ul>
+<div class="card">
+<span class="k">intra-assignment</span>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>q = #5 b;</code></pre></div>
+<p>b를 먼저 평가해 보관하고, 5시간 단위 후 그 저장값을 q에 할당한다.</p>
 </div>
-</section><section class="section" id="mealy">
-<h2><span class="num">13</span> 11.4.2 Mealy FSM</h2>
+</div>
+<h3>14.3 fork-join의 race와 data swap</h3>
+<div class="example-title">예시 5-16</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>fork
+    #5 a = b;
+    #5 b = a;
+join</code></pre></div>
 <p>
-입력 bit가 연속해서 <code>00</code> 또는 <code>11</code>이 되면
-출력 <code>dout_bit=1</code>이 되는 sequence detector를 Mealy FSM으로 구현한다.
+두 문장이 병렬로 같은 시각에 실행되므로
+상호 참조 순서에 따라 race condition(경쟁상태)이 발생할 수 있다.
 </p>
-<h3>14.1 상태 역할</h3>
+<div class="example-title">예시 5-17: intra-assignment를 이용한 swap</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>fork
+    a = #5 b;
+    b = #5 a;
+join</code></pre></div>
+<div class="rtl">
+<strong>동작</strong><br/>
+두 문장 모두 현재 <code>a</code>, <code>b</code> 값을 먼저 읽어 임시 보관한 뒤
+5시간 단위 후 서로 반대 좌변에 기록한다.
+즉, 평가 시점과 갱신 시점을 분리한다.
+</div>
+<h3>14.4 이벤트 기반 intra-assignment</h3>
+<div class="example-title">예시 5-18</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>fork
+    a = @(posedge clk) b;
+    b = @(posedge clk) c;
+join</code></pre></div>
+<p>
+우변 값은 문장을 만났을 때 평가되고,
+<code>posedge clk</code> 이벤트까지 보관된 뒤 좌변에 할당된다.
+</p>
+<h3>14.5 repeat 이벤트 제어</h3>
+<div class="example-title">예시 5-19</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>q &lt;= repeat(5) @(posedge clk) data;</code></pre></div>
+<div class="flow">
+<span>data 먼저 평가</span>
+<span class="arrow">→</span>
+<span>clk 상승에지 1</span>
+<span class="arrow">→</span>
+<span>2</span>
+<span class="arrow">→</span>
+<span>3</span>
+<span class="arrow">→</span>
+<span>4</span>
+<span class="arrow">→</span>
+<span>5</span>
+<span class="arrow">→</span>
+<span>q 갱신</span>
+</div>
+<div class="example-title">예시 5-20</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>q = repeat(num) @(clk) data;</code></pre></div>
+<div class="example-title">예시 5-21</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>q &lt;= repeat(a+b) @(posedge phi1 or negedge phi2) data;</code></pre></div>
+<h3>14.6 등가 표현</h3>
 <table>
-<thead><tr><th>상태</th><th>의미</th></tr></thead>
+<thead><tr><th>intra-assignment</th><th>의미를 풀어쓴 형태</th></tr></thead>
 <tbody>
-<tr><td>start</td><td>초기 상태</td></tr>
-<tr><td>rd0_once</td><td>직전 입력이 0인 상태</td></tr>
-<tr><td>rd0_twice</td><td>0이 연속 입력된 상태</td></tr>
-<tr><td>rd1_once</td><td>직전 입력이 1인 상태</td></tr>
-<tr><td>rd1_twice</td><td>1이 연속 입력된 상태</td></tr>
+<tr>
+<td><code>q = #5 b;</code></td>
+<td><code>temp=b;</code> → 5만큼 기다림 → <code>q=temp;</code></td>
+</tr>
+<tr>
+<td><code>q = @(posedge clk) b;</code></td>
+<td><code>temp=b;</code> → clk 상승에지 기다림 → <code>q=temp;</code></td>
+</tr>
+<tr>
+<td><code>q = repeat(3) @(posedge clk) b;</code></td>
+<td><code>temp=b;</code> → 상승에지 3회 대기 → <code>q=temp;</code></td>
+</tr>
 </tbody>
 </table>
-<h3>14.2 핵심 전이</h3>
-<div class="flow">
-<span>rd0_once + din=0</span>
-<span class="arrow">→</span>
-<span>rd0_twice, dout=1</span>
-</div>
-<div class="flow">
-<span>rd1_once + din=1</span>
-<span class="arrow">→</span>
-<span>rd1_twice, dout=1</span>
-</div>
-<h3>14.3 코드 11-33 — Mealy FSM</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_det_mealy.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module seq_det_mealy (
+<h3>14.7 3번째 상승에지 후 처음 평가한 d를 출력</h3>
+<div class="example-title">코드 5-22</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">intra_assign_delay.v</span><span>VERILOG</span></span></div><pre><code>module intra_assign_delay (
     input  clk,
-    input  rst,
-    input  din_bit,
-    output dout_bit
+    input  d,
+    output reg out
 );
 
-reg [2:0] state_reg, next_state;
-
-parameter
-    start      = 3'b000,
-    rd0_once   = 3'b001,
-    rd1_once   = 3'b010,
-    rd0_twice  = 3'b011,
-    rd1_twice  = 3'b100;
-
-// Next-State Logic
-always @(state_reg or din_bit) begin
-    case (state_reg)
-
-        start:
-            if (din_bit == 0)
-                next_state = rd0_once;
-            else if (din_bit == 1)
-                next_state = rd1_once;
-            else
-                next_state = start;
-
-        rd0_once:
-            if (din_bit == 0)
-                next_state = rd0_twice;
-            else if (din_bit == 1)
-                next_state = rd1_once;
-            else
-                next_state = start;
-
-        rd0_twice:
-            if (din_bit == 0)
-                next_state = rd0_twice;
-            else if (din_bit == 1)
-                next_state = rd1_once;
-            else
-                next_state = start;
-
-        rd1_once:
-            if (din_bit == 0)
-                next_state = rd0_once;
-            else if (din_bit == 1)
-                next_state = rd1_twice;
-            else
-                next_state = start;
-
-        rd1_twice:
-            if (din_bit == 0)
-                next_state = rd0_once;
-            else if (din_bit == 1)
-                next_state = rd1_twice;
-            else
-                next_state = start;
-
-        default:
-            next_state = start;
-
-    endcase
-end
-
-// State Register
-always @(posedge clk or posedge rst) begin
-    if (rst == 1)
-        state_reg &lt;= start;
-    else
-        state_reg &lt;= next_state;
-end
-
-// Mealy Output Logic
-assign dout_bit =
-    (((state_reg == rd0_twice) &amp;&amp; (din_bit == 0)) ||
-     ((state_reg == rd1_twice) &amp;&amp; (din_bit == 1)))
-    ? 1'b1 : 1'b0;
+always @(*)
+    out = repeat(3) @(posedge clk) d;
 
 endmodule</code></pre></div>
-<div class="rtl">
-<strong>왜 Mealy인가?</strong><br/>
-출력 수식에 <code>state_reg</code>뿐 아니라 현재 입력 <code>din_bit</code>도 직접 들어간다.
-즉 같은 상태에서도 din_bit 값에 따라 dout_bit가 달라질 수 있다.
+<div class="example-title">코드 5-23: 풀어쓴 등가 코드</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">intra_assign_delay_eq.v</span><span>VERILOG</span></span></div><pre><code>module intra_assign_delay_eq (
+    input  clk,
+    input  d,
+    output reg out
+);
+
+reg temp;
+
+always @(*) begin
+    temp = d;
+
+    @(posedge clk);
+    @(posedge clk);
+    @(posedge clk);
+
+    out = temp;
+end
+
+endmodule</code></pre></div>
+<div class="note">
+<strong>핵심</strong><br/>
+세 번째 클록 에지에서 그 시점의 <code>d</code>를 읽는 것이 아니라,
+문장을 처음 만났을 때 읽어 둔 <code>d</code> 값을 세 번의 이벤트 후에 출력한다.
 </div>
-<div class="task">
-<div class="title">설계과제 11-19</div>
-<p>비트패턴 <code>0110</code>을 검출하는 Mealy FSM을 설계하고, 비동기식 active-high reset 조건에서 시뮬레이션으로 검증한다.</p>
-</div>
-</section><section class="section" id="summary">
-<h2><span class="num">14</span> 최종 핵심 정리</h2>
+</section><section class="section" id="block">
+<h2><span class="num">14</span> 5.7 블록문</h2>
+<p>
+Verilog는 여러 문장을 하나의 문장처럼 그룹화하기 위해
+<strong>begin-end 절차형 블록</strong>과
+<strong>fork-join 병렬 블록</strong>을 제공한다.
+</p>
 <table>
-<thead><tr><th>주제</th><th>핵심 RTL 표현</th><th>합성되는 하드웨어</th></tr></thead>
+<thead><tr><th>블록</th><th>실행 방식</th><th>지연 기준</th><th>종료 시점</th></tr></thead>
 <tbody>
-<tr><td>D Latch</td><td>level-sensitive always + 불완전 할당</td><td>Latch</td></tr>
-<tr><td>D Flip-Flop</td><td><code>always @(posedge/negedge clk)</code></td><td>DFF</td></tr>
-<tr><td>Async Reset</td><td>clock edge + reset edge 감지</td><td>비동기 reset FF</td></tr>
-<tr><td>Sync Reset</td><td>clock edge만 감지</td><td>동기 reset FF</td></tr>
-<tr><td>Blocking</td><td><code>=</code></td><td>문장 순서에 따라 같은 블록 내 값 전달 가능</td></tr>
-<tr><td>Nonblocking</td><td><code>&lt;=</code></td><td>이전 상태를 기준으로 동시에 레지스터 갱신</td></tr>
-<tr><td>Counter</td><td><code>cnt &lt;= cnt + 1</code></td><td>Adder + Register</td></tr>
-<tr><td>Divider</td><td>Counter + Comparator + Output FF</td><td>분주 pulse/clock 생성</td></tr>
-<tr><td>Shift Register</td><td>nonblocking + vector/shift/concat</td><td>직렬 연결 FF</td></tr>
-<tr><td>LFSR</td><td>shift + XOR feedback</td><td>의사난수 sequence generator</td></tr>
-<tr><td>Moore FSM</td><td>state register + next-state + state-only output</td><td>상태 기반 제어회로</td></tr>
-<tr><td>Mealy FSM</td><td>state register + next-state + state/input output</td><td>입력 반응형 제어회로</td></tr>
+<tr>
+<td><code>begin-end</code></td>
+<td>문장 순서대로 순차 실행</td>
+<td>앞 문장 완료 시각을 기준으로 누적</td>
+<td>마지막 문장 완료</td>
+</tr>
+<tr>
+<td><code>fork-join</code></td>
+<td>모든 문장 동시 시작</td>
+<td>블록 진입 시각을 공통 기준으로 사용</td>
+<td>가장 늦게 끝나는 문장 완료</td>
+</tr>
+</tbody>
+</table>
+<h3>15.1 named block</h3>
+<div class="syntax">
+<code>begin : block_name
+    declarations;
+    statements;
+end</code>
+</div>
+<p>
+블록 이름을 붙이면 지역 변수, parameter, named event를 선언하거나
+<code>disable</code> 문에서 해당 블록을 참조할 수 있다.
+</p>
+<h3>15.2 begin-end 절차형 블록</h3>
+<div class="example-title">예시 5-22</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>begin
+    areg = breg;
+    creg = areg;
+end</code></pre></div>
+<div class="flow">
+<span>areg=breg</span>
+<span class="arrow">완료 후</span>
+<span>creg=areg</span>
+</div>
+<div class="example-title">예시 5-23: 이벤트가 포함된 순차 블록</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>begin
+    areg = breg;
+    @(posedge clock)
+        creg = areg;
+end</code></pre></div>
+<h3>15.3 순차 지연으로 파형 생성</h3>
+<div class="example-title">코드 5-24</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>parameter d = 50;
+
+reg [7:0] r;
+event end_wave;
+
+initial begin
+    #d r = 8'h35;
+    #d r = 8'hE2;
+    #d r = 8'h00;
+    #d r = 8'hF7;
+    #d -&gt; end_wave;
+end</code></pre></div>
+<table>
+<thead><tr><th>시간</th><th>동작</th></tr></thead>
+<tbody>
+<tr><td>50</td><td><code>r=8'h35</code></td></tr>
+<tr><td>100</td><td><code>r=8'hE2</code></td></tr>
+<tr><td>150</td><td><code>r=8'h00</code></td></tr>
+<tr><td>200</td><td><code>r=8'hF7</code></td></tr>
+<tr><td>250</td><td><code>end_wave</code> event 발생</td></tr>
+</tbody>
+</table>
+<h3>15.4 fork-join 병렬 블록</h3>
+<div class="syntax">
+<code>fork
+    statement1;
+    statement2;
+    ...
+join</code>
+</div>
+<div class="example-title">코드 5-25(a)</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>fork
+    #50  r = 8'h35;
+    #100 r = 8'hE2;
+    #150 r = 8'h00;
+    #200 r = 8'hF7;
+    #250 -&gt; end_wave;
+join</code></pre></div>
+<div class="example-title">코드 5-25(b): 순서가 뒤집혀도 동일 파형</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>fork
+    #250 -&gt; end_wave;
+    #200 r = 8'hF7;
+    #150 r = 8'h00;
+    #100 r = 8'hE2;
+    #50  r = 8'h35;
+join</code></pre></div>
+<div class="tip">
+<strong>왜 결과가 같은가?</strong><br/>
+fork 내부 각 문장은 블록 진입 시각을 기준으로 동시에 시작한다.
+따라서 소스에서 위아래 순서를 바꿔도 각 문장의 지연값이 같다면
+동일한 시각에 동일한 동작이 발생한다.
+</div>
+<h3>15.5 fork 안에 두 개의 begin-end 블록</h3>
+<div class="example-title">코드 5-26</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>fork
+    @(enable_a) begin
+        #ta wa = 0;
+        #ta wa = 1;
+        #ta wa = 0;
+    end
+
+    @(enable_b) begin
+        #tb wb = 1;
+        #tb wb = 0;
+        #tb wb = 1;
+    end
+join</code></pre></div>
+<div class="flow">
+<span>enable_a 이벤트</span>
+<span class="arrow">→</span>
+<span>wa 파형 생성 블록</span>
+</div>
+<div class="flow">
+<span>enable_b 이벤트</span>
+<span class="arrow">→</span>
+<span>wb 파형 생성 블록</span>
+</div>
+<p>
+두 이벤트 대기는 fork 내부에서 병렬로 이루어지고,
+각 이벤트가 발생하면 해당 begin-end 블록은 내부적으로 순차 실행된다.
+</p>
+</section><section class="section" id="summary">
+<h2><span class="num">15</span> 최종 핵심 정리</h2>
+<table>
+<thead><tr><th>주제</th><th>핵심</th><th>회로/시뮬레이션 관점</th></tr></thead>
+<tbody>
+<tr><td><code>always @(*)</code></td><td>관련 입력 변화 시 재평가</td><td>조합회로</td></tr>
+<tr><td><code>always @(posedge clk)</code></td><td>클록 상승에지에서 실행</td><td>플립플롭/레지스터</td></tr>
+<tr><td><code>initial</code></td><td>시뮬레이션 시작 후 1회 실행</td><td>초기화·테스트벤치</td></tr>
+<tr><td>blocking <code>=</code></td><td>현재 문장 완료 후 다음 문장</td><td>문장 순서 영향 큼</td></tr>
+<tr><td>nonblocking <code>&lt;=</code></td><td>우변 평가 후 좌변 갱신 예약</td><td>동일 클록 에지 레지스터 표현</td></tr>
+<tr><td><code>if</code></td><td>조건에 따른 선택</td><td>MUX·우선순위·제어논리</td></tr>
+<tr><td><code>case</code></td><td>하나의 조건식을 여러 item과 비교</td><td>디코더·MUX·제어논리</td></tr>
+<tr><td><code>casez/casex</code></td><td>don’t-care 허용</td><td>우선순위 인코더 등</td></tr>
+<tr><td><code>repeat/for</code></td><td>고정 반복</td><td>합성 시 반복 구조 전개 가능</td></tr>
+<tr><td><code>while</code></td><td>조건 기반 반복</td><td>반복 횟수 불명확 시 합성 문제 가능</td></tr>
+<tr><td><code>forever</code></td><td>무한 반복</td><td>테스트벤치 파형 생성</td></tr>
+<tr><td><code>#</code></td><td>시간 지연</td><td>시뮬레이션 타이밍</td></tr>
+<tr><td><code>@</code></td><td>이벤트 대기</td><td>클록·신호 변화 동기화</td></tr>
+<tr><td><code>wait</code></td><td>조건이 참이 될 때까지 대기</td><td>level-sensitive 제어</td></tr>
+<tr><td>intra-assignment</td><td>우변 먼저 평가 후 나중에 좌변 갱신</td><td>평가 시점과 할당 시점 분리</td></tr>
+<tr><td><code>begin-end</code></td><td>순차 블록</td><td>문장 순서와 누적 지연</td></tr>
+<tr><td><code>fork-join</code></td><td>병렬 블록</td><td>동시 시작, 가장 늦은 문장까지 대기</td></tr>
 </tbody>
 </table>
 <div class="note">
-<strong>CHAPTER 11을 읽는 핵심 질문</strong><br/>
-① 이 값은 어느 clock edge에서 바뀌는가?<br/>
-② reset은 동기식인가 비동기식인가?<br/>
-③ active-high인가 active-low인가?<br/>
-④ 상태 변수에는 nonblocking이 사용되었는가?<br/>
-⑤ 하나의 clock에서 여러 register가 “이전 값 기준”으로 동시에 이동해야 하는가?<br/>
-⑥ counter/shift/FSM의 상태 bit width는 충분한가?<br/>
-⑦ FSM의 next-state와 output logic이 명확히 분리되어 있는가?
+<strong>CHAPTER 05핵심 질문 5개</strong><br/>
+① 이 블록은 조합회로인가 순차회로인가?<br/>
+② 값이 언제 바뀌는가 — 입력 변화, 클록 에지, 지연 후, 이벤트 후인가?<br/>
+③ blocking과 nonblocking 중 어떤 갱신 규칙을 사용하는가?<br/>
+④ 모든 조건에서 출력에 값이 할당되는가 — 래치가 생기지 않는가?<br/>
+⑤ 반복문과 지연문은 실제 합성 회로인가, 시뮬레이션용 표현인가?
 </div>
 <div class="rtl">
-<strong>Digital Design → Verilog RTL → RTL Synthesis</strong><br/>
-순차회로의 본질은 <strong>조합논리 + 저장소자</strong>이다.
-Verilog의 <code>posedge/negedge</code>와 nonblocking 할당은
-“클록 에지에서 값을 저장하는 레지스터”를 표현하고,
-counter의 <code>+1</code>은 Adder,
-shift register의 벡터 이동은 연속된 FF 체인,
-FSM의 state 변수는 상태 레지스터로 합성된다.
-따라서 순차회로를 읽을 때는 코드 문법보다
-<strong>현재 상태 → 조합논리 → 다음 상태 → clock edge 저장</strong> 흐름으로 이해하는 것이 핵심이다.
+<strong>Digital Design → Verilog RTL → Synthesis 연결</strong><br/>
+조합논리는 입력 변화에 따라 계산되고,
+순차논리는 클록 에지에서 레지스터에 저장된다.
+<code>if</code>, <code>case</code>는 선택 논리와 제어 논리로,
+산술식은 연산 회로로,
+클록 에지 기반 nonblocking 할당은 플립플롭/레지스터 구조로 연결된다.
+반면 <code>#delay</code>, named event, 많은 테스트벤치 제어 구문은
+시뮬레이션을 위한 표현이므로 실제 FPGA의 물리적 지연과 구분해야 한다.
 </div>
 <div class="flow">
-<span>Current State Register</span>
+<span>입력 / 이벤트 / Clock</span>
 <span class="arrow">→</span>
-<span>Combinational Logic</span>
+<span>always / initial 활성화</span>
 <span class="arrow">→</span>
-<span>Next State / Next Data</span>
-<span class="arrow">→ posedge clk</span>
-<span>Register 저장</span>
+<span>if / case / loop</span>
+<span class="arrow">→</span>
+<span>blocking / nonblocking 갱신</span>
+<span class="arrow">→</span>
+<span>조합회로 또는 레지스터 구조</span>
 </div>
 </section>
 <div class="chapter-links" id="chapter-links"></div>
 </main>
 </div>
-<footer class="footer">디지털시스템설계 · RTL · Verilog · v01 · 코드 상태: iverilog 컴파일 통과 표시 외에는 미검증 · 보드 동작은 실제 환경에서 검증</footer>
-<script>window.COURSE={"title": "디지털시스템설계 · RTL · Verilog", "chapters": [{"id": "ch01", "number": 1, "title": "Verilog HDL 기초", "file": "ch01_verilog_basics_v01.html"}, {"id": "ch02", "number": 2, "title": "자료형과 연산자", "file": "ch02_datatypes_operators_v01.html"}, {"id": "ch03", "number": 3, "title": "게이트 수준 모델링", "file": "ch03_gate_level_modeling_v01.html"}, {"id": "ch04", "number": 4, "title": "할당문", "file": "ch04_assignments_v01.html"}, {"id": "ch05", "number": 5, "title": "행위수준 모델링", "file": "ch05_behavioral_modeling_v01.html"}, {"id": "ch06", "number": 6, "title": "구조적 모델링", "file": "ch06_structural_modeling_v01.html"}, {"id": "ch07", "number": 7, "title": "함수와 태스크", "file": "ch07_functions_tasks_v01.html"}, {"id": "ch08", "number": 8, "title": "컴파일러 지시어", "file": "ch08_compiler_directives_v01.html"}, {"id": "ch09", "number": 9, "title": "시스템 태스크와 시스템 함수", "file": "ch09_system_tasks_functions_v01.html"}, {"id": "ch10", "number": 10, "title": "조합회로 모델링", "file": "ch10_combinational_modeling_v01.html"}, {"id": "ch11", "number": 11, "title": "순차회로 모델링", "file": "ch11_sequential_modeling_v01.html"}, {"id": "ch12", "number": 12, "title": "순차회로의 FPGA 구현 실습", "file": "ch12_sequential_fpga_lab_v01.html"}]};</script>
+<footer class="footer">디지털시스템설계 · RTL · Verilog</footer>
+<script>window.COURSE={"title": "디지털시스템설계 · RTL · Verilog", "chapters": [{"id": "ch01", "number": 1, "title": "Verilog HDL 기초", "file": "ch01_verilog_basics_v02.html"}, {"id": "ch02", "number": 2, "title": "자료형과 연산자", "file": "ch02_datatypes_operators_v02.html"}, {"id": "ch03", "number": 3, "title": "게이트 수준 모델링", "file": "ch03_gate_level_modeling_v02.html"}, {"id": "ch04", "number": 4, "title": "할당문", "file": "ch04_assignments_v02.html"}, {"id": "ch05", "number": 5, "title": "행위수준 모델링", "file": "ch05_behavioral_modeling_v02.html"}, {"id": "ch06", "number": 6, "title": "구조적 모델링", "file": "ch06_structural_modeling_v02.html"}, {"id": "ch07", "number": 7, "title": "함수와 태스크", "file": "ch07_functions_tasks_v02.html"}, {"id": "ch08", "number": 8, "title": "컴파일러 지시어", "file": "ch08_compiler_directives_v02.html"}, {"id": "ch09", "number": 9, "title": "시스템 태스크와 시스템 함수", "file": "ch09_system_tasks_functions_v02.html"}, {"id": "ch10", "number": 10, "title": "조합회로 모델링", "file": "ch10_combinational_modeling_v02.html"}, {"id": "ch11", "number": 11, "title": "순차회로 모델링", "file": "ch11_sequential_modeling_v02.html"}, {"id": "ch12", "number": 12, "title": "순차회로의 FPGA 구현 실습", "file": "ch12_sequential_fpga_lab_v02.html"}]};</script>
 <script>/* 공통 탐색 및 코드 복사 — 페이지 본문을 변경하지 않음 */
 (()=>{'use strict';
  const data=window.COURSE||{title:'교육과정',chapters:[]};

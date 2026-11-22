@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="기본 논리 게이트 · 부울식 · 진리표 · LUT · 멀티플렉서 · 인코더/디코더 · 비교기 · 3상태 버스 · case/if 합성">
-<title>제10장 · 조합회로 모델링 · 디지털시스템설계 · RTL · Verilog</title>
+<meta name="description" content="플립플롭 · 시프트 레지스터 · 계수기 · 분주기 · 키패드 · Piezo · 스텝 모터 · Color LED · Text LCD">
+<title>제12장 · 순차회로의 FPGA 구현 실습 · 디지털시스템설계 · RTL · Verilog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -33,237 +33,1699 @@ code{background:#f6ede2}
 @media print{.toc,.mobile-menu,.chapter-links,.codebar button{display:none}.wrap{display:block}.hero:before{display:none}.hero{background:#fff;color:#000}.hero p,.hero h1{color:#000}}
 </style>
 <style>
-:root{--c-bg:#faf9f7;--c-paper:#fff;--c-ink:#331f17;--c-muted:#7a655c;--c-line:#eee7df;--c-blue:#9a4927;--c-blue2:#faf0ec;--c-code:#221510;--c-codeink:#fcf4f1;--c-warn:#fff7df;--c-ok:#eef9f2;--c-danger:#fff0f0;--c-dangerline:#b94c4c;--c-purple:#7154a7;--c-orange:#b56a10}
-.card{background:var(--c-paper);border:1px solid var(--c-line);border-radius:14px}
-.badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:700;background:var(--c-blue2);color:#864022;margin-right:6px}
-.note,.warn,.tip,.danger,.rtl,.source-note,.verify{border-left:5px solid var(--c-blue);padding:14px 16px;border-radius:8px;margin:16px 0}
+:root{
+ --c-bg:#faf8f5;--c-paper:#fff;--c-ink:#331e15;--c-muted:#7a665d;--c-line:#ece6dd;
+ --c-blue:#8a4122;--c-blue2:#faefea;--c-teal:#67311a;--c-green:#247b50;--c-greenbg:#ecf8f0;
+ --c-orange:#b46a11;--c-orangebg:#fff4e5;--c-red:#b34848;--c-redbg:#fff0f0;
+ --c-purple:#6850a3;--c-purplebg:#f4efff;--c-code:#22150f;--c-codeink:#fcf4f1;
+}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.16);margin-right:6px;font-size:.79rem;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:12px}
+.card{border:1px solid var(--c-line);background:#fff;border-radius:12px;padding:16px 17px}
+.k{font-weight:800;color:#77391e}
+.note,.tip,.warn,.danger,.rtl,.source,.verify{padding:14px 16px;border-left:5px solid var(--c-blue);border-radius:8px;margin:16px 0}
 .note{background:#fcf4f1}
-.warn{background:var(--c-warn);border-color:#d49b17}
-.tip{background:var(--c-ok);border-color:#2b8a57}
-.danger{background:var(--c-danger);border-color:var(--c-dangerline)}
-.rtl{background:#f5f0ff;border-color:var(--c-purple)}
-.source-note{background:#faf9f7;border-color:#84726a}
-.verify{background:#fff4e8;border-color:var(--c-orange)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-.card{padding:16px 18px}
-.k{font-weight:700;color:#7a3a1f}
+.tip{background:var(--c-greenbg);border-color:var(--c-green)}
+.warn{background:#fff7df;border-color:#d39b18}
+.danger{background:var(--c-redbg);border-color:var(--c-red)}
+.rtl{background:var(--c-purplebg);border-color:var(--c-purple)}
+.source{background:#faf9f7;border-color:#877168}
+.verify{background:var(--c-orangebg);border-color:var(--c-orange)}
 .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
-.flow span{background:#fbf1ed;border:1px solid #e9e1d7;border-radius:8px;padding:8px 11px}
-.flow .arrow{background:none;border:none;padding:0;color:#557}
-.syntax{background:#f9f7f4;border:1px solid #e5dbce;border-radius:10px;padding:14px 16px;margin:14px 0}
+.flow span{background:#fbf1ed;border:1px solid #e9e0d5;border-radius:8px;padding:8px 11px}
+.flow .arrow{border:none;background:none;color:#7a6359;padding:0}
+.code-card{border:1px solid #eae2d8;border-radius:12px;overflow:hidden;margin:16px 0 22px;background:#fff}
+.code-head{display:flex;gap:10px;align-items:center;justify-content:space-between;background:#f7f4f1;padding:10px 14px;color:#6b3721}
+.code-note{padding:11px 14px;background:#fefdfc;border-top:1px solid #efe9e2;font-size:.93rem;color:#6b5247}
+.oktag,.dertag,.srctag,.warntag{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.75rem;font-weight:800;white-space:nowrap}
+.oktag{background:#def3e7;color:#226b48}
+.dertag{background:#fff0d9;color:#9a5c0b}
+.srctag{background:#f4f0eb;color:#6f4e40}
+.warntag{background:#fde1e1;color:#9d3e3e}
 .logic{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}
-.logic .box{min-width:115px;border:2px solid #c3937f;background:#fdfaf8;padding:10px 14px;border-radius:12px;text-align:center;font-weight:700}
-.logic .sig{font-family:"JetBrains Mono","D2Coding","Consolas",monospace}
-.task{border:1px solid #e7ddd2;border-radius:12px;background:#fefdfc;padding:16px 18px;margin:16px 0}
-.task .title{font-weight:800;color:#864022;margin-bottom:8px}
-.truth{max-width:900px;margin:14px auto}
-.truth td,.truth th{text-align:center}
+.logic .box{border:2px solid #c2907b;background:#fdfaf8;border-radius:12px;padding:10px 14px;min-width:135px;text-align:center;font-weight:800}
+.small{font-size:.91rem;color:var(--c-muted)}
+.checklist{columns:2;column-gap:28px}
+.page-ref{font-size:.87rem;color:#7e675d;background:#f8f6f3;border-radius:999px;padding:3px 9px;display:inline-block}
+@media(max-width:760px){.checklist{columns:1}}
 </style>
 </head>
-<body data-chapter="ch10">
+<body data-chapter="ch12">
 <a class="skip" href="#main-content">본문 바로가기</a>
 <button type="button" class="mobile-menu" id="mobile-menu" aria-controls="course-nav" aria-expanded="false">☰ 장·목차</button>
 <div class="shade" id="shade"></div>
-<header class="hero"><div class="hero-inner"><p class="kicker">DIGITAL SYSTEM DESIGN · CHAPTER 10</p><h1>제10장 · 조합회로 모델링</h1><p>기본 논리 게이트 · 부울식 · 진리표 · LUT · 멀티플렉서 · 인코더/디코더 · 비교기 · 3상태 버스 · case/if 합성</p><div class="chips"></div></div></header>
+<header class="hero"><div class="hero-inner"><p class="kicker">DIGITAL SYSTEM DESIGN · CHAPTER 12</p><h1>제12장 · 순차회로의 FPGA 구현 실습</h1><p>플립플롭 · 시프트 레지스터 · 계수기 · 분주기 · 키패드 · Piezo · 스텝 모터 · Color LED · Text LCD</p><div class="chips"></div></div></header>
 <div class="wrap">
 <nav class="toc" id="course-nav" aria-label="장과 절 탐색"></nav>
 <main class="content" id="main-content">
-<section class="section" id="overview">
-<h2><span class="num">00</span> CHAPTER 10 전체 개요</h2>
-<p>조합회로(combinational circuit, 현재 입력 조합만으로 출력이 결정되는 회로)는 논리 게이트들의 조합으로 구성되며, 과거 입력이나 이전 출력 상태를 저장하는 latch(래치) 또는 flip-flop(플립플롭)을 포함하지 않는다. 따라서 조합회로 RTL핵심은 <strong>모든 입력 변화와 모든 입력 조건에 대해 출력이 즉시 결정되는가</strong>이다.</p>
-<div class="grid"><div class="card"><span class="k">기본 논리</span><p>AND, OR, XOR, NAND, NOR</p></div><div class="card"><span class="k">선택·변환</span><p>MUX, Encoder, Decoder</p></div><div class="card"><span class="k">연산·판단</span><p>Comparator, Adder, ALU</p></div><div class="card"><span class="k">상수 데이터</span><p>Lookup Table(LUT)</p></div></div>
-<table><thead><tr><th>조합회로</th><th>대표 Verilog HDL 표현</th></tr></thead><tbody><tr><td>기본 논리 게이트</td><td>게이트 프리미티브, 비트/축약 연산자</td></tr><tr><td>멀티플렉서</td><td><code>assign</code>, <code>?:</code>, <code>if</code>, <code>case</code></td></tr><tr><td>인코더·디코더</td><td><code>if</code>, <code>case</code>, <code>for</code></td></tr><tr><td>랜덤 로직·부울 함수</td><td>연속 할당문과 논리/비트 연산자</td></tr><tr><td>비교기</td><td>관계 연산자, if, for</td></tr><tr><td>LUT</td><td>function + case</td></tr></tbody></table>
-<div class="rtl"><strong>Simulation과 Synthesis 구분</strong><br/>테스트벤치에서 사용하는 <code>initial</code>, <code>#delay</code>, <code>$finish</code>는 DUT의 실제 FPGA 기능 회로로 해석하지 않는다. switch primitive, 불확정 반복, wait, force/release, fork/join 등도 일반 조합회로 합성용 구문과 구분한다.</div>
-</section><section class="section" id="rules">
-<h2><span class="num">01</span> 조합회로 모델링의 4가지 핵심 원칙</h2>
-<h3>2.1 감지신호목록을 완전하게 작성</h3><p><code>always</code> 블록에서 읽는 모든 입력이 감지신호목록에 포함되어야 한다. 누락되면 합성된 회로와 RTL 시뮬레이션의 동작이 달라질 수 있다.</p><div class="tip"><strong>권장 표현</strong><br/>전통 Verilog에서는 <code>always @(*)</code> 또는 <code>always @*</code>를 사용하면 입력 누락 위험을 줄일 수 있다.</div>
-<h3>2.2 모든 조건에서 모든 출력값을 결정</h3><p>if/case의 일부 조건에서 출력이 할당되지 않으면 이전 값을 유지해야 하므로 latch가 추론될 수 있다.</p>
-<h3>2.3 논리 최적화가 쉬운 구조 사용</h3><p>같은 기능도 표현에 따라 논리 깊이와 합성 구조가 달라질 수 있다. 실제 면적과 timing은 합성·구현 보고서로 확인한다.</p>
-<h3>2.4 간결하고 명확한 코드</h3><p>동일 기능을 여러 방식으로 표현할 수 있으므로, 회로 의도가 직접 드러나는 표현을 선택하면 오류와 디버깅 비용을 줄일 수 있다.</p>
-</section><section class="section" id="gate">
-<h2><span class="num">02</span> 10.1.1 기본 논리 게이트의 모델링</h2>
-<p>3입력 NOR를 네 방식으로 표현한다.</p>
-<h3>3.1 코드 10-1 — 비트 연산자</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">nor3_bitop.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module nor3_bitop (
-    input  [2:0] a,
-    output       out_nor3
+<section class="section" id="overview"><h2><span class="num">00</span> 전체 구조</h2>
+<table><thead><tr><th>절</th><th>주제</th><th>핵심 하드웨어</th></tr></thead><tbody>
+<tr><td>12.1</td><td>플립플롭과 시프트 레지스터</td><td>DFF, SIPO, Ring Counter, LFSR</td></tr>
+<tr><td>12.2</td><td>계수기</td><td>Up/Down Counter, BCD Counter</td></tr>
+<tr><td>12.3</td><td>주파수 분주기</td><td>Divider, LED Shifter</td></tr>
+<tr><td>12.4</td><td>키패드 스캔</td><td>Scan FSM, Key Decode, FND</td></tr>
+<tr><td>12.5</td><td>Piezo 응용</td><td>Beep, Tone Divider, Piano</td></tr>
+<tr><td>12.6</td><td>스텝 모터</td><td>2상 여자 Sequence, Sensor Count</td></tr>
+<tr><td>12.7</td><td>Color LED</td><td>Button Toggle, RGB Mixing</td></tr>
+<tr><td>12.8</td><td>Text LCD</td><td>Delay Counter, FSM, ASCII Data</td></tr>
+</tbody></table>
+<div class="flow"><span>RTL 작성</span><span class="arrow">→</span><span>기능 Simulation</span><span class="arrow">→</span>
+<span>Synthesis</span><span class="arrow">→</span><span>Implementation</span><span class="arrow">→</span>
+<span>Bitstream</span><span class="arrow">→</span><span>FPGA Board Test</span></div>
+<div class="source"><strong>보드 적용 기준</strong><br/>
+이 장의 핀 번호와 10Hz/100Hz/1kHz/500kHz selectable clock은 전용 FPGA 실습장비를 기준으로 한다.
+Basys3 등의 다른 보드에서는 XDC를 그대로 사용할 수 없고, 보드 clock 주파수에 맞게 divider parameter와 pin constraint를 다시 계산해야 한다.</div>
+</section><section class="section" id="s121"><h2><span class="num">01</span> 12.1 플립플롭과 시프트 레지스터 설계</h2>
+<h3>12.1.1 8비트 Register</h3>
+<p>8개의 D Flip-Flop이 병렬로 구성된 8비트 register이다. <code>posedge clk</code>에서 <code>din[7:0]</code> 전체가 동시에 저장되고,
+다음 clock edge까지 <code>dout[7:0]</code>은 유지된다.</p>
+<div class="logic"><span>din[7:0]</span><span>→</span><div class="box">8 × DFF<br/>posedge clk</div><span>→</span><span>dout[7:0]</span></div>
+<div class="rtl"><strong>합성 구조</strong><br/>8비트 Register = DFF 8개. Reset MUX가 각 DFF 입력 또는 전용 reset 구조로 매핑될 수 있다.</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 8비트 레지스터</strong><span class="file">reg_8b.v</span><span>VERILOG</span></span></div><div class="code-note">Reset은 synchronous active-high 방식으로 통일한다.</div><pre><code>module reg_8b (
+    input        clk,
+    input        rst,
+    input  [7:0] din,
+    output reg [7:0] dout
 );
 
-assign out_nor3 = ~(a[2] | a[1] | a[0]);
-
-endmodule</code></pre></div>
-<h3>3.2 코드 10-2 — 축약 NOR 연산자</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">nor3_redop.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module nor3_redop (
-    input  [2:0] a,
-    output       out_nor3
-);
-
-assign out_nor3 = ~|a;
-
-endmodule</code></pre></div><div class="note"><strong><code>~|a</code>를 풀어쓰면</strong><br/><code>~(a[2] | a[1] | a[0])</code>과 동일하다.</div>
-<h3>3.3 코드 10-3 — 게이트 프리미티브</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">nor3_gp.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module nor3_gp (
-    input  [2:0] a,
-    output       out_nor3
-);
-
-nor (out_nor3, a[2], a[1], a[0]);
-
-endmodule</code></pre></div><div class="tip"><strong>포트 순서</strong><br/>게이트 프리미티브는 출력이 첫 번째이고 그 뒤에 입력이 온다.</div>
-<h3>3.4 코드 10-4 — if 조건문</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">nor3_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module nor3_if (
-    input  [2:0] a,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg       out_nor3
-);
-
-always @(a) begin
-    if (a == 3'b000)
-        out_nor3 = 1'b1;
+always @(posedge clk) begin
+    if (rst)
+        dout &lt;= 8'h00;
     else
-        out_nor3 = 1'b0;
+        dout &lt;= din;
 end
 
-endmodule</code></pre></div>
-<h3>3.5 코드 10-5 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_nor3.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_nor3;
-reg [2:0] a;
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 테스트벤치</strong><span class="file">tb_reg_8b.v</span><span>VERILOG</span></span></div><div class="code-note">동기식 reset은 clock edge에서 반영되므로 테스트벤치도 posedge를 기준으로 reset을 검증한다.</div><pre><code>`timescale 1ns/1ps
+
+module tb_reg_8b;
+
+reg        clk;
+reg        rst;
+reg  [7:0] din;
+wire [7:0] dout;
 integer i;
 
-nor3_bitop U0 (a, out_nor3);
-// nor3_redop U1 (a, out_nor3);
-// nor3_gp    U2 (a, out_nor3);
-// nor3_if    U3 (a, out_nor3);
+reg_8b dut (
+    .clk (clk),
+    .rst (rst),
+    .din (din),
+    .dout(dout)
+);
 
 initial begin
-    for (i = 0; i &lt;= 7; i = i + 1) begin
-        a = i;
-        #10;
+    clk = 1'b0;
+    forever #5 clk = ~clk;   // 10 ns period
+end
+
+initial begin
+    rst = 1'b1;
+    din = 8'h00;
+
+    // 동기식 reset이므로 posedge clk에서 reset이 반영된다.
+    repeat (2) @(posedge clk);
+    rst = 1'b0;
+
+    for (i = 0; i &lt; 16; i = i + 1) begin
+        @(negedge clk);
+        din = i;
     end
-    #20 $finish;
+
+    repeat (2) @(posedge clk);
+    $finish;
 end
+
 endmodule</code></pre></div>
-<div class="task"><div class="title">설계과제 10-1</div><p>3입력 NAND를 비트 연산자, 축약 연산자, 게이트 프리미티브, if 조건문의 네 방법으로 모델링하고 검증한다.</p></div>
-</section><section class="section" id="multibit">
-<h2><span class="num">03</span> 10.1.2 멀티비트 논리연산</h2>
-<p>4비트 <code>a</code>와 <code>b</code>의 XOR는 실제 회로에서 2입력 XOR 게이트 4개가 병렬로 존재하는 구조이다.</p>
-<h3>4.1 코드 10-6 — 프리미티브 배열</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">xor4b_gp.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module xor4b_gp (
-    input  [3:0] a,
-    input  [3:0] b,
-    output [3:0] xor4b
+<h3>12.1.2 SIPO 8비트 Shift Register</h3>
+<p>직렬 입력 <code>sdin</code>이 LSB로 들어오고 기존 비트가 매 clock마다 MSB 방향으로 한 칸 이동한다.
+중요한 점은 모든 bit가 <strong>같은 edge 직전의 값</strong>을 기준으로 이동해야 하므로 nonblocking 할당을 사용해야 한다.</p>
+<div class="flow"><span>sdin</span><span class="arrow">→</span><span>q[0]</span><span class="arrow">→</span><span>q[1]</span><span class="arrow">→ … →</span><span>q[7]</span></div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 시프트 연산자 방식</strong><span class="file">shift_reg8b_shop.v</span><span>VERILOG</span></span></div><pre><code>module shift_reg8b_shop (
+    input        clk,
+    input        rst,
+    input        sdin,
+    output [7:0] dout
 );
 
-xor U0 [3:0] (xor4b, a, b);
+reg [7:0] q;
+assign dout = q;
 
-endmodule</code></pre></div>
-<h3>4.2 코드 10-7 — 벡터 비트 연산</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">xor4b_bitop.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module xor4b_bitop (
-    input  [3:0] a,
-    input  [3:0] b,
-    output [3:0] xor4b
+always @(posedge clk) begin
+    if (rst)
+        q &lt;= 8'h00;
+    else
+        q &lt;= (q &lt;&lt; 1) | {7'b0, sdin};
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 결합 연산자 방식</strong><span class="file">shift_reg8b_conop.v</span><span>VERILOG</span></span></div><div class="code-note"><code>{q[6:0], sdin}</code>은 q[7]←q[6], …, q[1]←q[0], q[0]←sdin과 동일하다.</div><pre><code>module shift_reg8b_conop (
+    input        clk,
+    input        rst,
+    input        sdin,
+    output [7:0] dout
 );
 
-assign xor4b = a ^ b;
+reg [7:0] q;
+assign dout = q;
 
-// 비트별로 풀어쓰면
-// xor4b[0] = a[0] ^ b[0]
-// xor4b[1] = a[1] ^ b[1]
-// xor4b[2] = a[2] ^ b[2]
-// xor4b[3] = a[3] ^ b[3]
+always @(posedge clk) begin
+    if (rst)
+        q &lt;= 8'h00;
+    else
+        q &lt;= {q[6:0], sdin};
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — for 반복문 방식</strong><span class="file">shift_reg8b_for.v</span><span>VERILOG</span></span></div><div class="code-note">for는 시간적으로 7번 반복하는 것이 아니라 합성 시 병렬 연결되는 register 이동 구조를 기술한다.</div><pre><code>module shift_reg8b_for (
+    input        clk,
+    input        rst,
+    input        sdin,
+    output [7:0] dout
+);
+
+reg [7:0] q;
+integer i;
+
+assign dout = q;
+
+always @(posedge clk) begin
+    if (rst) begin
+        q &lt;= 8'h00;
+    end
+    else begin
+        // 각 단계가 이전 단계 값을 저장: q[7]←q[6], q[6]←q[5], q[5]←q[4], q[4]←q[3], q[3]←q[2], q[2]←q[1], q[1]←q[0]
+        for (i = 7; i &gt; 0; i = i - 1)
+            q[i] &lt;= q[i-1];
+
+        q[0] &lt;= sdin;
+    end
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Shift Register 테스트벤치</strong><span class="file">tb_shift_reg8b.v</span><span>VERILOG</span></span></div><pre><code>`timescale 1ns/1ps
+
+module tb_shift_reg8b;
+
+reg clk;
+reg rst;
+reg sdin;
+wire [7:0] dout;
+
+shift_reg8b_conop dut (
+    .clk (clk),
+    .rst (rst),
+    .sdin(sdin),
+    .dout(dout)
+);
+
+initial begin
+    clk = 1'b0;
+    forever #5 clk = ~clk;
+end
+
+initial begin
+    rst  = 1'b1;
+    sdin = 1'b0;
+    repeat (2) @(posedge clk);
+    rst = 1'b0;
+
+    // 1,0,1,1,0,0,1,0 입력
+    @(negedge clk) sdin = 1'b1;
+    @(negedge clk) sdin = 1'b0;
+    @(negedge clk) sdin = 1'b1;
+    @(negedge clk) sdin = 1'b1;
+    @(negedge clk) sdin = 1'b0;
+    @(negedge clk) sdin = 1'b0;
+    @(negedge clk) sdin = 1'b1;
+    @(negedge clk) sdin = 1'b0;
+
+    repeat (3) @(posedge clk);
+    $finish;
+end
 
 endmodule</code></pre></div>
-<h3>4.3 코드 10-8 — for 반복문</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">xor4b_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module xor4b_for (
-    input  [3:0] a,
-    input  [3:0] b,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] xor4b
+<h3>12.1.3 8비트 Ring Counter</h3>
+<p>Ring Counter는 마지막 bit를 다시 처음 bit로 귀환시켜 하나의 ‘1’이 순환하도록 만든다.
+초기값은 <code>0000_0001</code>처럼 반드시 one-hot 상태를 줘야 한다.</p>
+<div class="flow"><span>0000_0001</span><span>→</span><span>0000_0010</span><span>→</span><span>0000_0100</span><span>→ … →</span><span>1000_0000</span><span>→</span><span>0000_0001</span></div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 결합 연산자</strong><span class="file">ring_cnt8b_conop.v</span><span>VERILOG</span></span></div><pre><code>module ring_cnt8b_conop (
+    input        clk,
+    input        rst,
+    output reg [7:0] cnt
+);
+
+always @(posedge clk) begin
+    if (rst)
+        cnt &lt;= 8'b0000_0001;
+    else if ((cnt == 8'h00) || (cnt == 8'h80))
+        cnt &lt;= 8'b0000_0001;
+    else
+        cnt &lt;= {cnt[6:0], cnt[7]};
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 시프트 연산자</strong><span class="file">ring_cnt8b_shop.v</span><span>VERILOG</span></span></div><pre><code>module ring_cnt8b_shop (
+    input        clk,
+    input        rst,
+    output reg [7:0] cnt
+);
+
+always @(posedge clk) begin
+    if (rst)
+        cnt &lt;= 8'b0000_0001;
+    else if ((cnt == 8'h00) || (cnt == 8'h80))
+        cnt &lt;= 8'b0000_0001;
+    else
+        cnt &lt;= (cnt &lt;&lt; 1) | {7'b0, cnt[7]};
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — for 반복문</strong><span class="file">ring_cnt8b_for.v</span><span>VERILOG</span></span></div><pre><code>module ring_cnt8b_for (
+    input        clk,
+    input        rst,
+    output reg [7:0] cnt
 );
 
 integer i;
 
-always @(a or b) begin
-    for (i = 0; i &lt; 4; i = i + 1)
-        xor4b[i] = a[i] ^ b[i];
+always @(posedge clk) begin
+    if (rst) begin
+        cnt &lt;= 8'b0000_0001;
+    end
+    else if ((cnt == 8'h00) || (cnt == 8'h80)) begin
+        cnt &lt;= 8'b0000_0001;
+    end
+    else begin
+        for (i = 7; i &gt; 0; i = i - 1)
+            cnt[i] &lt;= cnt[i-1];
+
+        cnt[0] &lt;= cnt[7];
+    end
 end
 
-endmodule</code></pre></div><div class="rtl"><strong>for의 합성 의미</strong><br/>4클록 동안 반복하는 구조가 아니라, 고정 반복 횟수만큼 병렬 XOR 논리가 전개된다.</div>
-<h3>4.4 코드 10-9 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_xor4b.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_xor4b;
-reg  [3:0] a, b;
-wire [3:0] out_xor4b;
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 테스트벤치</strong><span class="file">tb_ring_cnt8b.v</span><span>VERILOG</span></span></div><pre><code>`timescale 1ns/1ps
 
-xor4b_gp U0 (a, b, out_xor4b);
-// xor4b_bitop U1 (a, b, out_xor4b);
-// xor4b_for   U2 (a, b, out_xor4b);
+module tb_ring_cnt8b;
+
+reg clk;
+reg rst;
+wire [7:0] cnt;
+
+ring_cnt8b_conop dut (
+    .clk(clk),
+    .rst(rst),
+    .cnt(cnt)
+);
 
 initial begin
-    a = 4'b0000; b = 4'b0000;
-    #10 a = 4'b1010; b = 4'b0101;
-    #10 a = 4'b1100; b = 4'b1100;
-    #10 a = 4'b1011; b = 4'b0000;
-    #10 a = 4'b1001; b = 4'b1000;
-    #10 a = 4'b1111; b = 4'b0000;
-    #10 a = 4'b0010; b = 4'b0111;
-    #10 a = 4'b1101; b = 4'b0101;
-    #10 a = 4'b0000; b = 4'b1101;
-    #10 a = 4'b1111; b = 4'b1111;
-    #10 a = 4'b0111; b = 4'b0100;
-    #20 $finish;
+    clk = 1'b0;
+    forever #10 clk = ~clk;
 end
+
+initial begin
+    rst = 1'b1;
+    repeat (2) @(posedge clk);
+    rst = 1'b0;
+
+    repeat (12) @(posedge clk);
+
+    rst = 1'b1;
+    @(posedge clk);
+    rst = 1'b0;
+
+    repeat (4) @(posedge clk);
+    $finish;
+end
+
 endmodule</code></pre></div>
-<div class="task"><div class="title">설계과제 10-2</div><p>4비트 NAND를 비트 연산자, 프리미티브 배열, for문으로 모델링한다.</p></div>
-</section><section class="section" id="truth">
-<h2><span class="num">04</span> 10.1.3 부울 함수 · 진리표 · LUT</h2>
-<h3>5.1 부울 함수 — 코드 10-10</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">comb_gate.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module comb_gate (
-    input  a, b, c, d, e,
-    output y
+<h3>12.1.4 좌우 Ring Counter</h3>
+<p><code>mode=1</code>이면 왼쪽 회전, <code>mode=0</code>이면 오른쪽 회전한다.
+방향이 바뀔 때 one-hot 상태가 경계값에 걸리는 경우 설정 조건에 맞춰 각각 <code>1</code> 또는 <code>128</code>로 복귀시킨다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Shift operator 방식</strong><span class="file">LRS_ring_cnt8b_shop.v</span><span>VERILOG</span></span></div><pre><code>module LRS_ring_cnt8b_shop (
+    input        clk,
+    input        rst,
+    input        mode,      // 0: right, 1: left
+    output reg [7:0] cnt
 );
 
-assign y = ~((a &amp; b | c &amp; d) &amp; e);
+always @(posedge clk) begin
+    if (rst) begin
+        cnt &lt;= 8'b0000_0001;
+    end
+    else if (mode) begin
+        // 왼쪽 회전
+        if ((cnt == 8'h00) || (cnt == 8'h80))
+            cnt &lt;= 8'b0000_0001;
+        else
+            cnt &lt;= (cnt &lt;&lt; 1) | {7'b0, cnt[7]};
+    end
+    else begin
+        // 오른쪽 회전
+        if ((cnt == 8'h00) || (cnt == 8'h01))
+            cnt &lt;= 8'b1000_0000;
+        else
+            cnt &lt;= (cnt &gt;&gt; 1) | {cnt[0], 7'b0};
+    end
+end
 
-endmodule</code></pre></div>
-<div class="flow"><span>a&amp;b</span><span class="arrow">+</span><span>c&amp;d</span><span class="arrow">→ OR</span><span class="arrow">→ &amp;e</span><span class="arrow">→ NOT</span><span>y</span></div>
-<div class="task"><div class="title">설계과제 10-3</div><p>부울식을 Verilog HDL로 모델링하고 테스트벤치로 동작을 확인한다.</p></div>
-<h3>5.2 binary-to-gray 진리표</h3><table class="truth"><thead><tr><th>bin</th><th>gray</th><th>bin</th><th>gray</th></tr></thead><tbody><tr><td>0000</td><td>0000</td><td>1000</td><td>1100</td></tr><tr><td>0001</td><td>0001</td><td>1001</td><td>1101</td></tr><tr><td>0010</td><td>0011</td><td>1010</td><td>1111</td></tr><tr><td>0011</td><td>0010</td><td>1011</td><td>1110</td></tr><tr><td>0100</td><td>0110</td><td>1100</td><td>1010</td></tr><tr><td>0101</td><td>0111</td><td>1101</td><td>1011</td></tr><tr><td>0110</td><td>0101</td><td>1110</td><td>1001</td></tr><tr><td>0111</td><td>0100</td><td>1111</td><td>1000</td></tr></tbody></table>
-<h3>5.3 코드 10-11 — case 진리표</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bin2gray.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module bin2gray (
-    input  [3:0] bin,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] gray
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — for 방식</strong><span class="file">LRS_ring_cnt8b_for.v</span><span>VERILOG</span></span></div><pre><code>module LRS_ring_cnt8b_for (
+    input        clk,
+    input        rst,
+    input        mode,      // 0: right, 1: left
+    output reg [7:0] cnt
 );
 
-always @(bin) begin
-    case (bin)
-        4'h0: gray = 4'b0000;
-        4'h1: gray = 4'b0001;
-        4'h2: gray = 4'b0011;
-        4'h3: gray = 4'b0010;
-        4'h4: gray = 4'b0110;
-        4'h5: gray = 4'b0111;
-        4'h6: gray = 4'b0101;
-        4'h7: gray = 4'b0100;
-        4'h8: gray = 4'b1100;
-        4'h9: gray = 4'b1101;
-        4'ha: gray = 4'b1111;
-        4'hb: gray = 4'b1110;
-        4'hc: gray = 4'b1010;
-        4'hd: gray = 4'b1011;
-        4'he: gray = 4'b1001;
-        4'hf: gray = 4'b1000;
+integer i;
+
+always @(posedge clk) begin
+    if (rst) begin
+        cnt &lt;= 8'b0000_0001;
+    end
+    else if (mode) begin
+        if ((cnt == 8'h00) || (cnt == 8'h80)) begin
+            cnt &lt;= 8'b0000_0001;
+        end
+        else begin
+            for (i = 7; i &gt; 0; i = i - 1)
+                cnt[i] &lt;= cnt[i-1];
+            cnt[0] &lt;= cnt[7];
+        end
+    end
+    else begin
+        if ((cnt == 8'h00) || (cnt == 8'h01)) begin
+            cnt &lt;= 8'b1000_0000;
+        end
+        else begin
+            for (i = 0; i &lt; 7; i = i + 1)
+                cnt[i] &lt;= cnt[i+1];
+            cnt[7] &lt;= cnt[0];
+        end
+    end
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Concatenation 방식</strong><span class="file">LRS_ring_cnt8b_conop.v</span><span>VERILOG</span></span></div><pre><code>module LRS_ring_cnt8b_conop (
+    input        clk,
+    input        rst,
+    input        mode,      // 0: right, 1: left
+    output reg [7:0] cnt
+);
+
+always @(posedge clk) begin
+    if (rst) begin
+        cnt &lt;= 8'b0000_0001;
+    end
+    else if (mode) begin
+        if ((cnt == 8'h00) || (cnt == 8'h80))
+            cnt &lt;= 8'b0000_0001;
+        else
+            cnt &lt;= {cnt[6:0], cnt[7]};
+    end
+    else begin
+        if ((cnt == 8'h00) || (cnt == 8'h01))
+            cnt &lt;= 8'b1000_0000;
+        else
+            cnt &lt;= {cnt[0], cnt[7:1]};
+    end
+end
+
+endmodule</code></pre></div>
+<h3>12.1.5 Parallel Load + 좌우 Shift</h3>
+<p><code>load=1</code>이면 8비트 <code>din</code>이 한 번에 register에 저장되고,
+<code>load=0</code>이면 <code>mode</code>에 따라 좌/우 logical shift가 수행된다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 병렬로드/좌우 시프트</strong><span class="file">shift_reg8b_pld.v</span><span>VERILOG</span></span></div><pre><code>module shift_reg8b_pld (
+    input        clk,
+    input        rst,
+    input        load,
+    input        mode,      // 0: left, 1: right
+    input  [7:0] din,
+    output [7:0] pout
+);
+
+reg [7:0] reg_tmp;
+assign pout = reg_tmp;
+
+always @(posedge clk) begin
+    if (rst)
+        reg_tmp &lt;= 8'h00;
+    else if (load)
+        reg_tmp &lt;= din;
+    else if (!mode)
+        reg_tmp &lt;= reg_tmp &lt;&lt; 1;
+    else
+        reg_tmp &lt;= reg_tmp &gt;&gt; 1;
+end
+
+endmodule</code></pre></div>
+<h3>12.1.6 8비트 LFSR 의사난수 발생기</h3>
+<p>12.1의 마지막 실습은 CHAPTER 11의 8비트 LFSR 그림을 바탕으로 한다. 아래는 최대길이 tap을 적용한 구현 예이다.</p>
+<div class="danger"><strong>All-zero lock</strong><br/>XOR feedback LFSR은 <code>8'h00</code>으로 초기화하면 영원히 0에서 빠져나오지 못한다.
+따라서 non-zero seed를 사용한다.</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>8비트 LFSR — 최대길이 계열 예시</strong><span class="file">lfsr8.v</span><span>VERILOG</span></span></div><div class="code-note">LFSR tap은 x^8 + x^6 + x^5 + x^4 + 1 기준으로 사용한다.</div><pre><code>module lfsr8 (
+    input        clk,
+    input        rst,
+    output reg [7:0] lfsr
+);
+
+// 교육용 보완 구현:
+// x^8 + x^6 + x^5 + x^4 + 1 형태의 feedback 예
+wire feedback = lfsr[7] ^ lfsr[5] ^ lfsr[4] ^ lfsr[3];
+
+always @(posedge clk) begin
+    if (rst)
+        lfsr &lt;= 8'h01;   // XOR LFSR은 all-zero seed 금지
+    else
+        lfsr &lt;= {lfsr[6:0], feedback};
+end
+
+endmodule</code></pre></div></section><section class="section" id="s122"><h2><span class="num">02</span> 12.2 계수기 설계</h2>
+<h3>12.2.1 8비트 증가 Counter</h3>
+<p>현재 <code>cnt</code>가 Adder의 입력으로 들어가고 <code>+1</code> 결과가 다음 clock edge에서 동일한 register에 다시 저장되는 전형적인 순차회로이다.</p>
+<div class="flow"><span>현재 cnt</span><span class="arrow">→</span><span>+1 Adder</span><span class="arrow">→ posedge clk</span><span>cnt Register</span></div>
+<div class="note"><strong>Bit Width</strong><br/>8비트 unsigned counter는 0~255를 표현한다. 255에서 1을 더하면 상위 carry가 잘려 0으로 돌아간다.</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 8비트 증가 Counter</strong><span class="file">counter_up.v</span><span>VERILOG</span></span></div><pre><code>module counter_up (
+    input        clk,
+    input        rst,
+    output reg [7:0] cnt
+);
+
+always @(posedge clk) begin
+    if (rst)
+        cnt &lt;= 8'h00;
+    else
+        cnt &lt;= cnt + 8'd1;
+end
+
+endmodule</code></pre></div>
+<h3>12.2.2 8비트 Up/Down Counter</h3>
+<p><code>mode=0</code>이면 증가, <code>mode=1</code>이면 감소한다. 하드웨어는 <code>+1</code>/<code>-1</code> 경로와 mode MUX, 8비트 register로 이해할 수 있다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 증가/감소 Counter</strong><span class="file">ud_cnt8b.v</span><span>VERILOG</span></span></div><pre><code>module ud_cnt8b (
+    input        clk,
+    input        rst,
+    input        mode,      // 0: up, 1: down
+    output reg [7:0] cnt
+);
+
+always @(posedge clk) begin
+    if (rst)
+        cnt &lt;= 8'h00;
+    else if (!mode)
+        cnt &lt;= cnt + 8'd1;
+    else
+        cnt &lt;= cnt - 8'd1;
+end
+
+endmodule</code></pre></div>
+<h3>12.2.3 BCD Counter와 FND 표시</h3>
+<p>BCD counter는 4비트이지만 전체를 쓰지 않고 0~9만 사용한다.
+<code>cnt==9</code>에서 다음 값을 0으로 만들어 10진수 한 자리 counter가 된다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — BCD Counter</strong><span class="file">bcd_counter.v</span><span>VERILOG</span></span></div><pre><code>module bcd_counter (
+    input        clk,
+    input        rst,
+    output reg [3:0] cnt
+);
+
+always @(posedge clk) begin
+    if (rst)
+        cnt &lt;= 4'd0;
+    else if (cnt == 4'd9)
+        cnt &lt;= 4'd0;
+    else
+        cnt &lt;= cnt + 4'd1;
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>공통 함수 — BCD→FND</strong><span>VERILOG</span></span></div><div class="code-note">BCD→FND 변환 함수는 active-low 8비트 segment table을 모듈 내부에 포함한다.</div><pre><code>function [7:0] bcd_to_fnd;
+input [3:0] bcd;
+begin
+    // [7:0] = {DP, G, F, E, D, C, B, A}, active-low 예
+    case (bcd)
+        4'd0: bcd_to_fnd = 8'b1100_0000;
+        4'd1: bcd_to_fnd = 8'b1111_1001;
+        4'd2: bcd_to_fnd = 8'b1010_0100;
+        4'd3: bcd_to_fnd = 8'b1011_0000;
+        4'd4: bcd_to_fnd = 8'b1001_1001;
+        4'd5: bcd_to_fnd = 8'b1001_0010;
+        4'd6: bcd_to_fnd = 8'b1000_0010;
+        4'd7: bcd_to_fnd = 8'b1111_1000;
+        4'd8: bcd_to_fnd = 8'b1000_0000;
+        4'd9: bcd_to_fnd = 8'b1001_0000;
+        default: bcd_to_fnd = 8'b1111_1111;
     endcase
 end
-endmodule</code></pre></div>
-<h3>5.4 코드 10-12 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_bin2gray.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_bin2gray;
-reg [3:0] bin;
-wire [3:0] gray;
-integer i;
+endfunction</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — BCD Counter + FND Top</strong><span class="file">bcd_cnt_fnd.v</span><span>VERILOG</span></span></div><div class="code-note">자료는 별도 함수 파일 include 방식이지만, 전체 코드 확인이 쉽도록 함수까지 모듈 내부에 넣은 단일 파일 형태다.</div><pre><code>module bcd_cnt_fnd (
+    input        clk,
+    input        rst,
+    output [7:0] fnd_scan,
+    output [7:0] fnd_data
+);
 
-bin2gray u0 (bin, gray);
+wire [3:0] cnt;
+
+function [7:0] bcd_to_fnd;
+input [3:0] bcd;
+begin
+    case (bcd)
+        4'd0: bcd_to_fnd = 8'b1100_0000;
+        4'd1: bcd_to_fnd = 8'b1111_1001;
+        4'd2: bcd_to_fnd = 8'b1010_0100;
+        4'd3: bcd_to_fnd = 8'b1011_0000;
+        4'd4: bcd_to_fnd = 8'b1001_1001;
+        4'd5: bcd_to_fnd = 8'b1001_0010;
+        4'd6: bcd_to_fnd = 8'b1000_0010;
+        4'd7: bcd_to_fnd = 8'b1111_1000;
+        4'd8: bcd_to_fnd = 8'b1000_0000;
+        4'd9: bcd_to_fnd = 8'b1001_0000;
+        default: bcd_to_fnd = 8'b1111_1111;
+    endcase
+end
+endfunction
+
+bcd_counter u_counter (
+    .clk(clk),
+    .rst(rst),
+    .cnt(cnt)
+);
+
+assign fnd_data = bcd_to_fnd(cnt);
+
+// 한 자리만 활성화하는 active-low scan 예
+assign fnd_scan = 8'b1111_1110;
+
+endmodule</code></pre></div>
+<div class="note"><strong>FND 극성과 비트 순서</strong><br/>
+위 패턴은 <code>{DP,G,F,E,D,C,B,A}</code> 순서의 active-low segment를 가정한 기준 코드이다.
+실제 실습장비의 공통 애노드/공통 캐소드 및 bit 순서가 다르면 segment table만 조정한다.</div>
+</section><section class="section" id="s123"><h2><span class="num">03</span> 12.3 주파수 분주기 설계</h2>
+<h3>12.3.1 1/10 Frequency Divider</h3>
+<p>10Hz 입력에서 1Hz, 50% duty cycle을 만들려면 출력 상태를 입력 clock 5주기마다 반전하면 된다.
+따라서 전체 출력 한 주기는 입력 clock 10주기가 된다.</p>
+<div class="flow"><span>mclk 5회</span><span class="arrow">→</span><span>clk_1hz toggle</span><span class="arrow">+ mclk 5회</span><span>다시 toggle</span></div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 1/10 분주기</strong><span class="file">frq_div10.v</span><span>VERILOG</span></span></div><div class="code-note">분주 출력 자체는 외부 관찰용 신호이므로 register로 생성한다. reset은 mclk에 동기화했다.</div><pre><code>module frq_div10 (
+    input        mclk,
+    input        rst,
+    output       mclk_out,
+    output reg   clk_1hz
+);
+
+reg [2:0] cnt;
+
+assign mclk_out = mclk;
+
+always @(posedge mclk) begin
+    if (rst) begin
+        cnt     &lt;= 3'd0;
+        clk_1hz &lt;= 1'b0;
+    end
+    else if (cnt == 3'd4) begin
+        cnt     &lt;= 3'd0;
+        clk_1hz &lt;= ~clk_1hz;
+    end
+    else begin
+        cnt &lt;= cnt + 3'd1;
+    end
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 테스트벤치</strong><span class="file">tb_frq_div10.v</span><span>VERILOG</span></span></div><pre><code>`timescale 1ns/1ps
+
+module tb_frq_div10;
+
+reg rst;
+reg mclk;
+wire mclk_out;
+wire clk_1hz;
+
+frq_div10 dut (
+    .mclk    (mclk),
+    .rst     (rst),
+    .mclk_out(mclk_out),
+    .clk_1hz (clk_1hz)
+);
 
 initial begin
-    for (i = 0; i &lt; 16; i = i + 1) begin
-        bin = i;
-        #10;
-    end
-    #10 $finish;
+    mclk = 1'b0;
+    forever #10 mclk = ~mclk;
 end
+
+initial begin
+    rst = 1'b1;
+    repeat (2) @(posedge mclk);
+    rst = 1'b0;
+
+    repeat (40) @(posedge mclk);
+    $finish;
+end
+
 endmodule</code></pre></div>
-<h3>5.5 코드 10-13 — 16×8 LUT 함수</h3><div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>function [7:0] data_line1;
-input [3:0] address;
+<h3>12.3.2 여덟 가지 동작모드 LED Shifter</h3>
+<p>LED Shifter는 내부 분주 clock을 별도 clock으로 사용하지 않고 clock-enable 방식으로 구성한다.</p>
+<div class="danger"><strong>Generated Clock 주의</strong><br/>
+<code>clk_10hz</code>, <code>clk_1hz</code>, <code>clk_05hz</code>를 일반 logic에서 만든 뒤 다른 <code>always @(posedge ...)</code>의 clock으로 사용하면
+generated clock 제약과 clock routing 문제가 생긴다.</div>
+<div class="tip"><strong>권장 구조</strong><br/>
+100Hz <code>mclk</code> 하나만 실제 clock으로 사용하고,
+선택된 속도에 해당할 때만 <code>led_out</code>을 갱신하는 clock-enable 방식으로 구현한다.</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — LED Shifter 단일 clock 개선본</strong><span class="file">led_shifter_8modes.v</span><span>VERILOG</span></span></div><div class="code-note">내부 generated clock과 clock MUX 대신 clock-enable을 사용한다. mode[3]은 방향, mode[2:0]은 속도를 선택한다.</div><pre><code>module led_shifter_8modes (
+    input        mclk,       // 100 Hz
+    input        rst,
+    input  [3:0] mode,
+    output reg [7:0] led_out
+);
+
+reg [7:0] div_cnt;
+reg [7:0] terminal_count;
+
+// mode[2:0] : 000=100Hz, 001=10Hz, 010=1Hz, 100=0.5Hz
+always @(*) begin
+    case (mode[2:0])
+        3'b000: terminal_count = 8'd0;
+        3'b001: terminal_count = 8'd9;
+        3'b010: terminal_count = 8'd99;
+        3'b100: terminal_count = 8'd199;
+        default: terminal_count = 8'd0;
+    endcase
+end
+
+always @(posedge mclk) begin
+    if (rst) begin
+        div_cnt  &lt;= 8'd0;
+        led_out  &lt;= 8'b0000_0001;
+    end
+    else begin
+        if (div_cnt &gt;= terminal_count) begin
+            div_cnt &lt;= 8'd0;
+
+            if (!mode[3]) begin
+                // 좌 -&gt; 우로 보이는 방향은 보드 LED 배치에 따라 달라질 수 있음
+                led_out &lt;= {led_out[6:0], led_out[7]};
+            end
+            else begin
+                led_out &lt;= {led_out[0], led_out[7:1]};
+            end
+        end
+        else begin
+            div_cnt &lt;= div_cnt + 8'd1;
+        end
+    end
+end
+
+endmodule</code></pre></div></section><section class="section" id="s124"><h2><span class="num">04</span> 12.4 키패드 스캔 회로 설계</h2>
+<h3>12.4.1 4×3 Keypad Scan 원리</h3>
+<p>세 column에 <code>001 → 010 → 100</code>을 순차 출력하고,
+각 column에서 네 row 입력을 확인해 12개 key 중 어느 위치가 눌렸는지 판별한다.</p>
+<table><thead><tr><th>Column</th><th>Row</th><th>Key</th><th>key_data bit</th></tr></thead><tbody>
+<tr><td>001</td><td>0001 / 0010 / 0100 / 1000</td><td>1 / 4 / 7 / *</td><td>0 / 3 / 6 / 9</td></tr>
+<tr><td>010</td><td>0001 / 0010 / 0100 / 1000</td><td>2 / 5 / 8 / 0</td><td>1 / 4 / 7 / 10</td></tr>
+<tr><td>100</td><td>0001 / 0010 / 0100 / 1000</td><td>3 / 6 / 9 / #</td><td>2 / 5 / 8 / 11</td></tr>
+</tbody></table>
+<div class="rtl"><strong>회로 구조</strong><br/>
+Scan FSM → <code>key_col[2:0]</code> 출력 → 물리 Keypad → <code>key_row[3:0]</code> 입력 → Decoder → <code>key_data[11:0]</code>.</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Keypad Scan</strong><span class="file">keypad_scan.v</span><span>VERILOG</span></span></div><div class="code-note">외부 key_row 입력은 2-FF synchronizer를 거쳐 clk 도메인으로 동기화한다. 기계식 bounce 제거는 debounce 단계에서 처리한다.</div><pre><code>module keypad_scan (
+    input        clk,
+    input        rst,
+    input  [3:0] key_row,
+    output [2:0] key_col,
+    output reg [11:0] key_data
+);
+
+localparam NO_SCAN = 3'b000;
+localparam COL1    = 3'b001;
+localparam COL2    = 3'b010;
+localparam COL3    = 3'b100;
+
+reg [2:0] state;
+reg [3:0] row_meta;
+reg [3:0] row_sync;
+
+wire key_stop = |row_sync;
+assign key_col = state;
+
+// 외부 키패드 입력을 clk 도메인으로 2-FF 동기화
+always @(posedge clk) begin
+    if (rst) begin
+        row_meta &lt;= 4'b0000;
+        row_sync &lt;= 4'b0000;
+    end
+    else begin
+        row_meta &lt;= key_row;
+        row_sync &lt;= row_meta;
+    end
+end
+
+// Column scan FSM
+always @(posedge clk) begin
+    if (rst) begin
+        state &lt;= NO_SCAN;
+    end
+    else if (!key_stop) begin
+        case (state)
+            NO_SCAN: state &lt;= COL1;
+            COL1   : state &lt;= COL2;
+            COL2   : state &lt;= COL3;
+            COL3   : state &lt;= COL1;
+            default: state &lt;= NO_SCAN;
+        endcase
+    end
+end
+
+// key_data 생성
+always @(posedge clk) begin
+    if (rst) begin
+        key_data &lt;= 12'b0;
+    end
+    else begin
+        case (state)
+            COL1: begin
+                case (row_sync)
+                    4'b0001: key_data &lt;= 12'b0000_0000_0001; // 1
+                    4'b0010: key_data &lt;= 12'b0000_0000_1000; // 4
+                    4'b0100: key_data &lt;= 12'b0000_0100_0000; // 7
+                    4'b1000: key_data &lt;= 12'b0010_0000_0000; // *
+                    default: key_data &lt;= 12'b0;
+                endcase
+            end
+
+            COL2: begin
+                case (row_sync)
+                    4'b0001: key_data &lt;= 12'b0000_0000_0010; // 2
+                    4'b0010: key_data &lt;= 12'b0000_0001_0000; // 5
+                    4'b0100: key_data &lt;= 12'b0000_1000_0000; // 8
+                    4'b1000: key_data &lt;= 12'b0100_0000_0000; // 0
+                    default: key_data &lt;= 12'b0;
+                endcase
+            end
+
+            COL3: begin
+                case (row_sync)
+                    4'b0001: key_data &lt;= 12'b0000_0000_0100; // 3
+                    4'b0010: key_data &lt;= 12'b0000_0010_0000; // 6
+                    4'b0100: key_data &lt;= 12'b0001_0000_0000; // 9
+                    4'b1000: key_data &lt;= 12'b1000_0000_0000; // #
+                    default: key_data &lt;= 12'b0;
+                endcase
+            end
+
+            default:
+                key_data &lt;= 12'b0;
+        endcase
+    end
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Keypad Testbench</strong><span class="file">tb_keypad_scan.v</span><span>VERILOG</span></span></div><div class="code-note">실제 keypad matrix의 전기적 결합까지 모델링한 것은 아니며, scan state에 따른 row 자극으로 decode 동작을 확인하는 RTL 테스트벤치다.</div><pre><code>`timescale 1ns/1ps
+
+module tb_keypad_scan;
+
+reg clk;
+reg rst;
+reg [3:0] key_row;
+wire [2:0] key_col;
+wire [11:0] key_data;
+
+keypad_scan dut (
+    .clk     (clk),
+    .rst     (rst),
+    .key_row (key_row),
+    .key_col (key_col),
+    .key_data(key_data)
+);
+
+initial begin
+    clk = 1'b0;
+    forever #10 clk = ~clk;
+end
+
+initial begin
+    rst = 1'b1;
+    key_row = 4'b0000;
+    repeat (3) @(posedge clk);
+    rst = 1'b0;
+
+    // 각 column scan을 기다리며 row 자극
+    repeat (6) @(posedge clk);
+    key_row = 4'b0001;
+    repeat (4) @(posedge clk);
+    key_row = 4'b0000;
+
+    repeat (6) @(posedge clk);
+    key_row = 4'b0010;
+    repeat (4) @(posedge clk);
+    key_row = 4'b0000;
+
+    repeat (6) @(posedge clk);
+    key_row = 4'b0100;
+    repeat (4) @(posedge clk);
+    key_row = 4'b0000;
+
+    repeat (6) @(posedge clk);
+    key_row = 4'b1000;
+    repeat (4) @(posedge clk);
+    key_row = 4'b0000;
+
+    repeat (8) @(posedge clk);
+    $finish;
+end
+
+endmodule</code></pre></div>
+<h3>12.4.2 Key 값 FND 표시</h3>
+<p>12비트 one-hot <code>key_data</code>를 7-segment pattern으로 변환한다.
+요구대로 <code>* → A</code>, <code># → b</code>로 표시한다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 / — Keypad + FND</strong><span class="file">keypad_fnd.v</span><span>VERILOG</span></span></div><pre><code>module keypad_fnd (
+    input        clk,
+    input        rst,
+    input  [3:0] key_row,
+    output [2:0] key_col,
+    output [7:0] fnd_scan,
+    output [7:0] fnd_data
+);
+
+wire [11:0] key_data;
+
+function [7:0] fnd_dis;
+input [11:0] key;
 begin
-    case (address)
+    case (key)
+        12'b0100_0000_0000: fnd_dis = 8'b1100_0000; // 0
+        12'b0000_0000_0001: fnd_dis = 8'b1111_1001; // 1
+        12'b0000_0000_0010: fnd_dis = 8'b1010_0100; // 2
+        12'b0000_0000_0100: fnd_dis = 8'b1011_0000; // 3
+        12'b0000_0000_1000: fnd_dis = 8'b1001_1001; // 4
+        12'b0000_0001_0000: fnd_dis = 8'b1001_0010; // 5
+        12'b0000_0010_0000: fnd_dis = 8'b1000_0010; // 6
+        12'b0000_0100_0000: fnd_dis = 8'b1111_1000; // 7
+        12'b0000_1000_0000: fnd_dis = 8'b1000_0000; // 8
+        12'b0001_0000_0000: fnd_dis = 8'b1001_0000; // 9
+        12'b0010_0000_0000: fnd_dis = 8'b1000_1000; // * -&gt; A
+        12'b1000_0000_0000: fnd_dis = 8'b1000_0011; // # -&gt; b
+        default:             fnd_dis = 8'b1111_1111;
+    endcase
+end
+endfunction
+
+keypad_scan u_scan (
+    .clk     (clk),
+    .rst     (rst),
+    .key_row (key_row),
+    .key_col (key_col),
+    .key_data(key_data)
+);
+
+assign fnd_data = fnd_dis(key_data);
+assign fnd_scan = 8'b1111_1110;
+
+endmodule</code></pre></div></section><section class="section" id="s125"><h2><span class="num">05</span> 12.5 Piezo 응용회로 설계</h2>
+<h3>12.5.1 Beep 발생기</h3>
+<p>1kHz 입력 clock을 Piezo 구동 주파수로 사용하고, 0.1초 단위의 on/off envelope를 만들어 삐 소리와 묵음을 반복한다.
+1kHz system clock 하나만 사용하고 100ms tick을 clock-enable로 만든다.</p>
+<div class="flow"><span>1kHz clk</span><span class="arrow">→ 100회 계수</span><span>100ms tick</span><span class="arrow">→</span><span>pwm_cnt </span><span class="arrow">→</span><span>beep_on</span></div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Piezo Beep</strong><span class="file">piezo_beep.v</span><span>VERILOG</span></span></div><div class="code-note">BEEP_PERIOD=5이면 0.5초 tone + 0.5초 mute가 반복된다.</div><pre><code>module piezo_beep #(
+    parameter integer BEEP_PERIOD = 5   // 1~9
+) (
+    input  clk,     // 1 kHz
+    input  rst,
+    output piezo_out
+);
+
+reg [6:0] tick_cnt;   // 0~99
+reg [3:0] pwm_cnt;    // 0~9
+
+wire beep_on = (pwm_cnt &lt; BEEP_PERIOD);
+
+always @(posedge clk) begin
+    if (rst) begin
+        tick_cnt &lt;= 7'd0;
+        pwm_cnt  &lt;= 4'd0;
+    end
+    else if (tick_cnt == 7'd99) begin
+        tick_cnt &lt;= 7'd0;
+
+        if (pwm_cnt == 4'd9)
+            pwm_cnt &lt;= 4'd0;
+        else
+            pwm_cnt &lt;= pwm_cnt + 4'd1;
+    end
+    else begin
+        tick_cnt &lt;= tick_cnt + 7'd1;
+    end
+end
+
+// 내부 클록으로 사용하지 않고 외부 Piezo 구동 신호로만 gating
+assign piezo_out = beep_on &amp; clk;
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Piezo Testbench</strong><span class="file">tb_piezo_beep.v</span><span>VERILOG</span></span></div><pre><code>`timescale 1us/1ns
+
+module tb_piezo_beep;
+
+reg clk;
+reg rst;
+wire piezo_out;
+
+piezo_beep #(
+    .BEEP_PERIOD(5)
+) dut (
+    .clk      (clk),
+    .rst      (rst),
+    .piezo_out(piezo_out)
+);
+
+initial begin
+    clk = 1'b0;
+    forever #500 clk = ~clk;  // 1 kHz
+end
+
+initial begin
+    rst = 1'b1;
+    repeat (3) @(posedge clk);
+    rst = 1'b0;
+
+    #2_200_000;
+    $finish;
+end
+
+endmodule</code></pre></div>
+<h3>12.5.2 네 가지 Beep Mode</h3>
+<p>네 개의 one-hot button mode에 따라 1초 frame 안에서 tone이 유지되는 구간을 0.1/0.4/0.7/0.9초로 선택한다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 4 Mode Beep</strong><span class="file">beep_4modes.v</span><span>VERILOG</span></span></div><pre><code>module beep_4modes (
+    input        clk,      // 1 kHz
+    input        rst,
+    input  [3:0] mode,
+    output       piezo_out
+);
+
+reg [6:0] tick_cnt;
+reg [3:0] pwm_cnt;
+reg [3:0] beep_period;
+
+always @(*) begin
+    case (mode)
+        4'b0001: beep_period = 4'd1; // 0.1s ON / 0.9s OFF
+        4'b0010: beep_period = 4'd4; // 0.4s ON / 0.6s OFF
+        4'b0100: beep_period = 4'd7; // 0.7s ON / 0.3s OFF
+        4'b1000: beep_period = 4'd9; // 0.9s ON / 0.1s OFF
+        default: beep_period = 4'd0; // mute
+    endcase
+end
+
+always @(posedge clk) begin
+    if (rst) begin
+        tick_cnt &lt;= 7'd0;
+        pwm_cnt  &lt;= 4'd0;
+    end
+    else if (tick_cnt == 7'd99) begin
+        tick_cnt &lt;= 7'd0;
+
+        if (pwm_cnt == 4'd9)
+            pwm_cnt &lt;= 4'd0;
+        else
+            pwm_cnt &lt;= pwm_cnt + 4'd1;
+    end
+    else begin
+        tick_cnt &lt;= tick_cnt + 7'd1;
+    end
+end
+
+wire beep_on = (pwm_cnt &lt; beep_period);
+assign piezo_out = beep_on &amp; clk;
+
+endmodule</code></pre></div>
+<h3>12.5.3 Keypad 1옥타브 Piano</h3>
+<p>Keypad 1~8을 C4, D4, E4, F4, G4, A4, B4, C5에 대응시킨다.
+500kHz master clock을 terminal-count 방식으로 나누어 각 음의 square wave를 만든다.</p>
+<table><thead><tr><th>Key</th><th>음</th><th>목표 주파수</th><th>분주 상한 예</th></tr></thead><tbody>
+<tr><td>1</td><td>C4</td><td>약 261.6Hz</td><td>956</td></tr>
+<tr><td>2</td><td>D4</td><td>약 293.7Hz</td><td>851</td></tr>
+<tr><td>3</td><td>E4</td><td>약 329.6Hz</td><td>758</td></tr>
+<tr><td>4</td><td>F4</td><td>약 349.2Hz</td><td>716</td></tr>
+<tr><td>5</td><td>G4</td><td>약 392.0Hz</td><td>638</td></tr>
+<tr><td>6</td><td>A4</td><td>440Hz</td><td>568</td></tr>
+<tr><td>7</td><td>B4</td><td>약 493.9Hz</td><td>506</td></tr>
+<tr><td>8</td><td>C5</td><td>약 523.3Hz</td><td>477</td></tr>
+</tbody></table>
+<div class="note"><strong>분주 계산</strong><br/><code>Fout ≈ Fclk / (2 × (LIMIT + 1))</code>. Counter가 LIMIT까지 간 뒤 출력을 toggle하므로 두 번 toggle되어 한 주기가 된다.</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Piano Top</strong><span class="file">piezo_piano.v</span><span>VERILOG</span></span></div><div class="code-note">Keypad scan output의 하위 8비트를 tone selector로 사용한다.</div><pre><code>module piezo_piano (
+    input        clk,      // 500 kHz
+    input        rst,
+    input  [3:0] key_row,
+    output [2:0] key_col,
+    output       piezo_out
+);
+
+wire [11:0] key_data;
+
+keypad_scan u_keypad (
+    .clk     (clk),
+    .rst     (rst),
+    .key_row (key_row),
+    .key_col (key_col),
+    .key_data(key_data)
+);
+
+piezo_tone u_tone (
+    .clk       (clk),
+    .rst       (rst),
+    .key_in    (key_data[7:0]),
+    .piezo_freq(piezo_out)
+);
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Tone Generator</strong><span class="file">piezo_tone.v</span><span>VERILOG</span></span></div><div class="code-note">C5 terminal count는 500kHz 기준으로 계산해 포함한다.</div><pre><code>module piezo_tone (
+    input        clk,       // 500 kHz
+    input        rst,
+    input  [7:0] key_in,
+    output reg   piezo_freq
+);
+
+// Fout = 500kHz / (2 * (LIMIT + 1))
+localparam [9:0] C4_TONE = 10'd956; // 약 261 Hz
+localparam [9:0] D4_TONE = 10'd851; // 약 293 Hz
+localparam [9:0] E4_TONE = 10'd758; // 약 329 Hz
+localparam [9:0] F4_TONE = 10'd716; // 약 349 Hz
+localparam [9:0] G4_TONE = 10'd638; // 약 392 Hz
+localparam [9:0] A4_TONE = 10'd568; // 약 440 Hz
+localparam [9:0] B4_TONE = 10'd506; // 약 494 Hz
+localparam [9:0] C5_TONE = 10'd477; // 약 523 Hz
+
+reg [9:0] limit;
+reg       tone_en;
+reg [9:0] cnt;
+
+always @(*) begin
+    tone_en = 1'b1;
+
+    case (key_in)
+        8'b0000_0001: limit = C4_TONE; // key 1
+        8'b0000_0010: limit = D4_TONE; // key 2
+        8'b0000_0100: limit = E4_TONE; // key 3
+        8'b0000_1000: limit = F4_TONE; // key 4
+        8'b0001_0000: limit = G4_TONE; // key 5
+        8'b0010_0000: limit = A4_TONE; // key 6
+        8'b0100_0000: limit = B4_TONE; // key 7
+        8'b1000_0000: limit = C5_TONE; // key 8
+        default: begin
+            limit   = 10'd0;
+            tone_en = 1'b0;
+        end
+    endcase
+end
+
+always @(posedge clk) begin
+    if (rst) begin
+        cnt        &lt;= 10'd0;
+        piezo_freq &lt;= 1'b0;
+    end
+    else if (!tone_en) begin
+        cnt        &lt;= 10'd0;
+        piezo_freq &lt;= 1'b0;
+    end
+    else if (cnt &gt;= limit) begin
+        cnt        &lt;= 10'd0;
+        piezo_freq &lt;= ~piezo_freq;
+    end
+    else begin
+        cnt &lt;= cnt + 10'd1;
+    end
+end
+
+endmodule</code></pre></div></section><section class="section" id="s126"><h2><span class="num">06</span> 12.6 스텝 모터 구동회로 설계</h2>
+<h3>12.6.1 스텝 모터 구동 구조</h3>
+<p>자료는 1kHz→50Hz 분주 clock을 만들고, magnetic sensor 출력을 IBUFG에 넣어 별도 clock으로 사용한다.
+교육적으로 동작을 이해하기에는 쉽지만 실제 RTL에서는 <strong>sensor를 clock으로 사용하지 않고</strong> system clock으로 동기화한 뒤 edge detect하는 편이 안정적이다.</p>
+<div class="danger"><strong>CDC/Clocking 문제</strong><br/>
+<code>mag_sen</code>은 외부 sensor이므로 FPGA clock과 비동기이다.
+이를 그대로 <code>always @(posedge mag_sen)</code>의 clock으로 사용하면 새로운 clock domain이 만들어지고 timing constraint와 metastability 관리가 어려워진다.</div>
+<h3>12.6.2 2상 여자 Sequence</h3>
+<p>motor_data 순서를 정의 <code>{A, B, /A, /B}</code>로 두면 2상 여자 4-step 예시는 다음과 같이 표현할 수 있다.</p>
+<table><thead><tr><th>Step</th><th>{A,B,/A,/B}</th><th>반대 방향</th></tr></thead><tbody>
+<tr><td>0</td><td>1100</td><td>1100</td></tr>
+<tr><td>1</td><td>0110</td><td>1001</td></tr>
+<tr><td>2</td><td>0011</td><td>0011</td></tr>
+<tr><td>3</td><td>1001</td><td>0110</td></tr>
+</tbody></table>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>공통 Core — 단일 clock + sensor synchronizer</strong><span class="file">motor_drive_core.v</span><span>VERILOG</span></span></div><div class="code-note">1kHz system clock에서 20 clock마다 step_ce를 발생시켜 50 step/s로 동작하는 공통 Core다.</div><pre><code>module motor_drive_core #(
+    parameter integer TURN_LIMIT = 5
+) (
+    input        clk,         // 1 kHz
+    input        rst,
+    input        mag_sen,
+    output reg [3:0] motor_data,
+    output reg [3:0] turn_count,
+    output reg       direction
+);
+
+reg [4:0] step_div;
+reg [1:0] step_idx;
+
+// 비동기 외부 센서 동기화 + 상승에지 검출
+reg mag_meta, mag_sync, mag_d;
+
+wire mag_rise = mag_sync &amp; ~mag_d;
+wire step_ce  = (step_div == 5'd19);  // 1kHz / 20 = 50 step/s
+
+always @(posedge clk) begin
+    if (rst) begin
+        mag_meta &lt;= 1'b0;
+        mag_sync &lt;= 1'b0;
+        mag_d    &lt;= 1'b0;
+    end
+    else begin
+        mag_meta &lt;= mag_sen;
+        mag_sync &lt;= mag_meta;
+        mag_d    &lt;= mag_sync;
+    end
+end
+
+always @(posedge clk) begin
+    if (rst)
+        step_div &lt;= 5'd0;
+    else if (step_ce)
+        step_div &lt;= 5'd0;
+    else
+        step_div &lt;= step_div + 5'd1;
+end
+
+always @(posedge clk) begin
+    if (rst) begin
+        step_idx   &lt;= 2'd0;
+        motor_data &lt;= 4'b1100;
+    end
+    else if (step_ce) begin
+        // motor_data = {A, B, /A, /B}
+        if (!direction) begin
+            case (step_idx)
+                2'd0: motor_data &lt;= 4'b1100;
+                2'd1: motor_data &lt;= 4'b0110;
+                2'd2: motor_data &lt;= 4'b0011;
+                2'd3: motor_data &lt;= 4'b1001;
+            endcase
+        end
+        else begin
+            case (step_idx)
+                2'd0: motor_data &lt;= 4'b1100;
+                2'd1: motor_data &lt;= 4'b1001;
+                2'd2: motor_data &lt;= 4'b0011;
+                2'd3: motor_data &lt;= 4'b0110;
+            endcase
+        end
+
+        step_idx &lt;= step_idx + 2'd1;
+    end
+end
+
+always @(posedge clk) begin
+    if (rst) begin
+        turn_count &lt;= 4'd0;
+        direction  &lt;= 1'b0;
+    end
+    else if (mag_rise) begin
+        if (turn_count == TURN_LIMIT - 1) begin
+            turn_count &lt;= 4'd0;
+            direction  &lt;= ~direction;
+        end
+        else begin
+            turn_count &lt;= turn_count + 4'd1;
+        end
+    end
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 5회전마다 방향 반전</strong><span class="file">motor_drive.v</span><span>VERILOG</span></span></div><pre><code>module motor_drive (
+    input        clk,
+    input        rst,
+    input        mag_sen,
+    output [3:0] motor_data
+);
+
+wire [3:0] turn_count_unused;
+wire direction_unused;
+
+motor_drive_core #(
+    .TURN_LIMIT(5)
+) u_core (
+    .clk       (clk),
+    .rst       (rst),
+    .mag_sen   (mag_sen),
+    .motor_data(motor_data),
+    .turn_count(turn_count_unused),
+    .direction (direction_unused)
+);
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 / — 회전수 FND 표시</strong><span class="file">motor_turn_fnd.v</span><span>VERILOG</span></span></div><div class="code-note">TURN_LIMIT=16으로 Core를 재사용하고 현재 회전 count를 16진 FND로 표시한다.</div><pre><code>module motor_turn_fnd (
+    input        clk,
+    input        rst,
+    input        mag_sen,
+    output [3:0] motor_data,
+    output [7:0] fnd_data,
+    output [7:0] fnd_scan
+);
+
+wire [3:0] turn_count;
+wire direction_unused;
+
+function [7:0] fnd_disp;
+input [3:0] hex;
+begin
+    case (hex)
+        4'h0: fnd_disp = 8'hC0;
+        4'h1: fnd_disp = 8'hF9;
+        4'h2: fnd_disp = 8'hA4;
+        4'h3: fnd_disp = 8'hB0;
+        4'h4: fnd_disp = 8'h99;
+        4'h5: fnd_disp = 8'h92;
+        4'h6: fnd_disp = 8'h82;
+        4'h7: fnd_disp = 8'hF8;
+        4'h8: fnd_disp = 8'h80;
+        4'h9: fnd_disp = 8'h90;
+        4'hA: fnd_disp = 8'h88;
+        4'hB: fnd_disp = 8'h83;
+        4'hC: fnd_disp = 8'hC6;
+        4'hD: fnd_disp = 8'hA1;
+        4'hE: fnd_disp = 8'h86;
+        4'hF: fnd_disp = 8'h8E;
+    endcase
+end
+endfunction
+
+motor_drive_core #(
+    .TURN_LIMIT(16)
+) u_core (
+    .clk       (clk),
+    .rst       (rst),
+    .mag_sen   (mag_sen),
+    .motor_data(motor_data),
+    .turn_count(turn_count),
+    .direction (direction_unused)
+);
+
+assign fnd_data = fnd_disp(turn_count);
+assign fnd_scan = 8'b1111_1110;
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 회전수 FND + Beep</strong><span class="file">motor_turn_fnd_beep.v</span><span>VERILOG</span></span></div><div class="code-note">mag_sen은 2-FF 동기화한 뒤 sensor HIGH 구간에서 Piezo 출력을 구동한다.</div><pre><code>module motor_turn_fnd_beep (
+    input        clk,        // 1 kHz
+    input        rst,
+    input        mag_sen,
+    output       piezo_out,
+    output [3:0] motor_data,
+    output [7:0] fnd_data,
+    output [7:0] fnd_scan
+);
+
+motor_turn_fnd u_motor_fnd (
+    .clk       (clk),
+    .rst       (rst),
+    .mag_sen   (mag_sen),
+    .motor_data(motor_data),
+    .fnd_data  (fnd_data),
+    .fnd_scan  (fnd_scan)
+);
+
+// 외부 mag_sen을 별도로 동기화하여 Piezo gating에 사용
+reg mag_meta, mag_sync;
+
+always @(posedge clk) begin
+    if (rst) begin
+        mag_meta &lt;= 1'b0;
+        mag_sync &lt;= 1'b0;
+    end
+    else begin
+        mag_meta &lt;= mag_sen;
+        mag_sync &lt;= mag_meta;
+    end
+end
+
+// 센서 HIGH 구간 동안 1kHz tone 출력
+assign piezo_out = mag_sync &amp; clk;
+
+endmodule</code></pre></div></section><section class="section" id="s127"><h2><span class="num">07</span> 12.7 Color LED 디스플레이 회로 설계</h2>
+<h3>12.7.1 RGB Toggle</h3>
+<p>자료는 red/green/blue button 자체를 각각 clock으로 사용해 toggle FF를 만든다.
+이 때문에 XDC에 <code>CLOCK_DEDICATED_ROUTE FALSE</code>를 추가하도록 설명한다.
+아래에서는 system clock을 추가하고 button을 동기화한 뒤 rising-edge pulse로 toggle한다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — RGB Toggle 권장형</strong><span class="file">cled_sync.v</span><span>VERILOG</span></span></div><div class="code-note">버튼 bounce 제거는 별도 debounce module이 필요하다. 여기서는 clock-domain 동기화와 edge detection까지만 포함한다.</div><pre><code>module cled_sync (
+    input        clk,       // 보드의 정상적인 system clock 사용
+    input        rst,
+    input        red_btn,
+    input        green_btn,
+    input        blue_btn,
+    output [2:0] led,
+    output [3:0] red_led,
+    output [3:0] green_led,
+    output [3:0] blue_led
+);
+
+reg red_meta, red_sync, red_d;
+reg green_meta, green_sync, green_d;
+reg blue_meta, blue_sync, blue_d;
+
+reg red_reg, green_reg, blue_reg;
+
+wire red_rise   = red_sync   &amp; ~red_d;
+wire green_rise = green_sync &amp; ~green_d;
+wire blue_rise  = blue_sync  &amp; ~blue_d;
+
+always @(posedge clk) begin
+    if (rst) begin
+        red_meta   &lt;= 1'b0;
+        red_sync   &lt;= 1'b0;
+        red_d      &lt;= 1'b0;
+        green_meta &lt;= 1'b0;
+        green_sync &lt;= 1'b0;
+        green_d    &lt;= 1'b0;
+        blue_meta  &lt;= 1'b0;
+        blue_sync  &lt;= 1'b0;
+        blue_d     &lt;= 1'b0;
+
+        red_reg   &lt;= 1'b0;
+        green_reg &lt;= 1'b0;
+        blue_reg  &lt;= 1'b0;
+    end
+    else begin
+        red_meta   &lt;= red_btn;
+        red_sync   &lt;= red_meta;
+        red_d      &lt;= red_sync;
+
+        green_meta &lt;= green_btn;
+        green_sync &lt;= green_meta;
+        green_d    &lt;= green_sync;
+
+        blue_meta  &lt;= blue_btn;
+        blue_sync  &lt;= blue_meta;
+        blue_d     &lt;= blue_sync;
+
+        if (red_rise)
+            red_reg &lt;= ~red_reg;
+
+        if (green_rise)
+            green_reg &lt;= ~green_reg;
+
+        if (blue_rise)
+            blue_reg &lt;= ~blue_reg;
+    end
+end
+
+assign led       = {red_reg, green_reg, blue_reg};
+assign red_led   = {4{red_reg}};
+assign green_led = {4{green_reg}};
+assign blue_led  = {4{blue_reg}};
+
+endmodule</code></pre></div>
+<h3>12.7.2 RGB 혼합 발광</h3>
+<p>1초마다 Black → Red → Green → Blue → Cyan → Yellow → Magenta → White 순서로 변경한다.
+1kHz system clock에서 1000-cycle enable을 만들어 1초 단위로 RGB 상태를 변경한다.</p>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — RGB Mix</strong><span class="file">color_mix.v</span><span>VERILOG</span></span></div><pre><code>module color_mix (
+    input        clk,        // 1 kHz
+    input        rst,
+    output [3:0] red_led,
+    output [3:0] green_led,
+    output [3:0] blue_led
+);
+
+reg [9:0] div_cnt;   // 0~999
+reg [2:0] cnt;
+reg [2:0] rgb;
+
+wire tick_1hz = (div_cnt == 10'd999);
+
+always @(posedge clk) begin
+    if (rst)
+        div_cnt &lt;= 10'd0;
+    else if (tick_1hz)
+        div_cnt &lt;= 10'd0;
+    else
+        div_cnt &lt;= div_cnt + 10'd1;
+end
+
+always @(posedge clk) begin
+    if (rst)
+        cnt &lt;= 3'd0;
+    else if (tick_1hz)
+        cnt &lt;= cnt + 3'd1;
+end
+
+always @(*) begin
+    case (cnt)
+        3'd0: rgb = 3'b000; // Black
+        3'd1: rgb = 3'b100; // Red
+        3'd2: rgb = 3'b010; // Green
+        3'd3: rgb = 3'b001; // Blue
+        3'd4: rgb = 3'b011; // Cyan
+        3'd5: rgb = 3'b110; // Yellow
+        3'd6: rgb = 3'b101; // Magenta
+        3'd7: rgb = 3'b111; // White
+        default: rgb = 3'b000;
+    endcase
+end
+
+assign red_led   = {4{rgb[2]}};
+assign green_led = {4{rgb[1]}};
+assign blue_led  = {4{rgb[0]}};
+
+endmodule</code></pre></div></section><section class="section" id="s128"><h2><span class="num">08</span> 12.8 Text LCD 문자 디스플레이 회로 설계</h2>
+<h3>12.8.1 LCD 초기화와 2라인 출력 흐름</h3>
+<p>16문자×2라인 Text LCD는 명령어별 처리시간이 필요하므로 delay counter와 FSM을 함께 사용한다.</p>
+<div class="flow"><span>100ms 대기</span><span class="arrow">→</span><span>Function Set 0x38</span><span class="arrow">→</span>
+<span>Entry Mode 0x06</span><span class="arrow">→</span><span>Display ON 0x0C</span><span class="arrow">→</span>
+<span>Line1</span><span class="arrow">→</span><span>Line2</span><span class="arrow">→</span><span>2s</span><span class="arrow">→</span>
+<span>Clear 0x01</span><span class="arrow">→</span><span>2s</span></div>
+<table><thead><tr><th>명령</th><th>값</th><th>의미</th></tr></thead><tbody>
+<tr><td>Function Set</td><td>0x38</td><td>8비트 interface, 2-line</td></tr>
+<tr><td>Entry Mode</td><td>0x06</td><td>주소 증가, display shift 없음</td></tr>
+<tr><td>Display ON</td><td>0x0C</td><td>display ON, cursor OFF</td></tr>
+<tr><td>Line1 DDRAM</td><td>0x80</td><td>첫 번째 line 시작주소</td></tr>
+<tr><td>Line2 DDRAM</td><td>0xC0</td><td>두 번째 line 시작주소</td></tr>
+<tr><td>Clear</td><td>0x01</td><td>화면 지우기</td></tr>
+</tbody></table>
+<div class="tip"><strong>LCD 제어 구조</strong><br/>
+LCD 제어는 1kHz system clock, 5ms tick enable, 하나의 state register를 사용하며 reset은 synchronous active-high로 통일한다.</div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 2라인 LCD</strong><span class="file">lcd_display.v</span><span>VERILOG</span></span></div><div class="code-note">line_idx=0은 DDRAM address, 1~16은 문자 16개를 의미한다.</div><pre><code>module lcd_display (
+    input        clk,       // 1 kHz
+    input        reset,     // synchronous active-high reset
+    output reg   lcd_e,
+    output reg   lcd_rs,
+    output       lcd_rw,
+    output reg [7:0] lcd_data
+);
+
+localparam [3:0]
+    S_DELAY_100MS = 4'd0,
+    S_FUNCTION    = 4'd1,
+    S_ENTRY       = 4'd2,
+    S_DISP_ON     = 4'd3,
+    S_LINE1       = 4'd4,
+    S_LINE2       = 4'd5,
+    S_DELAY_2S_A  = 4'd6,
+    S_CLEAR       = 4'd7,
+    S_DELAY_2S_B  = 4'd8;
+
+localparam [7:0]
+    ADDRESS_LINE1 = 8'b1000_0000,
+    ADDRESS_LINE2 = 8'b1100_0000;
+
+reg [3:0] state;
+reg [2:0] cnt_5ms;       // 0~4 : 1kHz 기준 5ms
+reg [4:0] cnt_100ms;     // 0~19
+reg [8:0] cnt_2s;        // 0~399
+reg [4:0] line_idx;      // 0: address, 1~16: character
+
+wire tick_5ms = (cnt_5ms == 3'd4);
+
+assign lcd_rw = 1'b0;    // write only
+
+function [7:0] data_line1;
+input [3:0] addr_in;
+begin
+    case (addr_in)
+        4'd0 : data_line1 = 8'h20;
+        4'd1 : data_line1 = 8'h44;
+        4'd2 : data_line1 = 8'h69;
+        4'd3 : data_line1 = 8'h67;
+        4'd4 : data_line1 = 8'h69;
+        4'd5 : data_line1 = 8'h74;
+        4'd6 : data_line1 = 8'h61;
+        4'd7 : data_line1 = 8'h6C;
+        4'd8 : data_line1 = 8'h20;
+        4'd9 : data_line1 = 8'h44;
+        4'd10: data_line1 = 8'h65;
+        4'd11: data_line1 = 8'h73;
+        4'd12: data_line1 = 8'h69;
+        4'd13: data_line1 = 8'h67;
+        4'd14: data_line1 = 8'h6E;
+        4'd15: data_line1 = 8'h20;
+        default: data_line1 = 8'h20;
+    endcase
+end
+endfunction
+
+function [7:0] data_line2;
+input [3:0] addr_in;
+begin
+    case (addr_in)
+        4'd0 : data_line2 = 8'h57;
+        4'd1 : data_line2 = 8'h69;
+        4'd2 : data_line2 = 8'h74;
+        4'd3 : data_line2 = 8'h68;
+        4'd4 : data_line2 = 8'h20;
+        4'd5 : data_line2 = 8'h56;
+        4'd6 : data_line2 = 8'h65;
+        4'd7 : data_line2 = 8'h72;
+        4'd8 : data_line2 = 8'h69;
+        4'd9 : data_line2 = 8'h6C;
+        4'd10: data_line2 = 8'h6F;
+        4'd11: data_line2 = 8'h67;
+        4'd12: data_line2 = 8'h20;
+        4'd13: data_line2 = 8'h48;
+        4'd14: data_line2 = 8'h44;
+        4'd15: data_line2 = 8'h4C;
+        default: data_line2 = 8'h20;
+    endcase
+end
+endfunction
+
+// 5ms phase counter
+always @(posedge clk) begin
+    if (reset)
+        cnt_5ms &lt;= 3'd0;
+    else if (tick_5ms)
+        cnt_5ms &lt;= 3'd0;
+    else
+        cnt_5ms &lt;= cnt_5ms + 3'd1;
+end
+
+// State + delay counters
+always @(posedge clk) begin
+    if (reset) begin
+        state      &lt;= S_DELAY_100MS;
+        cnt_100ms  &lt;= 5'd0;
+        cnt_2s     &lt;= 9'd0;
+        line_idx   &lt;= 5'd0;
+    end
+    else if (tick_5ms) begin
+        case (state)
+            S_DELAY_100MS: begin
+                if (cnt_100ms == 5'd19) begin
+                    cnt_100ms &lt;= 5'd0;
+                    state     &lt;= S_FUNCTION;
+                end
+                else
+                    cnt_100ms &lt;= cnt_100ms + 5'd1;
+            end
+
+            S_FUNCTION:
+                state &lt;= S_ENTRY;
+
+            S_ENTRY:
+                state &lt;= S_DISP_ON;
+
+            S_DISP_ON: begin
+                line_idx &lt;= 5'd0;
+                state    &lt;= S_LINE1;
+            end
+
+            S_LINE1: begin
+                if (line_idx == 5'd16) begin
+                    line_idx &lt;= 5'd0;
+                    state    &lt;= S_LINE2;
+                end
+                else
+                    line_idx &lt;= line_idx + 5'd1;
+            end
+
+            S_LINE2: begin
+                if (line_idx == 5'd16) begin
+                    line_idx &lt;= 5'd0;
+                    cnt_2s   &lt;= 9'd0;
+                    state    &lt;= S_DELAY_2S_A;
+                end
+                else
+                    line_idx &lt;= line_idx + 5'd1;
+            end
+
+            S_DELAY_2S_A: begin
+                if (cnt_2s == 9'd399) begin
+                    cnt_2s &lt;= 9'd0;
+                    state  &lt;= S_CLEAR;
+                end
+                else
+                    cnt_2s &lt;= cnt_2s + 9'd1;
+            end
+
+            S_CLEAR: begin
+                cnt_2s &lt;= 9'd0;
+                state  &lt;= S_DELAY_2S_B;
+            end
+
+            S_DELAY_2S_B: begin
+                if (cnt_2s == 9'd399) begin
+                    cnt_2s   &lt;= 9'd0;
+                    line_idx &lt;= 5'd0;
+                    state    &lt;= S_LINE1;
+                end
+                else
+                    cnt_2s &lt;= cnt_2s + 9'd1;
+            end
+
+            default: begin
+                state     &lt;= S_DELAY_100MS;
+                cnt_100ms &lt;= 5'd0;
+                cnt_2s    &lt;= 9'd0;
+                line_idx  &lt;= 5'd0;
+            end
+        endcase
+    end
+end
+
+// LCD RS / DATA / E generation
+always @(*) begin
+    lcd_rs   = 1'b0;
+    lcd_data = 8'h00;
+    lcd_e    = 1'b0;
+
+    case (state)
+        S_FUNCTION: begin
+            lcd_data = 8'b0011_1000;   // 8-bit, 2-line
+            lcd_e    = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
+        S_ENTRY: begin
+            lcd_data = 8'b0000_0110;   // increment, no shift
+            lcd_e    = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
+        S_DISP_ON: begin
+            lcd_data = 8'b0000_1100;   // display on, cursor off
+            lcd_e    = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
+        S_LINE1: begin
+            if (line_idx == 0) begin
+                lcd_rs   = 1'b0;
+                lcd_data = ADDRESS_LINE1;
+            end
+            else begin
+                lcd_rs   = 1'b1;
+                lcd_data = data_line1(line_idx - 1'b1);
+            end
+            lcd_e = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
+        S_LINE2: begin
+            if (line_idx == 0) begin
+                lcd_rs   = 1'b0;
+                lcd_data = ADDRESS_LINE2;
+            end
+            else begin
+                lcd_rs   = 1'b1;
+                lcd_data = data_line2(line_idx - 1'b1);
+            end
+            lcd_e = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
+        S_CLEAR: begin
+            lcd_rs   = 1'b0;
+            lcd_data = 8'b0000_0001;   // clear display
+            lcd_e    = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
+        default: begin
+            lcd_rs   = 1'b0;
+            lcd_data = 8'h00;
+            lcd_e    = 1'b0;
+        end
+    endcase
+end
+
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Line 1 ASCII 함수 완성 코드</strong><span>VERILOG</span></span></div><pre><code>function [7:0] data_line1;
+input [3:0] addr_in;
+begin
+    case (addr_in)
         4'd0 : data_line1 = 8'h20; // space
         4'd1 : data_line1 = 8'h44; // D
         4'd2 : data_line1 = 8'h69; // i
@@ -283,626 +1745,406 @@ begin
         default: data_line1 = 8'h20;
     endcase
 end
-endfunction</code></pre></div><div class="note"><strong>주소 폭과 용량</strong><br/>n비트 주소는 최대 2^n개의 항목을 선택할 수 있다. 이 예는 4비트 주소이므로 최대 16개 항목이다.</div>
-<div class="task"><div class="title">설계과제 10-4</div><p>4비트 BCD 입력을 8비트 FND 데이터로 변환하는 진리표를 모델링하고 검증한다.</p></div>
-</section><section class="section" id="mux">
-<h2><span class="num">05</span> 10.2 멀티플렉서</h2><p>4개의 4비트 입력 중 하나를 2비트 <code>sel</code>로 선택한다. if, 조건 연산자, case 세 표현이 같은 MUX로 합성되는 것을 보여준다.</p>
-<h3>6.1 코드 10-14 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux4to1_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux4to1_if (
-    input [3:0] a, b, c, d,
-    input [1:0] sel,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] mux_out
-);
-always @(sel or a or b or c or d) begin
-    if      (sel == 2'b00) mux_out = a;
-    else if (sel == 2'b01) mux_out = b;
-    else if (sel == 2'b10) mux_out = c;
-    else if (sel == 2'b11) mux_out = d;
-    else                    mux_out = 4'bx;
-end
-endmodule</code></pre></div>
-<h3>6.2 코드 10-15 — 조건 연산자</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux4to1_conop.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux4to1_conop (
-    input [3:0] a, b, c, d,
-    input [1:0] sel,
-    output [3:0] mux_out
-);
-assign mux_out =
-    (sel == 0) ? a :
-    (sel == 1) ? b :
-    (sel == 2) ? c :
-    (sel == 3) ? d : 4'bx;
-endmodule</code></pre></div>
-<h3>6.3 코드 10-16 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux4to1_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux4to1_case (
-    input [3:0] a, b, c, d,
-    input [1:0] sel,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] mux_out
-);
-always @(sel or a or b or c or d) begin
-    case (sel)
-        0: mux_out = a;
-        1: mux_out = b;
-        2: mux_out = c;
-        3: mux_out = d;
-        default: mux_out = 4'bx;
+endfunction</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Line 2 ASCII 함수 완성 코드</strong><span>VERILOG</span></span></div><pre><code>function [7:0] data_line2;
+input [3:0] addr_in;
+begin
+    case (addr_in)
+        4'd0 : data_line2 = 8'h57; // W
+        4'd1 : data_line2 = 8'h69; // i
+        4'd2 : data_line2 = 8'h74; // t
+        4'd3 : data_line2 = 8'h68; // h
+        4'd4 : data_line2 = 8'h20; // space
+        4'd5 : data_line2 = 8'h56; // V
+        4'd6 : data_line2 = 8'h65; // e
+        4'd7 : data_line2 = 8'h72; // r
+        4'd8 : data_line2 = 8'h69; // i
+        4'd9 : data_line2 = 8'h6C; // l
+        4'd10: data_line2 = 8'h6F; // o
+        4'd11: data_line2 = 8'h67; // g
+        4'd12: data_line2 = 8'h20; // space
+        4'd13: data_line2 = 8'h48; // H
+        4'd14: data_line2 = 8'h44; // D
+        4'd15: data_line2 = 8'h4C; // L
+        default: data_line2 = 8'h20;
     endcase
 end
-endmodule</code></pre></div>
-<h3>6.4 코드 10-17 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_mux41.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_mux41;
+endfunction</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>Testbench — LCD state/timing 확인</strong><span class="file">tb_lcd_display.v</span><span>VERILOG</span></span></div><div class="code-note">실제 LCD analog timing을 모델링하는 것이 아니라 lcd_e/lcd_rs/lcd_data sequence가 예상대로 발생하는지 보는 RTL 테스트벤치다.</div><pre><code>`timescale 1us/1ns
 
-reg  [3:0] a, b, c, d;
-reg  [1:0] sel;
-wire [3:0] mux_if;
-wire [3:0] mux_case;
-wire [3:0] mux_conop;
+module tb_lcd_display;
 
-mux4to1_if u0 (
-    a, b, c, d, sel, mux_if
+reg clk;
+reg reset;
+wire lcd_e;
+wire lcd_rs;
+wire lcd_rw;
+wire [7:0] lcd_data;
+
+lcd_display dut (
+    .clk     (clk),
+    .reset   (reset),
+    .lcd_e   (lcd_e),
+    .lcd_rs  (lcd_rs),
+    .lcd_rw  (lcd_rw),
+    .lcd_data(lcd_data)
 );
 
-mux4to1_case u1 (
-    a, b, c, d, sel, mux_case
-);
-
-mux4to1_conop u2 (
-    a, b, c, d, sel, mux_conop
-);
-
+// 1 kHz
 initial begin
-    a = 4'b0001;
-    b = 4'b0010;
-    c = 4'b0100;
-    d = 4'b1000;
-    sel = 2'b00;
-
-    #80;
-    a = 4'b1100;
-    b = 4'b0011;
-    c = 4'b0110;
-    d = 4'b1001;
-
-    #80 $finish;
+    clk = 1'b0;
+    forever #500 clk = ~clk;
 end
 
-always
-    #20 sel = sel + 1'b1;
+initial begin
+    reset = 1'b1;
+    repeat (3) @(posedge clk);
+    reset = 1'b0;
+
+    // 100ms 초기화 + 2라인 표시 + 2초 + clear 일부 확인
+    #3_000_000;
+    $finish;
+end
+
+endmodule</code></pre></div>
+<h3>12.8.2 2-Frame LCD Display</h3>
+<p>12.8.2는 첫 번째 frame을 2초 표시한 뒤 두 번째 frame으로 전환하고 다시 반복한다. 두 번째 frame은 "FPGA RTL DESIGN "과 "DIGITAL SYSTEM "을 16문자 예시 문자열로 사용한다.</p>
+<div class="flow"><span>초기화</span><span class="arrow">→</span><span>Frame 1 Line1/2</span><span class="arrow">→ 2s</span>
+<span>Frame 2 Line1/2</span><span class="arrow">→ 2s</span><span>Clear</span><span class="arrow">→</span><span>Frame 1 반복</span></div>
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 2-Frame LCD</strong><span class="file">lcd_2frame_disp.v</span><span>VERILOG</span></span></div><div class="code-note">두 번째 frame 문자열은 예시값이므로 필요하면 원하는 ASCII 문자열로 교체한다.</div><pre><code>module lcd_2frame_disp (
+    input        clk,       // 1 kHz
+    input        reset,
+    output reg   lcd_e,
+    output reg   lcd_rs,
+    output       lcd_rw,
+    output reg [7:0] lcd_data
+);
+
+localparam [3:0]
+    S_DELAY_100MS = 4'd0,
+    S_FUNCTION    = 4'd1,
+    S_ENTRY       = 4'd2,
+    S_DISP_ON     = 4'd3,
+    S_LINE1       = 4'd4,
+    S_LINE2       = 4'd5,
+    S_DELAY_2S_A  = 4'd6,
+    S_LINE3       = 4'd7,
+    S_LINE4       = 4'd8,
+    S_DELAY_2S_B  = 4'd9,
+    S_CLEAR       = 4'd10;
+
+localparam [7:0]
+    ADDRESS_LINE1 = 8'b1000_0000,
+    ADDRESS_LINE2 = 8'b1100_0000;
+
+reg [3:0] state;
+reg [2:0] cnt_5ms;
+reg [4:0] cnt_100ms;
+reg [8:0] cnt_2s;
+reg [4:0] line_idx;
+
+wire tick_5ms = (cnt_5ms == 3'd4);
+assign lcd_rw = 1'b0;
+
+function [7:0] data_line1;
+input [3:0] a;
+begin
+    case (a)
+        0: data_line1=8'h20; 1: data_line1=8'h44;
+        2: data_line1=8'h69; 3: data_line1=8'h67;
+        4: data_line1=8'h69; 5: data_line1=8'h74;
+        6: data_line1=8'h61; 7: data_line1=8'h6C;
+        8: data_line1=8'h20; 9: data_line1=8'h44;
+        10:data_line1=8'h65; 11:data_line1=8'h73;
+        12:data_line1=8'h69; 13:data_line1=8'h67;
+        14:data_line1=8'h6E; 15:data_line1=8'h20;
+        default:data_line1=8'h20;
+    endcase
+end
+endfunction
+
+function [7:0] data_line2;
+input [3:0] a;
+begin
+    case (a)
+        0:data_line2=8'h57; 1:data_line2=8'h69;
+        2:data_line2=8'h74; 3:data_line2=8'h68;
+        4:data_line2=8'h20; 5:data_line2=8'h56;
+        6:data_line2=8'h65; 7:data_line2=8'h72;
+        8:data_line2=8'h69; 9:data_line2=8'h6C;
+        10:data_line2=8'h6F; 11:data_line2=8'h67;
+        12:data_line2=8'h20; 13:data_line2=8'h48;
+        14:data_line2=8'h44; 15:data_line2=8'h4C;
+        default:data_line2=8'h20;
+    endcase
+end
+endfunction
+
+// 두 번째 프레임: "FPGA RTL DESIGN " / "DIGITAL SYSTEM  "
+function [7:0] data_line3;
+input [3:0] a;
+begin
+    case (a)
+        0:data_line3=8'h46;  1:data_line3=8'h50;  // F P
+        2:data_line3=8'h47;  3:data_line3=8'h41;  // G A
+        4:data_line3=8'h20;  5:data_line3=8'h52;  //   R
+        6:data_line3=8'h54;  7:data_line3=8'h4C;  // T L
+        8:data_line3=8'h20;  9:data_line3=8'h44;  //   D
+        10:data_line3=8'h45; 11:data_line3=8'h53; // E S
+        12:data_line3=8'h49; 13:data_line3=8'h47; // I G
+        14:data_line3=8'h4E; 15:data_line3=8'h20; // N
+        default:data_line3=8'h20;
+    endcase
+end
+endfunction
+
+function [7:0] data_line4;
+input [3:0] a;
+begin
+    case (a)
+        0:data_line4=8'h44;  1:data_line4=8'h49;  // D I
+        2:data_line4=8'h47;  3:data_line4=8'h49;  // G I
+        4:data_line4=8'h54;  5:data_line4=8'h41;  // T A
+        6:data_line4=8'h4C;  7:data_line4=8'h20;  // L
+        8:data_line4=8'h53;  9:data_line4=8'h59;  // S Y
+        10:data_line4=8'h53; 11:data_line4=8'h54; // S T
+        12:data_line4=8'h45; 13:data_line4=8'h4D; // E M
+        14:data_line4=8'h20; 15:data_line4=8'h20;
+        default:data_line4=8'h20;
+    endcase
+end
+endfunction
+
+always @(posedge clk) begin
+    if (reset)
+        cnt_5ms &lt;= 3'd0;
+    else if (tick_5ms)
+        cnt_5ms &lt;= 3'd0;
+    else
+        cnt_5ms &lt;= cnt_5ms + 3'd1;
+end
+
+always @(posedge clk) begin
+    if (reset) begin
+        state     &lt;= S_DELAY_100MS;
+        cnt_100ms &lt;= 5'd0;
+        cnt_2s    &lt;= 9'd0;
+        line_idx  &lt;= 5'd0;
+    end
+    else if (tick_5ms) begin
+        case (state)
+            S_DELAY_100MS: begin
+                if (cnt_100ms == 5'd19) begin
+                    cnt_100ms &lt;= 0;
+                    state &lt;= S_FUNCTION;
+                end
+                else
+                    cnt_100ms &lt;= cnt_100ms + 1'b1;
+            end
+
+            S_FUNCTION: state &lt;= S_ENTRY;
+            S_ENTRY   : state &lt;= S_DISP_ON;
+
+            S_DISP_ON: begin
+                line_idx &lt;= 0;
+                state &lt;= S_LINE1;
+            end
+
+            S_LINE1: begin
+                if (line_idx == 16) begin
+                    line_idx &lt;= 0;
+                    state &lt;= S_LINE2;
+                end
+                else line_idx &lt;= line_idx + 1'b1;
+            end
+
+            S_LINE2: begin
+                if (line_idx == 16) begin
+                    line_idx &lt;= 0;
+                    cnt_2s &lt;= 0;
+                    state &lt;= S_DELAY_2S_A;
+                end
+                else line_idx &lt;= line_idx + 1'b1;
+            end
+
+            S_DELAY_2S_A: begin
+                if (cnt_2s == 399) begin
+                    cnt_2s &lt;= 0;
+                    line_idx &lt;= 0;
+                    state &lt;= S_LINE3;
+                end
+                else cnt_2s &lt;= cnt_2s + 1'b1;
+            end
+
+            S_LINE3: begin
+                if (line_idx == 16) begin
+                    line_idx &lt;= 0;
+                    state &lt;= S_LINE4;
+                end
+                else line_idx &lt;= line_idx + 1'b1;
+            end
+
+            S_LINE4: begin
+                if (line_idx == 16) begin
+                    line_idx &lt;= 0;
+                    cnt_2s &lt;= 0;
+                    state &lt;= S_DELAY_2S_B;
+                end
+                else line_idx &lt;= line_idx + 1'b1;
+            end
+
+            S_DELAY_2S_B: begin
+                if (cnt_2s == 399) begin
+                    cnt_2s &lt;= 0;
+                    state &lt;= S_CLEAR;
+                end
+                else cnt_2s &lt;= cnt_2s + 1'b1;
+            end
+
+            S_CLEAR: begin
+                line_idx &lt;= 0;
+                state &lt;= S_LINE1;
+            end
+
+            default: state &lt;= S_DELAY_100MS;
+        endcase
+    end
+end
 
 always @(*) begin
-    if ((mux_if !== mux_case) ||
-        (mux_if !== mux_conop))
-        $display(
-            "MUX mismatch: t=%0t sel=%b if=%h case=%h conop=%h",
-            $time, sel, mux_if, mux_case, mux_conop
-        );
-end
+    lcd_rs   = 1'b0;
+    lcd_data = 8'h00;
+    lcd_e    = 1'b0;
 
-endmodule</code></pre></div>
-<div class="task"><div class="title">설계과제 10-5</div><p>8비트 입력 벡터 중 한 비트를 3비트 sel로 선택하는 8:1 MUX를 case로 완성한다.</p></div>
-</section><section class="section" id="encoder">
-<h2><span class="num">06</span> 10.3.1 4:2 이진 인코더</h2>
-<table class="truth"><thead><tr><th>enc_in[3:0]</th><th>enc_out[1:0]</th></tr></thead><tbody><tr><td>0001</td><td>00</td></tr><tr><td>0010</td><td>01</td></tr><tr><td>0100</td><td>10</td></tr><tr><td>1000</td><td>11</td></tr></tbody></table>
-<h3>7.1 코드 10-19 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module enc_4to2_case (
-    input [3:0] enc_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [1:0] enc_out
-);
-always @(enc_in) begin
-    case (enc_in)
-        4'b0001: enc_out = 2'b00;
-        4'b0010: enc_out = 2'b01;
-        4'b0100: enc_out = 2'b10;
-        4'b1000: enc_out = 2'b11;
-        default: enc_out = 2'bxx;
-    endcase
-end
-endmodule</code></pre></div>
-<h3>7.2 코드 10-20 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module enc_4to2_if (
-    input [3:0] enc_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [1:0] enc_out
-);
-always @(enc_in) begin
-    if      (enc_in == 4'b0001) enc_out = 2'b00;
-    else if (enc_in == 4'b0010) enc_out = 2'b01;
-    else if (enc_in == 4'b0100) enc_out = 2'b10;
-    else if (enc_in == 4'b1000) enc_out = 2'b11;
-    else                         enc_out = 2'bxx;
-end
-endmodule</code></pre></div>
-<h3>7.3 코드 10-21 — for</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module enc_4to2_for (
-    input [3:0] enc_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [1:0] enc_out
-);
-reg [3:0] temp;
-integer n;
-always @(enc_in) begin
-    temp = 4'b0001;
-    enc_out = 2'bxx;
-    for (n = 0; n &lt; 4; n = n + 1) begin
-        if (enc_in == temp) enc_out = n;
-        temp = temp &lt;&lt; 1;
-    end
-end
-endmodule</code></pre></div>
-<h3>7.4 코드 10-22 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_enc_4to2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_enc_4to2;
-reg [3:0] in;
-wire [1:0] out;
-enc_4to2_case U0 (.enc_in(in), .enc_out(out));
-initial begin
-    in = 4'b0001;
-    #20 in = 4'b0010;
-    #20 in = 4'b0100;
-    #20 in = 4'b1000;
-    #20 in = 4'b0000;
-    #20 in = 4'b1111;
-    #20 $finish;
-end
-endmodule</code></pre></div>
-<div class="task"><div class="title">설계과제 10-6</div><p>active-low enable을 갖는 4:2 인코더를 case / if / for로 구현한다.</p></div>
-</section><section class="section" id="priority">
-<h2><span class="num">07</span> 10.3.2 우선순위 인코더</h2>
-<p>여러 입력이 동시에 1일 수 있고, MSB인 <code>enc_in[3]</code>이 가장 높은 우선순위를 갖는다. <code>valid</code>는 입력에 최소 한 개의 1이 존재할 때 1이다.</p>
-<table class="truth"><thead><tr><th>enc_in</th><th>enc_out</th><th>valid</th></tr></thead><tbody><tr><td>1xxx</td><td>11</td><td>1</td></tr><tr><td>01xx</td><td>10</td><td>1</td></tr><tr><td>001x</td><td>01</td><td>1</td></tr><tr><td>0001</td><td>00</td><td>1</td></tr><tr><td>0000</td><td>xx</td><td>0</td></tr></tbody></table>
-<h3>8.1 코드 10-23 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_4to2_if (
-    input [3:0] enc_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg valid,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [1:0] enc_out
-);
-always @(enc_in) begin
-    valid = 1'b1;
-    if      (enc_in[3]) enc_out = 2'b11;
-    else if (enc_in[2]) enc_out = 2'b10;
-    else if (enc_in[1]) enc_out = 2'b01;
-    else if (enc_in[0]) enc_out = 2'b00;
-    else begin
-        valid = 1'b0;
-        enc_out = 2'bxx;
-    end
-end
-endmodule</code></pre></div>
-<h3>8.2 코드 10-24 — casex</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_4to2_case (
-    input [3:0] enc_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg valid,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [1:0] enc_out
-);
-always @(enc_in) begin
-    valid = 1'b1;
-    casex (enc_in)
-        4'b1xxx: enc_out = 2'b11;
-        4'b01xx: enc_out = 2'b10;
-        4'b001x: enc_out = 2'b01;
-        4'b0001: enc_out = 2'b00;
+    case (state)
+        S_FUNCTION: begin
+            lcd_data = 8'h38;
+            lcd_e = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+        S_ENTRY: begin
+            lcd_data = 8'h06;
+            lcd_e = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+        S_DISP_ON: begin
+            lcd_data = 8'h0C;
+            lcd_e = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
+        S_LINE1, S_LINE2, S_LINE3, S_LINE4: begin
+            if (line_idx == 0) begin
+                lcd_rs = 1'b0;
+                if ((state == S_LINE1) || (state == S_LINE3))
+                    lcd_data = ADDRESS_LINE1;
+                else
+                    lcd_data = ADDRESS_LINE2;
+            end
+            else begin
+                lcd_rs = 1'b1;
+                case (state)
+                    S_LINE1: lcd_data = data_line1(line_idx - 1'b1);
+                    S_LINE2: lcd_data = data_line2(line_idx - 1'b1);
+                    S_LINE3: lcd_data = data_line3(line_idx - 1'b1);
+                    S_LINE4: lcd_data = data_line4(line_idx - 1'b1);
+                    default: lcd_data = 8'h20;
+                endcase
+            end
+            lcd_e = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
+        S_CLEAR: begin
+            lcd_data = 8'h01;
+            lcd_e = (cnt_5ms &gt;= 1 &amp;&amp; cnt_5ms &lt;= 3);
+        end
+
         default: begin
-            valid = 1'b0;
-            enc_out = 2'bxx;
+            lcd_rs = 1'b0;
+            lcd_data = 8'h00;
+            lcd_e = 1'b0;
         end
     endcase
 end
-endmodule</code></pre></div>
-<h3>8.3 코드 10-25 — for + disable</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_4to2_for (
-    input [3:0] enc_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg valid,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [1:0] enc_out
-);
-integer n;
-always @(enc_in) begin : Loop
-    valid = 0;
-    enc_out = 2'bxx;
-    for (n = 3; n &gt;= 0; n = n - 1)
-        if (enc_in[n]) begin
-            valid = 1;
-            enc_out = n;
-            disable Loop;
-        end
-end
-endmodule</code></pre></div>
-<h3>8.4 코드 10-26 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_pri_enc_4to2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_pri_enc_4to2;
-reg [3:0] in;
-wire [1:0] out;
-wire valid;
-integer i;
-pri_enc_4to2_case U0 (.enc_in(in), .valid(valid), .enc_out(out));
-initial begin
-    for (i = 0; i &lt;= 15; i = i + 1) begin
-        in = i;
-        #10;
-    end
-    #10 $finish;
-end
-endmodule</code></pre></div>
-<div class="task"><div class="title">설계과제 10-7</div><p>active-high enable을 갖는 4:2 우선순위 인코더를 case / if / for로 구현한다.</p></div>
-</section><section class="section" id="decoder">
-<h2><span class="num">08</span> 10.3.3 디코더</h2>
-<table class="truth"><thead><tr><th>dec_in</th><th>dec_out</th></tr></thead><tbody><tr><td>00</td><td>0001</td></tr><tr><td>01</td><td>0010</td></tr><tr><td>10</td><td>0100</td></tr><tr><td>11</td><td>1000</td></tr></tbody></table>
-<h3>9.1 코드 10-27 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_2to4_case (
-    input [1:0] dec_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] dec_out
-);
-always @(dec_in) begin
-    case (dec_in)
-        0: dec_out = 4'b0001;
-        1: dec_out = 4'b0010;
-        2: dec_out = 4'b0100;
-        3: dec_out = 4'b1000;
-        default: dec_out = 4'bxxxx;
-    endcase
-end
-endmodule</code></pre></div>
-<h3>9.2 코드 10-28 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_2to4_if (
-    input [1:0] dec_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] dec_out
-);
-always @(dec_in) begin
-    if      (dec_in == 0) dec_out = 4'b0001;
-    else if (dec_in == 1) dec_out = 4'b0010;
-    else if (dec_in == 2) dec_out = 4'b0100;
-    else if (dec_in == 3) dec_out = 4'b1000;
-    else                  dec_out = 4'bxxxx;
-end
-endmodule</code></pre></div>
-<h3>9.3 코드 10-29 — for</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_2to4_for (
-    input [1:0] dec_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] dec_out
-);
-integer n;
-always @(dec_in) begin
-    for (n = 0; n &lt;= 3; n = n + 1) begin
-        if (dec_in == n) dec_out[n] = 1'b1;
-        else             dec_out[n] = 1'b0;
-    end
-end
-endmodule</code></pre></div>
-<h3>9.4 코드 10-30 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dec_2to4.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dec_2to4;
-reg [1:0] dec_in;
-wire [3:0] dec_out;
-dec_2to4_case U0 (dec_in, dec_out);
-initial begin
-    dec_in = 2'b00;
-    #20 dec_in = 2'b01;
-    #20 dec_in = 2'b10;
-    #20 dec_in = 2'b11;
-    #20 $finish;
-end
-endmodule</code></pre></div>
-<div class="task"><div class="title">설계과제 10-8</div><p>active-high enable을 갖는 3:6 디코더를 if 방식과 <code>{en,dec_in}</code> 결합 case 방식으로 구현한다.</p></div>
-<h3>9.5 코드 10-31 — 파라미터화된 디코더</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_param.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_param (
-    input en,
-    input [IN_WIDTH-1:0] dec_in,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [OUT_WIDTH-1:0] dec_out
-);
-parameter IN_WIDTH = 3, OUT_WIDTH = 8;
-integer n;
-always @(en, dec_in) begin
-    if (!en)
-        dec_out = 0;
-    else if (dec_in &gt; OUT_WIDTH - 1)
-        for (n = 0; n &lt;= OUT_WIDTH - 1; n = n + 1)
-            dec_out[n] = 1'bx;
-    else begin
-        for (n = 0; n &lt;= OUT_WIDTH - 1; n = n + 1)
-            if (dec_in == n) dec_out[n] = 1'b1;
-            else             dec_out[n] = 1'b0;
-    end
-end
-endmodule</code></pre></div>
-<h3>9.6 코드 10-32 — 3:6 인스턴스</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_3to6_param.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_3to6_param (
-    input en,
-    input [2:0] addr,
-    output [5:0] dec_addr
-);
 
-dec_param #(3, 6) decoder_3to6 (
-    en, addr, dec_addr
-);
-
-endmodule</code></pre></div>
-</section><section class="section" id="comp">
-<h2><span class="num">09</span> 10.4 비교기</h2>
-<h3>10.1 코드 10-33 — 관계 연산자</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">comp_assign.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module comp_assign (
-    input [3:0] a,
-    input [3:0] b,
-    output aeqb,
-    output agtb,
-    output altb
-);
-assign aeqb = (a == b);
-assign agtb = (a &gt; b);
-assign altb = (a &lt; b);
-endmodule</code></pre></div>
-<h3>10.2 코드 10-34 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">comp_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module comp_if (
-    input [3:0] a,
-    input [3:0] b,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg aeqb,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg agtb,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg altb
-);
-always @(a or b) begin
-    aeqb = 1'b0;
-    agtb = 1'b0;
-    altb = 1'b0;
-    if (a == b)      aeqb = 1'b1;
-    else if (a &gt; b) agtb = 1'b1;
-    else             altb = 1'b1;
-end
-endmodule</code></pre></div>
-<div class="note"><strong>래치 방지</strong><br/>세 출력에 기본값 0을 먼저 주고 조건에서 필요한 출력만 1로 덮어쓴다.</div>
-<h3>10.3 코드 10-35 — MSB 우선 for 비교</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">comp_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module comp_for (
-    input [SIZE-1:0] a,
-    input [SIZE-1:0] b,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg aeqb,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg agtb,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg altb
-);
-parameter SIZE = 4;
-integer i;
-always @(a or b) begin : Loop_Comp
-    aeqb = 1'b1;
-    agtb = 1'b0;
-    altb = 1'b0;
-    for (i = SIZE-1; i &gt;= 0; i = i - 1) begin
-        if (a[i] != b[i]) begin
-            agtb = a[i];
-            altb = ~a[i];
-            aeqb = 1'b0;
-            disable Loop_Comp;
-        end
-    end
-end
-endmodule</code></pre></div>
-<h3>10.4 코드 10-36 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_comp.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_comp;
-reg [3:0] a, b;
-wire aeqb, agtb, altb;
-comp_assign U0 (a, b, aeqb, agtb, altb);
-initial begin
-    a = 4'b0001; b = 4'b1001;
-    #10 a = 4'b0010; b = 4'b0000;
-    #10 a = 4'b1100; b = 4'b1101;
-    #10 a = 4'b1001; b = 4'b1001;
-    #10 a = 4'b0111; b = 4'b0100;
-    #10 a = 4'b1111; b = 4'b1111;
-    #10 a = 4'b1101; b = 4'b1001;
-    #10 a = 4'b0000; b = 4'b0000;
-    #10 a = 4'b1010; b = 4'b1010;
-    #10 a = 4'b0001; b = 4'b1011;
-    #20 $finish;
-end
-endmodule</code></pre></div>
-</section><section class="section" id="bus">
-<h2><span class="num">10</span> 10.5 3상태 버스</h2>
-<p>여러 신호원이 공통 버스를 공유할 때 선택되지 않은 드라이버는 high-impedance(<code>z</code>) 상태가 되어 버스에서 격리되어야 한다.</p>
-<h3>11.1 코드 10-37 — 조건 연산자</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bus_driver_conop.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module bus_driver_conop (
-    input [7:0] data_A,
-    input enA,
-    input [7:0] data_B,
-    input enB,
-    output [7:0] bus_data
-);
-assign bus_data =
-    enA ? data_A :
-    enB ? data_B : 8'hzz;
-endmodule</code></pre></div><div class="note"><strong>우선순위</strong><br/>enA와 enB가 동시에 1이면 이 코드에서는 data_A가 선택된다.</div>
-<h3>11.2 코드 10-38 — bufif1 배열</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bus_driver_gp.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module bus_driver_gp (
-    input [7:0] data_A,
-    input enA,
-    input [7:0] data_B,
-    input enB,
-    output [7:0] bus_data
-);
-bufif1 bf1 [7:0] (bus_data, data_A, enA);
-bufif1 bf2 [7:0] (bus_data, data_B, enB);
-endmodule</code></pre></div><div class="warn"><strong>복수 드라이버 충돌</strong><br/>두 enable이 동시에 활성되고 data가 다르면 공유 net에 충돌이 발생할 수 있으므로 상호 배타적 제어가 필요하다.</div>
-<h3>11.3 코드 10-39 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_bus_driver.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_bus_driver;
-reg enA, enB;
-reg [7:0] data_A, data_B;
-wire [7:0] bus_data;
-bus_driver_conop U0 (data_A, enA, data_B, enB, bus_data);
-initial begin
-    enA = 1'b0; enB = 1'b0;
-    #5 data_A = 8'h33; data_B = 8'h88;
-    #5  enA = 1'b1;
-    #20 enA = 1'b0;
-    #20 enB = 1'b1;
-    #20 enB = 1'b0;
-    #10 data_A = 8'h2a; data_B = 8'hff;
-    #5  enA = 1'b1;
-    #20 enA = 1'b0;
-    #20 enB = 1'b1;
-    #20 enB = 1'b0;
-    #10 $finish;
-end
-endmodule</code></pre></div>
-<h3>11.4 코드 10-40 — 양방향 버스</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bidir_bus.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module bidir_bus (
-    input send,
-    input [7:0] data_to_bus,
-    input rcv,
-    output [7:0] data_from_bus,
-    inout [7:0] bus_data
-);
-assign data_from_bus = rcv ? bus_data : 8'hzz;
-assign bus_data = send ? data_to_bus : 8'hzz;
-endmodule</code></pre></div>
-<h3>11.5 코드 10-41 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_bidir_bus.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_bidir_bus;
-reg send, rcv;
-reg [7:0] data_to_bus;
-wire [7:0] data_from_bus, bus_data;
-bidir_bus U0 (send, data_to_bus, rcv, data_from_bus, bus_data);
-initial begin
-    send = 1'b0; rcv = 1'b0;
-    #5 data_to_bus = 8'h55;
-    #5  send = 1'b1;
-    #20 send = 1'b0;
-    #20 rcv = 1'b1;
-    #20 rcv = 1'b0;
-    #10 data_to_bus = 8'h87;
-    #5  send = 1'b1;
-    #20 send = 1'b0;
-    #20 rcv = 1'b1;
-    #20 rcv = 1'b0;
-    #20 $finish;
-end
-endmodule</code></pre></div>
-<div class="task"><div class="title">설계과제 10-9 — Multiplexed Bus Driver</div><p>10-18처럼 MUX로 신호원을 선택한 뒤 하나의 버스 드라이버를 사용하여 버스 부하를 줄이는 구조를 조건 연산자로 모델링한다.</p></div>
-</section><section class="section" id="latch">
-<h2><span class="num">11</span> 10.6 case 문과 if 문의 합성</h2>
-<p>조합회로에서 일부 입력 조건에 대한 출력 할당이 빠지면 이전 값을 유지해야 하므로 latch가 합성된다.</p>
-<h3>12.1 코드 10-42 — 불완전한 case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_latch.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module case_latch (
-    input [1:0] sel,
-    input [7:0] in1,
-    input [7:0] in2,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] out
-);
-always @(sel, in1, in2) begin
-    case (sel)
-        2'b01: out = in1;
-        2'b10: out = in2;
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — data_line3 예시</strong><span>VERILOG</span></span></div><pre><code>function [7:0] data_line3;
+input [3:0] addr_in;
+begin
+    case (addr_in)
+        4'd0 : data_line3 = 8'h59; // Y
+        4'd1 : data_line3 = 8'h4F; // O
+        4'd2 : data_line3 = 8'h55; // U
+        4'd3 : data_line3 = 8'h52; // R
+        4'd4 : data_line3 = 8'h20; // space
+        4'd5 : data_line3 = 8'h4E; // N
+        4'd6 : data_line3 = 8'h41; // A
+        4'd7 : data_line3 = 8'h4D; // M
+        4'd8 : data_line3 = 8'h45; // E
+        4'd9 : data_line3 = 8'h20;
+        4'd10: data_line3 = 8'h20;
+        4'd11: data_line3 = 8'h20;
+        4'd12: data_line3 = 8'h20;
+        4'd13: data_line3 = 8'h20;
+        4'd14: data_line3 = 8'h20;
+        4'd15: data_line3 = 8'h20;
+        default: data_line3 = 8'h20;
     endcase
 end
-endmodule</code></pre></div><div class="flow"><span>sel=01 → in1</span><span>sel=10 → in2</span><span>sel=00/11 → 할당 없음</span><span class="arrow">→</span><span>이전값 유지 → latch</span></div>
-<h3>12.2 코드 10-43 — else가 없는 if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_latch.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_latch (
-    input [1:0] sel,
-    input [7:0] in1,
-    input [7:0] in2,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] out
-);
-always @(sel, in1, in2) begin
-    if (sel == 2'b01) out = in1;
-    else if (sel == 2'b10) out = in2;
-end
-endmodule</code></pre></div>
-<h3>12.3 코드 10-44 — default로 완전 할당</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_no_latch.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module case_no_latch (
-    input [1:0] sel,
-    input [7:0] in1,
-    input [7:0] in2,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] out
-);
-always @(sel, in1, in2) begin
-    case (sel)
-        2'b01: out = in1;
-        2'b10: out = in2;
-        default: out = 8'hxx;
+endfunction</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — data_line4 예시</strong><span>VERILOG</span></span></div><pre><code>function [7:0] data_line4;
+input [3:0] addr_in;
+begin
+    case (addr_in)
+        4'd0 : data_line4 = 8'h59; // Y
+        4'd1 : data_line4 = 8'h4F; // O
+        4'd2 : data_line4 = 8'h55; // U
+        4'd3 : data_line4 = 8'h52; // R
+        4'd4 : data_line4 = 8'h20;
+        4'd5 : data_line4 = 8'h53; // S
+        4'd6 : data_line4 = 8'h43; // C
+        4'd7 : data_line4 = 8'h48; // H
+        4'd8 : data_line4 = 8'h4F; // O
+        4'd9 : data_line4 = 8'h4F; // O
+        4'd10: data_line4 = 8'h4C; // L
+        4'd11: data_line4 = 8'h20;
+        4'd12: data_line4 = 8'h20;
+        4'd13: data_line4 = 8'h20;
+        4'd14: data_line4 = 8'h20;
+        4'd15: data_line4 = 8'h20;
+        default: data_line4 = 8'h20;
     endcase
 end
-endmodule</code></pre></div>
-<h3>12.4 코드 10-45 — full_case 속성</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_latch_attr.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module case_latch_attr (
-    input [1:0] sel,
-    input [7:0] in1,
-    input [7:0] in2,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] out
-);
-always @(sel, in1, in2) begin
-    (* full_case *)
-    case (sel)
-        2'b01: out = in1;
-        2'b10: out = in2;
-    endcase
-end
-endmodule</code></pre></div><div class="warn"><strong>속성 의존성</strong><br/><code>full_case</code>는 도구 의존적인 합성 힌트다. RTL 시뮬레이션에서 빠진 조건이 자동으로 해결되는 것은 아니므로 explicit default/기본값 방식이 더 명확할 수 있다.</div>
-<h3>12.5 코드 10-46 — case 앞 기본값</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_init.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module case_init (
-    input [1:0] sel,
-    input [7:0] in1,
-    input [7:0] in2,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] out
-);
-always @(sel, in1, in2) begin
-    out = 8'h00;
-    case (sel)
-        2'b01: out = in1;
-        2'b10: out = in2;
-    endcase
-end
-endmodule</code></pre></div>
-<h3>12.6 코드 10-47 — if 앞 기본값</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_init.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_init (
-    input mode,
-    input [7:0] in1,
-    input [7:0] in2,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] out
-);
-always @(mode, in1, in2) begin
-    out = in1;
-    if (mode) out = in2;
-end
-endmodule</code></pre></div>
-<h3>12.7 코드 10-48 — else가 있어도 latch가 생기는 예</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_latch2.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_latch2 (
-    input mode,
-    input [7:0] in1,
-    input [7:0] in2,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] out1,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [7:0] out2
-);
-always @(mode, in1, in2) begin
-    if (mode) out1 = in1;
-    else      out2 = in2;
-end
-endmodule</code></pre></div><div class="danger"><strong>핵심</strong><br/>mode=1일 때 out2는 할당되지 않고, mode=0일 때 out1은 할당되지 않는다. 따라서 각 출력별로 모든 경로에서 할당되는지 확인해야 한다.</div>
-</section><section class="section" id="multi-if">
-<h2><span class="num">12</span> 10.6.2 다중 if 문의 합성</h2>
-<h3>13.1 코드 10-49 — 독립 if의 연속 사용</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_if (
-    input selA, selB, selC, selD,
-    input [3:0] dinA, dinB, dinC, dinD, dinE,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] dout
-);
-always @(*) begin
-    dout = dinE;
-    if (selA) dout = dinA;
-    if (selB) dout = dinB;
-    if (selC) dout = dinC;
-    if (selD) dout = dinD;
-end
-endmodule</code></pre></div><div class="note"><strong>기능 우선순위</strong><br/>여러 sel이 동시에 1이면 뒤의 할당이 앞의 값을 덮어쓰므로 기능적으로 <code>selD &gt; selC &gt; selB &gt; selA</code> 순의 우선순위를 갖는다.</div>
-<h3>13.2 코드 10-50 — if-else-if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_else_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_else_if (
-    input selA, selB, selC, selD,
-    input [3:0] dinA, dinB, dinC, dinD, dinE,
-    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
-    output reg [3:0] dout
-);
-always @(*) begin
-    if      (selA) dout = dinA;
-    else if (selB) dout = dinB;
-    else if (selC) dout = dinC;
-    else if (selD) dout = dinD;
-    else           dout = dinE;
-end
-endmodule</code></pre></div><div class="note"><strong>기능 우선순위</strong><br/>앞 조건이 참이면 뒤 조건은 선택되지 않으므로 <code>selA &gt; selB &gt; selC &gt; selD</code> 순이다.</div>
-<div class="rtl"><strong>Timing 관점</strong><br/>우선순위 구조는 MUX 체인의 논리 깊이에 영향을 줄 수 있다. 하지만 실제 합성기는 논리 최적화를 수행하므로 최종 critical path는 Synthesis/Implementation 결과와 Timing Report로 확인해야 한다.</div>
-</section><section class="section" id="summary">
-<h2><span class="num">13</span> 최종 핵심 정리</h2>
-<table><thead><tr><th>회로</th><th>대표 표현</th><th>합성 의미</th></tr></thead><tbody><tr><td>기본 게이트</td><td>비트/축약 연산자, primitive</td><td>논리 게이트</td></tr><tr><td>멀티비트 논리</td><td>벡터 연산, 배열, for</td><td>비트별 병렬 논리</td></tr><tr><td>진리표·LUT</td><td>case, function</td><td>주소/조건 기반 선택 논리</td></tr><tr><td>MUX</td><td>if, case, <code>?:</code></td><td>선택기</td></tr><tr><td>Encoder/Decoder</td><td>case, if, for</td><td>코드 변환·one-hot</td></tr><tr><td>Comparator</td><td>관계 연산자, if, for</td><td>동등·대소 판단</td></tr><tr><td>3-state Bus</td><td><code>?:</code>, bufif1</td><td>선택적 버스 구동</td></tr><tr><td>불완전 if/case</td><td>일부 경로 할당 없음</td><td>원치 않는 latch</td></tr><tr><td>완전한 조합 코딩</td><td>default/else 또는 기본값 선할당</td><td>latch 없는 조합논리</td></tr></tbody></table>
-<div class="note"><strong>CHAPTER 10 체크리스트</strong><br/>① 출력은 현재 입력만으로 결정되는가?<br/>② 감지신호가 빠짐없이 들어갔는가?<br/>③ 모든 출력이 모든 조건에서 할당되는가?<br/>④ 조건이 상호 배타적인가, 우선순위가 필요한가?<br/>⑤ for는 고정 반복으로 합성 가능한가?<br/>⑥ 공유 버스의 복수 드라이버가 동시에 활성되지 않는가?<br/>⑦ 최종 면적·논리 깊이·Timing은 실제 보고서로 확인했는가?</div>
-<div class="rtl"><strong>Digital Design → Verilog RTL → RTL Synthesis</strong><br/>조합회로의 본질은 저장하지 않고 현재 입력을 논리적으로 변환하는 것이다. 같은 기능을 operator, assign, if, case, for, function, module instance 등으로 표현할 수 있고 합성기는 이를 MUX, Comparator, Encoder/Decoder, Gate Network로 변환한다. 반대로 일부 조건에서 출력이 할당되지 않으면 저장 기능이 필요해져 latch가 생긴다.</div>
-<div class="flow"><span>Input</span><span class="arrow">→</span><span>Combinational Logic</span><span class="arrow">→</span><span>Output</span></div>
-<div class="flow"><span>완전한 감지신호</span><span class="arrow">+</span><span>모든 조건의 완전한 출력 할당</span><span class="arrow">→</span><span>Latch 없는 조합회로</span></div>
+endfunction</code></pre></div>
+<div class="note"><strong>LCD Enable Timing</strong><br/>
+1kHz clock의 5개 cycle을 한 전송 slot(5ms)으로 보고 <code>cnt_5ms=1~3</code> 구간에서 lcd_e를 HIGH로 만든다.
+주소 또는 문자 데이터는 해당 slot 동안 안정적으로 유지된다.</div>
+</section><section class="section" id="summary"><h2><span class="num">09</span> 핵심 정리</h2>
+<table><thead><tr><th>회로</th><th>Digital Design</th><th>Verilog RTL</th><th>합성 하드웨어</th></tr></thead><tbody>
+<tr><td>8-bit Register</td><td>8개 데이터 저장</td><td>posedge + nonblocking</td><td>DFF 8개</td></tr>
+<tr><td>SIPO</td><td>직렬→병렬 이동</td><td>concat / shift / for</td><td>직렬 DFF 체인</td></tr>
+<tr><td>Ring Counter</td><td>one-hot 순환</td><td>rotate</td><td>Shift Register + Feedback</td></tr>
+<tr><td>Up/Down Counter</td><td>상태 ±1</td><td>+ / - 연산</td><td>Adder/Subtractor + Register</td></tr>
+<tr><td>Divider</td><td>주기 계수</td><td>counter + toggle</td><td>Counter + Output FF</td></tr>
+<tr><td>Keypad</td><td>Matrix scan</td><td>FSM + decode</td><td>State FF + Decoder</td></tr>
+<tr><td>Piezo</td><td>주파수→음</td><td>terminal count toggle</td><td>Divider + Output FF</td></tr>
+<tr><td>Step Motor</td><td>4-step excitation</td><td>case + step enable</td><td>Sequence Register + Counter</td></tr>
+<tr><td>Color LED</td><td>RGB 조합</td><td>button edge / counter / decode</td><td>FF + Decoder</td></tr>
+<tr><td>Text LCD</td><td>명령/주소/ASCII 순차 전송</td><td>FSM + delay counter</td><td>State Register + Counters + Output Logic</td></tr>
+</tbody></table>
+<div class="rtl"><strong>이 장핵심 설계 관점</strong><br/>
+순차회로는 항상 <strong>현재 Register 값 → 조합논리 → 다음 값 → posedge clk에서 저장</strong> 흐름으로 읽는다.
+특히 FPGA 구현에서는 clock 자체를 logic처럼 여기지 말고, 가능한 한 보드의 주 clock 하나를 유지하면서
+<code>clock-enable</code>을 이용해 느린 동작을 만드는 습관이 중요하다.</div>
+<div class="checklist">
+<p>✓ 모든 상태 register는 nonblocking인가?</p>
+<p>✓ reset은 의도한 clock edge에서 적용되는가?</p>
+<p>✓ 외부 asynchronous input은 동기화했는가?</p>
+<p>✓ generated clock을 불필요하게 만들지 않았는가?</p>
+<p>✓ counter bit width가 terminal count를 표현하는가?</p>
+<p>✓ FND/LCD polarity와 pin order를 확인했는가?</p>
+<p>✓ Testbench와 Board pin constraint를 구분했는가?</p>
+<p>✓ 실제 timing/resource 결과를 추측하지 않았는가?</p>
+</div>
 </section>
 <div class="chapter-links" id="chapter-links"></div>
 </main>
 </div>
-<footer class="footer">디지털시스템설계 · RTL · Verilog · v01 · 코드 상태: iverilog 컴파일 통과 표시 외에는 미검증 · 보드 동작은 실제 환경에서 검증</footer>
-<script>window.COURSE={"title": "디지털시스템설계 · RTL · Verilog", "chapters": [{"id": "ch01", "number": 1, "title": "Verilog HDL 기초", "file": "ch01_verilog_basics_v01.html"}, {"id": "ch02", "number": 2, "title": "자료형과 연산자", "file": "ch02_datatypes_operators_v01.html"}, {"id": "ch03", "number": 3, "title": "게이트 수준 모델링", "file": "ch03_gate_level_modeling_v01.html"}, {"id": "ch04", "number": 4, "title": "할당문", "file": "ch04_assignments_v01.html"}, {"id": "ch05", "number": 5, "title": "행위수준 모델링", "file": "ch05_behavioral_modeling_v01.html"}, {"id": "ch06", "number": 6, "title": "구조적 모델링", "file": "ch06_structural_modeling_v01.html"}, {"id": "ch07", "number": 7, "title": "함수와 태스크", "file": "ch07_functions_tasks_v01.html"}, {"id": "ch08", "number": 8, "title": "컴파일러 지시어", "file": "ch08_compiler_directives_v01.html"}, {"id": "ch09", "number": 9, "title": "시스템 태스크와 시스템 함수", "file": "ch09_system_tasks_functions_v01.html"}, {"id": "ch10", "number": 10, "title": "조합회로 모델링", "file": "ch10_combinational_modeling_v01.html"}, {"id": "ch11", "number": 11, "title": "순차회로 모델링", "file": "ch11_sequential_modeling_v01.html"}, {"id": "ch12", "number": 12, "title": "순차회로의 FPGA 구현 실습", "file": "ch12_sequential_fpga_lab_v01.html"}]};</script>
+<footer class="footer">디지털시스템설계 · RTL · Verilog</footer>
+<script>window.COURSE={"title": "디지털시스템설계 · RTL · Verilog", "chapters": [{"id": "ch01", "number": 1, "title": "Verilog HDL 기초", "file": "ch01_verilog_basics_v02.html"}, {"id": "ch02", "number": 2, "title": "자료형과 연산자", "file": "ch02_datatypes_operators_v02.html"}, {"id": "ch03", "number": 3, "title": "게이트 수준 모델링", "file": "ch03_gate_level_modeling_v02.html"}, {"id": "ch04", "number": 4, "title": "할당문", "file": "ch04_assignments_v02.html"}, {"id": "ch05", "number": 5, "title": "행위수준 모델링", "file": "ch05_behavioral_modeling_v02.html"}, {"id": "ch06", "number": 6, "title": "구조적 모델링", "file": "ch06_structural_modeling_v02.html"}, {"id": "ch07", "number": 7, "title": "함수와 태스크", "file": "ch07_functions_tasks_v02.html"}, {"id": "ch08", "number": 8, "title": "컴파일러 지시어", "file": "ch08_compiler_directives_v02.html"}, {"id": "ch09", "number": 9, "title": "시스템 태스크와 시스템 함수", "file": "ch09_system_tasks_functions_v02.html"}, {"id": "ch10", "number": 10, "title": "조합회로 모델링", "file": "ch10_combinational_modeling_v02.html"}, {"id": "ch11", "number": 11, "title": "순차회로 모델링", "file": "ch11_sequential_modeling_v02.html"}, {"id": "ch12", "number": 12, "title": "순차회로의 FPGA 구현 실습", "file": "ch12_sequential_fpga_lab_v02.html"}]};</script>
 <script>/* 공통 탐색 및 코드 복사 — 페이지 본문을 변경하지 않음 */
 (()=>{'use strict';
  const data=window.COURSE||{title:'교육과정',chapters:[]};

@@ -5,7 +5,8 @@ rule_md `common/code-style-rules.md` 13절 판정 기준(통과·실패·미검�
 - 도구: Icarus Verilog 12.0 (`iverilog -g2005`), 컴파일·정교화(elaboration)만 수행
 - 대상: `module … endmodule`을 모두 갖춘 코드. 하위 모듈은 같은 장의 코드에서 찾아 함께 컴파일
 - 시뮬레이션 파형 비교, Vivado 합성, 보드 동작은 수행하지 않았습니다 → **미검증**
-- 문법 형식·부분 코드·시뮬레이션 출력은 컴파일 대상이 아니므로 **미검증**으로 표시합니다
+- 문법 형식·부분 코드·시뮬레이션 출력은 컴파일 대상이 아닙니다
+- 검증 상태는 페이지(코드 박스)에 표시하지 않고 이 문서에만 기록합니다
 
 ## 장별 결과
 
@@ -28,7 +29,7 @@ rule_md `common/code-style-rules.md` 13절 판정 기준(통과·실패·미검�
 ## 포트 선언 수정 (필수 수정)
 
 ANSI 포트 목록에서 `output`으로 선언한 신호를 본문에서 `reg`로 다시 선언하면 Verilog-2001 규칙상 컴파일 오류입니다.
-동작은 바꾸지 않고 `output reg`로 합쳤으며, 수정 위치 바로 위에 `// (변경)` 주석을 달았습니다.
+동작은 바꾸지 않고 `output reg`로 합쳤습니다.
 
 수정 모듈: 01장 `mux2b_if`, 01장 `D_ff`, 02장 `dff`, 02장 `mux21_if`, 04장 `proc_assignment`, 04장 `dff_pca`, 05장 `or2`, 05장 `dff`, 05장 `mux21_omit_sel`, 05장 `mux21_if`, 05장 `dff_async_sr`, 05장 `mux21_case`, 05장 `pri_enc_casex`, 05장 `pri_enc_case`, 05장 `multiplier_8b`, 05장 `count_ones`, 05장 `count_ones_syn`, 05장 `pri_enc_for`, 05장 `dff`, 05장 `dff_event`, 05장 `intra_assign_delay`, 05장 `intra_assign_delay_eq`, 06장 `dff`, 06장 `gray2bin2`, 07장 `bit_counter`, 10장 `nor3_if`, 10장 `xor4b_for`, 10장 `bin2gray`, 10장 `mux4to1_if`, 10장 `mux4to1_case`, 10장 `enc_4to2_case`, 10장 `enc_4to2_if`, 10장 `enc_4to2_for`, 10장 `pri_enc_4to2_if`, 10장 `pri_enc_4to2_case`, 10장 `pri_enc_4to2_for`, 10장 `dec_2to4_case`, 10장 `dec_2to4_if`, 10장 `dec_2to4_for`, 10장 `dec_param`, 10장 `comp_if`, 10장 `comp_for`, 10장 `case_latch`, 10장 `if_latch`, 10장 `case_no_latch`, 10장 `case_latch_attr`, 10장 `case_init`, 10장 `if_init`, 10장 `if_latch2`, 10장 `if_if`, 10장 `if_else_if`, 11장 `dlatch_pos`, 11장 `dlatch_pos_AHrst`, 11장 `dff_pos`, 11장 `dff_Bad1`, 11장 `dff_Bad2`, 11장 `dff_Good`, 11장 `dff_sync_ALrst`, 11장 `dff_async_ALrst`, 11장 `dlatch_blocking`, 11장 `dlatch_Nonblocking`, 11장 `seq_blocking`, 11장 `seq_Nonblocking`, 11장 `Not_recommend_3`, 11장 `counter_up`, 11장 `freq_div10`
 
@@ -60,4 +61,4 @@ ANSI 포트 목록에서 `output`으로 선언한 신호를 본문에서 `reg`�
 | 12 | `motor_turn_fnd_beep` | error: Unknown module type: motor_drive_core |
 
 원인 유형: 다른 장·외부 파일에 정의된 하위 모듈 참조, 의도적인 오류 예제, 비ANSI 문법 형식 예시, net(`wire`/`tri`) 재선언.
-이들 코드는 교재 설명 목적상 원본을 유지하고 코드 박스에 **미검증**으로 표시했습니다.
+이들 코드는 설명 목적상 원본을 유지합니다.
