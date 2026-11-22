@@ -632,14 +632,13 @@ endmodule</code></pre></div>
 <span class="sig">in1[1:0]</span>
 </div>
 <div class="example-title">그림 1-10(b)</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux2b_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mux2b_if (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux2b_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux2b_if (
     input  [1:0] in0,
     input  [1:0] in1,
     input        sel,
-    output [1:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] out
 );
-
-reg [1:0] out;
 
 always @(sel or in0 or in1) begin
     if (sel == 0)
@@ -671,14 +670,13 @@ endmodule</code></pre></div>
 <span class="sig">q</span>
 </div>
 <div class="example-title">그림 1-11(b)</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">D_ff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module D_ff (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">D_ff.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module D_ff (
     input  clk,
     input  din,
     input  rst,
-    output q
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg q
 );
-
-reg q;
 
 always @(posedge clk or posedge rst) begin
     if (rst == 1)

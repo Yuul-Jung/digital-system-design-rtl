@@ -507,15 +507,14 @@ endmodule</code></pre></div>
 <h2><span class="num">06</span> 포트 연결과 구조적 설계 예</h2>
 <h3>7.1 parameter를 갖는 D 플립플롭과 5비트 레지스터</h3>
 <div class="example-title">코드 6-3(a): dff</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff (
-    output q,
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff (
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg q,
     input  clk,
     input  d
 );
 
 parameter delay = 1;
-
-reg q;
 
 always @(posedge clk) begin
     #delay q &lt;= d;
@@ -523,7 +522,7 @@ end
 
 endmodule</code></pre></div>
 <div class="example-title">코드 6-3(b): reg_5b</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">reg_5b.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module reg_5b (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">reg_5b.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module reg_5b (
     output [4:0] qout,
     input        clk,
     input  [4:0] din
@@ -1128,14 +1127,14 @@ endmodule</code></pre></div>
 </div>
 <h3>16.2 always를 이용한 generate-for</h3>
 <div class="example-title">코드 6-14</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">gray2bin2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module gray2bin2 (
-    output [SIZE-1:0] bin,
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">gray2bin2.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module gray2bin2 (
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [SIZE-1:0] bin,
     input  [SIZE-1:0] gray
 );
 
 parameter SIZE = 4;
 
-reg [SIZE-1:0] bin;
 genvar i;
 
 generate

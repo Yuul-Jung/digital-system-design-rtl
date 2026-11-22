@@ -491,14 +491,15 @@ endmodule</code></pre></div>
 </div>
 </div>
 <div class="example-title">코드 4-5</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">proc_assignment.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module proc_assignment (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">proc_assignment.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module proc_assignment (
     input  clk,
     input  a,
     input  b,
-    output out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg out
 );
 
-reg out, c;
+reg c;
 
 always @(posedge clk) begin
     c   = a &amp; b;   // blocking assignment
@@ -614,15 +615,14 @@ procedure 내부에서 variable 또는 net을
 <code>deassign</code>이 실행되면 그 강제 구동 효과가 제거된다.
 </p>
 <div class="example-title">코드 4-7: assign-deassign PCA를 이용한 D 플립플롭</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_pca.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_pca (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_pca.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_pca (
     input  clock,
     input  d,
     input  reset,
     input  set,
-    output q
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg q
 );
-
-reg q;
 
 always @(reset or set)
     if (!reset)

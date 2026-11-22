@@ -160,13 +160,12 @@ end</code>
 </ul>
 <h3>2.2 조합회로 예 — 2입력 OR</h3>
 <div class="example-title">코드 5-1</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">or2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module or2 (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">or2.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module or2 (
     input  a,
     input  b,
-    output out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg out
 );
-
-reg out;
 
 always @(a or b) begin
     if (a == 1'b1 || b == 1'b1)
@@ -193,13 +192,12 @@ endmodule</code></pre></div>
 </div>
 <h3>2.3 순차회로 예 — D 플립플롭</h3>
 <div class="example-title">코드 5-2</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff (
     input  clk,
     input  din,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(posedge clk)
     qout &lt;= din;
@@ -227,14 +225,13 @@ endmodule</code></pre></div>
 의도한 조합회로와 다른 파형이 나올 수 있다.
 </p>
 <div class="example-title">코드 5-3: sel이 감지신호목록에서 빠진 경우</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_omit_sel.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mux21_omit_sel (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_omit_sel.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux21_omit_sel (
     input  [1:0] a,
     input  [1:0] b,
     input        sel,
-    output [1:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] out
 );
-
-reg [1:0] out;
 
 always @(a or b) begin   // sel이 없음
     if (sel == 1'b0)
@@ -606,14 +603,13 @@ else
 </p>
 <h3>8.3 2:1 멀티플렉서</h3>
 <div class="example-title">코드 5-9</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mux21_if (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux21_if (
     input  [1:0] a,
     input  [1:0] b,
     input        sel,
-    output [1:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] out
 );
-
-reg [1:0] out;
 
 always @(a or b or sel) begin
     if (sel == 1'b0)
@@ -634,16 +630,15 @@ endmodule</code></pre></div>
 </div>
 <h3>8.4 비동기 active-low set/reset D 플립플롭</h3>
 <div class="example-title">코드 5-10</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_async_sr.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_async_sr (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_async_sr.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_async_sr (
     input  clk,
     input  d,
     input  rb,
     input  sb,
-    output q,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg q,
     output qb
 );
-
-reg q;
 
 always @(posedge clk or negedge rb or negedge sb) begin
     if (rb == 0)
@@ -686,14 +681,13 @@ endcase</code>
 해당 variable은 이전 값을 유지할 수 있다.
 </p>
 <div class="example-title">코드 5-11: case를 이용한 2:1 MUX</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_case.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mux21_case (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux21_case (
     input  [1:0] a,
     input  [1:0] b,
     input        sel,
-    output [1:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] out
 );
-
-reg [1:0] out;
 
 always @(a or b or sel) begin
     case (sel)
@@ -784,12 +778,11 @@ MSB 쪽에서 먼저 1이 나타나는 위치에 따라
 </p>
 <h3>10.2 casex 우선순위 인코더</h3>
 <div class="example-title">코드 5-12</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_casex.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module pri_enc_casex (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_casex.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_casex (
     input  [3:0] encode,
-    output [1:0] enc
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] enc
 );
-
-reg [1:0] enc;
 
 always @(encode) begin
     casex (encode)
@@ -809,12 +802,11 @@ endmodule</code></pre></div>
 </div>
 <h3>10.3 case(1) 형태의 우선순위 인코더</h3>
 <div class="example-title">코드 5-13</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_case.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module pri_enc_case (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_case (
     input  [3:0] encode,
-    output [1:0] enc
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] enc
 );
-
-reg [1:0] enc;
 
 always @(encode) begin
     case (1)
@@ -847,16 +839,16 @@ RTL의 반복문은 소프트웨어처럼 동일한 하드웨어가 시간에 �
 </div>
 <h3>11.1 repeat를 이용한 shift-add 곱셈기</h3>
 <div class="example-title">코드 5-14</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">multiplier_8b.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module multiplier_8b #(
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">multiplier_8b.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module multiplier_8b #(
     parameter SIZE = 8,
     parameter LongSize = 2*SIZE
 )(
     input  [SIZE-1:0] opa,
     input  [SIZE-1:0] opb,
-    output [LongSize-1:0] result
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [LongSize-1:0] result
 );
 
-reg [LongSize-1:0] result;
 reg [LongSize-1:0] shift_opa;
 reg [LongSize-1:0] shift_opb;
 
@@ -896,12 +888,12 @@ endmodule</code></pre></div>
 </div>
 <h3>11.2 while을 이용한 1의 개수 계수</h3>
 <div class="example-title">코드 5-15</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">count_ones.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module count_ones (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">count_ones.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module count_ones (
     input  [7:0] din,
-    output [3:0] count
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] count
 );
 
-reg [3:0] count;
 reg [7:0] temp;
 
 always @(din) begin
@@ -928,12 +920,13 @@ Vivado에서 loop convergence 오류로 합성 실패할 수 있다고 설명한
 </div>
 <h3>11.3 반복 횟수를 명확히 한 형태</h3>
 <div class="example-title">코드 5-16</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">count_ones_syn.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module count_ones_syn (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">count_ones_syn.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module count_ones_syn (
     input  [7:0] din,
-    output [3:0] count
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] count
 );
 
-reg [3:0] count, k;
+reg [3:0] k;
 reg [7:0] temp;
 
 always @(din) begin
@@ -953,12 +946,12 @@ end
 endmodule</code></pre></div>
 <h3>11.4 for 우선순위 인코더</h3>
 <div class="example-title">코드 5-17</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_for.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module pri_enc_for (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_for (
     input  [7:0] din,
-    output [2:0] enc_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [2:0] enc_out
 );
 
-reg [2:0] enc_out;
 integer i;
 
 always @(din) begin : LOOP
@@ -979,7 +972,7 @@ MSB부터 검사하여 처음 발견되는 1의 위치를 출력하고,
 </p>
 <h3>11.5 forever를 이용한 테스트벤치 파형</h3>
 <div class="example-title">코드 5-18</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_dff;
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dff;
 
 reg clk, din;
 
@@ -1057,13 +1050,12 @@ parameter나 수식으로 지연값을 표현할 수도 있다고 설명한다.
 </tbody>
 </table>
 <div class="example-title">코드 5-19</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff (
     input  clk,
     input  din,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(posedge clk)
     qout &lt;= din;
@@ -1092,14 +1084,14 @@ Verilog의 <code>event</code> 자료형으로 선언된 named event는
 </div>
 <h3>13.1 named event를 이용한 D 플립플롭 형태</h3>
 <div class="example-title">코드 5-20</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_event.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_event (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_event.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_event (
     input  clock,
     input  reset,
     input  din,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
 
-reg qout;
 event upedge;
 
 always @(posedge clock)
@@ -1266,26 +1258,26 @@ join</code></pre></div>
 </table>
 <h3>14.7 3번째 상승에지 후 처음 평가한 d를 출력</h3>
 <div class="example-title">코드 5-22</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">intra_assign_delay.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module intra_assign_delay (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">intra_assign_delay.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module intra_assign_delay (
     input  clk,
     input  d,
-    output out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg out
 );
-
-reg out;
 
 always @(*)
     out = repeat(3) @(posedge clk) d;
 
 endmodule</code></pre></div>
 <div class="example-title">코드 5-23: 풀어쓴 등가 코드</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">intra_assign_delay_eq.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module intra_assign_delay_eq (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">intra_assign_delay_eq.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module intra_assign_delay_eq (
     input  clk,
     input  d,
-    output out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg out
 );
 
-reg out, temp;
+reg temp;
 
 always @(*) begin
     temp = d;

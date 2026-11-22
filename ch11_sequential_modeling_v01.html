@@ -145,13 +145,12 @@ clock=0인 동안에는 이전 <code>qout</code> 값을 유지한다.
 <span class="sig">qout</span>
 </div>
 <h4>코드 11-1 — Positive D Latch</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_pos.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dlatch_pos (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_pos.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dlatch_pos (
     input  clock,
     input  din,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(clock or din) begin
     if (clock)
@@ -165,7 +164,7 @@ clock=0일 때 새로운 값을 할당하지 않아야 이전 qout을 유지한�
 이 “값 유지”가 바로 latch의 저장 기능이다.
 </div>
 <h4>코드 11-2 — 테스트벤치</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dlatch.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_dlatch;
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dlatch.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dlatch;
 
 reg clock, din;
 
@@ -200,14 +199,13 @@ endmodule</code></pre></div>
 </div>
 <h3>2.3 비동기식 Active-High Reset을 갖는 Positive D Latch</h3>
 <h4>코드 11-3</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_pos_AHrst.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dlatch_pos_AHrst (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_pos_AHrst.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dlatch_pos_AHrst (
     input  clock,
     input  rst,
     input  din,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(clock or rst or din) begin
     if (rst)
@@ -225,7 +223,7 @@ endmodule</code></pre></div>
 <span>clock=1일 때 din 통과</span>
 </div>
 <h4>코드 11-4 — 테스트벤치</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dlatch_rst.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_dlatch_rst;
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dlatch_rst.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dlatch_rst;
 
 reg clock, din, rst;
 
@@ -285,13 +283,12 @@ clock만 감지한다.
 비동기 reset/set이 있다면 해당 reset/set edge도 함께 넣는다.
 </div>
 <h3>3.1 코드 11-9 — 상승에지 DFF</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_pos.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_pos (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_pos.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_pos (
     input  clk,
     input  din,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(posedge clk)
     qout &lt;= din;
@@ -307,7 +304,7 @@ endmodule</code></pre></div>
 <span>다음 posedge까지 유지</span>
 </div>
 <h3>3.2 코드 11-10 — 테스트벤치</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_dff;
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dff;
 
 reg clk, din;
 
@@ -342,14 +339,14 @@ endmodule</code></pre></div>
 qout만 register로 만들고 qout_bar를 조합논리로 만드는 경우를 비교한다.
 </p>
 <h4>코드 11-11(a) — 두 출력 모두 nonblocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Bad1.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_Bad1 (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Bad1.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_Bad1 (
     input  clk,
     input  din,
-    output qout,
-    output qout_bar
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout_bar
 );
-
-reg qout, qout_bar;
 
 always @(posedge clk) begin
     qout     &lt;= din;
@@ -358,14 +355,14 @@ end
 
 endmodule</code></pre></div>
 <h4>코드 11-11(b) — 두 출력 모두 blocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Bad2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_Bad2 (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Bad2.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_Bad2 (
     input  clk,
     input  din,
-    output qout,
-    output qout_bar
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout_bar
 );
-
-reg qout, qout_bar;
 
 always @(posedge clk) begin
     qout     = din;
@@ -374,14 +371,13 @@ end
 
 endmodule</code></pre></div>
 <h4>코드 11-11(c) — qout만 register, qout_bar는 조합논리</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Good.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_Good (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_Good.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_Good (
     input  clk,
     input  din,
-    output qout,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout,
     output qout_bar
 );
-
-reg qout;
 
 assign qout_bar = ~qout;
 
@@ -404,14 +400,13 @@ endmodule</code></pre></div>
 </section><section class="section" id="reset">
 <h2><span class="num">03</span> Set/Reset을 갖는 플립플롭</h2>
 <h3>4.1 동기식 Active-Low Reset</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_sync_ALrst.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_sync_ALrst (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_sync_ALrst.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_sync_ALrst (
     input  clk,
     input  din,
     input  rstn,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(posedge clk) begin
     if (!rstn)
@@ -427,14 +422,13 @@ reset이 바뀌어도 즉시 qout이 변하지 않는다.
 반드시 다음 <code>posedge clk</code>에서 reset 상태를 확인한 뒤 qout을 0으로 만든다.
 </div>
 <h3>4.2 비동기식 Active-Low Reset</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_async_ALrst.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff_async_ALrst (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff_async_ALrst.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff_async_ALrst (
     input  clk,
     input  din,
     input  rst_n,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
@@ -470,15 +464,16 @@ endmodule</code></pre></div>
 </p>
 <h3>5.1 래치 회로에서의 차이 — 코드 11-5 / 11-6</h3>
 <h4>Blocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_blocking.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dlatch_blocking (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_blocking.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dlatch_blocking (
     input  en,
     input  a,
     input  b,
     input  c,
-    output y_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg y_out
 );
 
-reg m, y_out;
+reg m;
 
 always @(en, a, b, c) begin
     if (en) begin
@@ -498,15 +493,16 @@ endmodule</code></pre></div>
 <code>y_out</code>만 latch가 된다.
 </p>
 <h4>Nonblocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_Nonblocking.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dlatch_Nonblocking (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dlatch_Nonblocking.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dlatch_Nonblocking (
     input  en,
     input  a,
     input  b,
     input  c,
-    output y_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg y_out
 );
 
-reg m, y_out;
+reg m;
 
 always @(en, a, b, c) begin
     if (en) begin
@@ -526,17 +522,18 @@ endmodule</code></pre></div>
 </div>
 <h3>5.2 플립플롭 회로에서의 차이 — 코드 11-16 / 11-17</h3>
 <h4>코드 11-16 — Blocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_blocking.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module seq_blocking (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_blocking.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module seq_blocking (
     input  clk,
     input  a,
     input  b,
     input  c,
     input  d,
     input  e,
-    output yout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg yout
 );
 
-reg m, n, yout;
+reg m, n;
 
 always @(posedge clk) begin
     m    = ~(a &amp; b);
@@ -550,17 +547,18 @@ blocking이므로 m과 n의 새 값이 같은 always 실행 안에서 yout 계�
 11-11에서는 최종 yout만 FF에 저장되는 구조로 합성된다.
 </p>
 <h4>코드 11-17 — Nonblocking</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_Nonblocking.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module seq_Nonblocking (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_Nonblocking.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module seq_Nonblocking (
     input  clk,
     input  a,
     input  b,
     input  c,
     input  d,
     input  e,
-    output yout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg yout
 );
 
-reg m, n, yout;
+reg m, n;
 
 always @(posedge clk) begin
     m    &lt;= ~(a &amp; b);
@@ -648,15 +646,14 @@ always @(posedge clk or negedge rstn)
     else
         qout &lt;= tmp;</code></pre></div>
 <h3>6.2 코드 11-22 — Multiple Driver</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">Not_recommend_3.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module Not_recommend_3 (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">Not_recommend_3.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module Not_recommend_3 (
     input  clk,
     input  rstn,
     input  d1,
     input  d2,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(posedge clk or negedge rstn)
     if (!rstn)
@@ -695,13 +692,12 @@ Counter(계수기)는 clock마다 상태값을 증가/감소시키며,
 </table>
 <h3>7.2 11.3.1 8비트 증가계수기</h3>
 <h4>코드 11-23</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">counter_up.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module counter_up (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">counter_up.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module counter_up (
     input        clk,
     input        rstn,
-    output [7:0] cnt_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] cnt_out
 );
-
-reg [7:0] cnt_out;
 
 always @(posedge clk or negedge rstn) begin
     if (!rstn)
@@ -724,7 +720,7 @@ endmodule</code></pre></div>
 255에서 +1을 하면 상위 carry는 잘리고 0으로 wrap-around된다.
 </div>
 <h4>코드 11-24 — 테스트벤치</h4>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_counter.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_counter;
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_counter.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_counter;
 
 reg clk, rstn;
 wire [7:0] cnt_out;
@@ -765,14 +761,14 @@ endmodule</code></pre></div>
 0~9까지 10개의 clock edge를 계수하고 cnt=9일 때 1 clock 동안 출력 pulse를 1로 만든다.
 </p>
 <h3>8.1 코드 11-25 — Duty 10% 1/10 분주</h3>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">freq_div10.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module freq_div10 (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">freq_div10.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module freq_div10 (
     input  mclk,
     input  rst,
-    output clk_div
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg clk_div
 );
 
 reg [3:0] cnt;
-reg clk_div;
 
 always @(posedge mclk or posedge rst) begin
     if (rst) begin

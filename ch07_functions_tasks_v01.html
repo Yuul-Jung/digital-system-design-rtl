@@ -745,12 +745,11 @@ endmodule</code></pre></div>
 논리 1의 개수를 세는 기능을 태스크로 구현한다.
 </p>
 <div class="example-title">코드 7-4</div>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bit_counter.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module bit_counter (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bit_counter.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module bit_counter (
     input  [7:0] data_word,
-    output [3:0] bit_count
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] bit_count
 );
-
-reg [3:0] bit_count;
 
 always @(data_word)
     count_ones(

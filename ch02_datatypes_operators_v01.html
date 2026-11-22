@@ -401,13 +401,12 @@ reg [4:0] x, y, z;</code></pre></div>
 <div class="grid">
 <div class="card">
 <span class="k">순차회로 예: D 플립플롭</span>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dff (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dff.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dff (
     input  clk,
     input  d,
-    output qout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg qout
 );
-
-reg qout;
 
 always @(posedge clk) begin
     qout &lt;= d;
@@ -418,14 +417,13 @@ endmodule</code></pre></div>
 </div>
 <div class="card">
 <span class="k">조합회로 예: 2:1 MUX</span>
-<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mux21_if (
+<div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux21_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux21_if (
     input  [1:0] a,
     input  [1:0] b,
     input        sel,
-    output [1:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] out
 );
-
-reg [1:0] out;
 
 always @(a or b or sel) begin
     if (sel == 1'b0)

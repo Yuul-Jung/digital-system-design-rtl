@@ -107,12 +107,11 @@ endmodule</code></pre></div><div class="note"><strong><code>~|a</code>를 풀어
 nor (out_nor3, a[2], a[1], a[0]);
 
 endmodule</code></pre></div><div class="tip"><strong>포트 순서</strong><br/>게이트 프리미티브는 출력이 첫 번째이고 그 뒤에 입력이 온다.</div>
-<h3>3.4 코드 10-4 — if 조건문</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">nor3_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module nor3_if (
+<h3>3.4 코드 10-4 — if 조건문</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">nor3_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module nor3_if (
     input  [2:0] a,
-    output       out_nor3
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg       out_nor3
 );
-
-reg out_nor3;
 
 always @(a) begin
     if (a == 3'b000)
@@ -167,13 +166,13 @@ assign xor4b = a ^ b;
 // xor4b[3] = a[3] ^ b[3]
 
 endmodule</code></pre></div>
-<h3>4.3 코드 10-8 — for 반복문</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">xor4b_for.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module xor4b_for (
+<h3>4.3 코드 10-8 — for 반복문</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">xor4b_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module xor4b_for (
     input  [3:0] a,
     input  [3:0] b,
-    output [3:0] xor4b
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] xor4b
 );
 
-reg [3:0] xor4b;
 integer i;
 
 always @(a or b) begin
@@ -219,11 +218,11 @@ endmodule</code></pre></div>
 <div class="flow"><span>a&amp;b</span><span class="arrow">+</span><span>c&amp;d</span><span class="arrow">→ OR</span><span class="arrow">→ &amp;e</span><span class="arrow">→ NOT</span><span>y</span></div>
 <div class="task"><div class="title">설계과제 10-3</div><p>부울식을 Verilog HDL로 모델링하고 테스트벤치로 동작을 확인한다.</p></div>
 <h3>5.2 binary-to-gray 진리표</h3><table class="truth"><thead><tr><th>bin</th><th>gray</th><th>bin</th><th>gray</th></tr></thead><tbody><tr><td>0000</td><td>0000</td><td>1000</td><td>1100</td></tr><tr><td>0001</td><td>0001</td><td>1001</td><td>1101</td></tr><tr><td>0010</td><td>0011</td><td>1010</td><td>1111</td></tr><tr><td>0011</td><td>0010</td><td>1011</td><td>1110</td></tr><tr><td>0100</td><td>0110</td><td>1100</td><td>1010</td></tr><tr><td>0101</td><td>0111</td><td>1101</td><td>1011</td></tr><tr><td>0110</td><td>0101</td><td>1110</td><td>1001</td></tr><tr><td>0111</td><td>0100</td><td>1111</td><td>1000</td></tr></tbody></table>
-<h3>5.3 코드 10-11 — case 진리표</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bin2gray.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module bin2gray (
+<h3>5.3 코드 10-11 — case 진리표</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">bin2gray.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module bin2gray (
     input  [3:0] bin,
-    output [3:0] gray
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] gray
 );
-reg [3:0] gray;
 
 always @(bin) begin
     case (bin)
@@ -246,7 +245,7 @@ always @(bin) begin
     endcase
 end
 endmodule</code></pre></div>
-<h3>5.4 코드 10-12 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_bin2gray.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_bin2gray;
+<h3>5.4 코드 10-12 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_bin2gray.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_bin2gray;
 reg [3:0] bin;
 wire [3:0] gray;
 integer i;
@@ -288,12 +287,12 @@ endfunction</code></pre></div><div class="note"><strong>주소 폭과 용량</st
 <div class="task"><div class="title">설계과제 10-4</div><p>4비트 BCD 입력을 8비트 FND 데이터로 변환하는 진리표를 모델링하고 검증한다.</p></div>
 </section><section class="section" id="mux">
 <h2><span class="num">05</span> 10.2 멀티플렉서</h2><p>4개의 4비트 입력 중 하나를 2비트 <code>sel</code>로 선택한다. if, 조건 연산자, case 세 표현이 같은 MUX로 합성되는 것을 보여준다.</p>
-<h3>6.1 코드 10-14 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux4to1_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mux4to1_if (
+<h3>6.1 코드 10-14 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux4to1_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux4to1_if (
     input [3:0] a, b, c, d,
     input [1:0] sel,
-    output [3:0] mux_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] mux_out
 );
-reg [3:0] mux_out;
 always @(sel or a or b or c or d) begin
     if      (sel == 2'b00) mux_out = a;
     else if (sel == 2'b01) mux_out = b;
@@ -313,12 +312,12 @@ assign mux_out =
     (sel == 2) ? c :
     (sel == 3) ? d : 4'bx;
 endmodule</code></pre></div>
-<h3>6.3 코드 10-16 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux4to1_case.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module mux4to1_case (
+<h3>6.3 코드 10-16 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux4to1_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module mux4to1_case (
     input [3:0] a, b, c, d,
     input [1:0] sel,
-    output [3:0] mux_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] mux_out
 );
-reg [3:0] mux_out;
 always @(sel or a or b or c or d) begin
     case (sel)
         0: mux_out = a;
@@ -329,7 +328,7 @@ always @(sel or a or b or c or d) begin
     endcase
 end
 endmodule</code></pre></div>
-<h3>6.4 코드 10-17 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_mux41.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_mux41;
+<h3>6.4 코드 10-17 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_mux41.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_mux41;
 
 reg  [3:0] a, b, c, d;
 reg  [1:0] sel;
@@ -382,11 +381,11 @@ endmodule</code></pre></div>
 </section><section class="section" id="encoder">
 <h2><span class="num">06</span> 10.3.1 4:2 이진 인코더</h2>
 <table class="truth"><thead><tr><th>enc_in[3:0]</th><th>enc_out[1:0]</th></tr></thead><tbody><tr><td>0001</td><td>00</td></tr><tr><td>0010</td><td>01</td></tr><tr><td>0100</td><td>10</td></tr><tr><td>1000</td><td>11</td></tr></tbody></table>
-<h3>7.1 코드 10-19 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_case.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module enc_4to2_case (
+<h3>7.1 코드 10-19 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module enc_4to2_case (
     input [3:0] enc_in,
-    output [1:0] enc_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] enc_out
 );
-reg [1:0] enc_out;
 always @(enc_in) begin
     case (enc_in)
         4'b0001: enc_out = 2'b00;
@@ -397,11 +396,11 @@ always @(enc_in) begin
     endcase
 end
 endmodule</code></pre></div>
-<h3>7.2 코드 10-20 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module enc_4to2_if (
+<h3>7.2 코드 10-20 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module enc_4to2_if (
     input [3:0] enc_in,
-    output [1:0] enc_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] enc_out
 );
-reg [1:0] enc_out;
 always @(enc_in) begin
     if      (enc_in == 4'b0001) enc_out = 2'b00;
     else if (enc_in == 4'b0010) enc_out = 2'b01;
@@ -410,11 +409,11 @@ always @(enc_in) begin
     else                         enc_out = 2'bxx;
 end
 endmodule</code></pre></div>
-<h3>7.3 코드 10-21 — for</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_for.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module enc_4to2_for (
+<h3>7.3 코드 10-21 — for</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">enc_4to2_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module enc_4to2_for (
     input [3:0] enc_in,
-    output [1:0] enc_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] enc_out
 );
-reg [1:0] enc_out;
 reg [3:0] temp;
 integer n;
 always @(enc_in) begin
@@ -426,7 +425,7 @@ always @(enc_in) begin
     end
 end
 endmodule</code></pre></div>
-<h3>7.4 코드 10-22 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_enc_4to2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_enc_4to2;
+<h3>7.4 코드 10-22 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_enc_4to2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_enc_4to2;
 reg [3:0] in;
 wire [1:0] out;
 enc_4to2_case U0 (.enc_in(in), .enc_out(out));
@@ -445,13 +444,13 @@ endmodule</code></pre></div>
 <h2><span class="num">07</span> 10.3.2 우선순위 인코더</h2>
 <p>여러 입력이 동시에 1일 수 있고, MSB인 <code>enc_in[3]</code>이 가장 높은 우선순위를 갖는다. <code>valid</code>는 입력에 최소 한 개의 1이 존재할 때 1이다.</p>
 <table class="truth"><thead><tr><th>enc_in</th><th>enc_out</th><th>valid</th></tr></thead><tbody><tr><td>1xxx</td><td>11</td><td>1</td></tr><tr><td>01xx</td><td>10</td><td>1</td></tr><tr><td>001x</td><td>01</td><td>1</td></tr><tr><td>0001</td><td>00</td><td>1</td></tr><tr><td>0000</td><td>xx</td><td>0</td></tr></tbody></table>
-<h3>8.1 코드 10-23 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module pri_enc_4to2_if (
+<h3>8.1 코드 10-23 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_4to2_if (
     input [3:0] enc_in,
-    output valid,
-    output [1:0] enc_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg valid,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] enc_out
 );
-reg valid;
-reg [1:0] enc_out;
 always @(enc_in) begin
     valid = 1'b1;
     if      (enc_in[3]) enc_out = 2'b11;
@@ -464,13 +463,13 @@ always @(enc_in) begin
     end
 end
 endmodule</code></pre></div>
-<h3>8.2 코드 10-24 — casex</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_case.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module pri_enc_4to2_case (
+<h3>8.2 코드 10-24 — casex</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_4to2_case (
     input [3:0] enc_in,
-    output valid,
-    output [1:0] enc_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg valid,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] enc_out
 );
-reg valid;
-reg [1:0] enc_out;
 always @(enc_in) begin
     valid = 1'b1;
     casex (enc_in)
@@ -485,13 +484,13 @@ always @(enc_in) begin
     endcase
 end
 endmodule</code></pre></div>
-<h3>8.3 코드 10-25 — for + disable</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_for.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module pri_enc_4to2_for (
+<h3>8.3 코드 10-25 — for + disable</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">pri_enc_4to2_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module pri_enc_4to2_for (
     input [3:0] enc_in,
-    output valid,
-    output [1:0] enc_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg valid,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [1:0] enc_out
 );
-reg valid;
-reg [1:0] enc_out;
 integer n;
 always @(enc_in) begin : Loop
     valid = 0;
@@ -504,7 +503,7 @@ always @(enc_in) begin : Loop
         end
 end
 endmodule</code></pre></div>
-<h3>8.4 코드 10-26 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_pri_enc_4to2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_pri_enc_4to2;
+<h3>8.4 코드 10-26 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_pri_enc_4to2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_pri_enc_4to2;
 reg [3:0] in;
 wire [1:0] out;
 wire valid;
@@ -522,11 +521,11 @@ endmodule</code></pre></div>
 </section><section class="section" id="decoder">
 <h2><span class="num">08</span> 10.3.3 디코더</h2>
 <table class="truth"><thead><tr><th>dec_in</th><th>dec_out</th></tr></thead><tbody><tr><td>00</td><td>0001</td></tr><tr><td>01</td><td>0010</td></tr><tr><td>10</td><td>0100</td></tr><tr><td>11</td><td>1000</td></tr></tbody></table>
-<h3>9.1 코드 10-27 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_case.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dec_2to4_case (
+<h3>9.1 코드 10-27 — case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_case.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_2to4_case (
     input [1:0] dec_in,
-    output [3:0] dec_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] dec_out
 );
-reg [3:0] dec_out;
 always @(dec_in) begin
     case (dec_in)
         0: dec_out = 4'b0001;
@@ -537,11 +536,11 @@ always @(dec_in) begin
     endcase
 end
 endmodule</code></pre></div>
-<h3>9.2 코드 10-28 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dec_2to4_if (
+<h3>9.2 코드 10-28 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_2to4_if (
     input [1:0] dec_in,
-    output [3:0] dec_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] dec_out
 );
-reg [3:0] dec_out;
 always @(dec_in) begin
     if      (dec_in == 0) dec_out = 4'b0001;
     else if (dec_in == 1) dec_out = 4'b0010;
@@ -550,11 +549,11 @@ always @(dec_in) begin
     else                  dec_out = 4'bxxxx;
 end
 endmodule</code></pre></div>
-<h3>9.3 코드 10-29 — for</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_for.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dec_2to4_for (
+<h3>9.3 코드 10-29 — for</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_2to4_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_2to4_for (
     input [1:0] dec_in,
-    output [3:0] dec_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] dec_out
 );
-reg [3:0] dec_out;
 integer n;
 always @(dec_in) begin
     for (n = 0; n &lt;= 3; n = n + 1) begin
@@ -563,7 +562,7 @@ always @(dec_in) begin
     end
 end
 endmodule</code></pre></div>
-<h3>9.4 코드 10-30 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dec_2to4.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module tb_dec_2to4;
+<h3>9.4 코드 10-30 — 테스트벤치</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_dec_2to4.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module tb_dec_2to4;
 reg [1:0] dec_in;
 wire [3:0] dec_out;
 dec_2to4_case U0 (dec_in, dec_out);
@@ -576,13 +575,13 @@ initial begin
 end
 endmodule</code></pre></div>
 <div class="task"><div class="title">설계과제 10-8</div><p>active-high enable을 갖는 3:6 디코더를 if 방식과 <code>{en,dec_in}</code> 결합 case 방식으로 구현한다.</p></div>
-<h3>9.5 코드 10-31 — 파라미터화된 디코더</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_param.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dec_param (
+<h3>9.5 코드 10-31 — 파라미터화된 디코더</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_param.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_param (
     input en,
     input [IN_WIDTH-1:0] dec_in,
-    output [OUT_WIDTH-1:0] dec_out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [OUT_WIDTH-1:0] dec_out
 );
 parameter IN_WIDTH = 3, OUT_WIDTH = 8;
-reg [OUT_WIDTH-1:0] dec_out;
 integer n;
 always @(en, dec_in) begin
     if (!en)
@@ -597,7 +596,7 @@ always @(en, dec_in) begin
     end
 end
 endmodule</code></pre></div>
-<h3>9.6 코드 10-32 — 3:6 인스턴스</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_3to6_param.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module dec_3to6_param (
+<h3>9.6 코드 10-32 — 3:6 인스턴스</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">dec_3to6_param.v</span><span>VERILOG</span><span>교재 예제</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module dec_3to6_param (
     input en,
     input [2:0] addr,
     output [5:0] dec_addr
@@ -621,14 +620,16 @@ assign aeqb = (a == b);
 assign agtb = (a &gt; b);
 assign altb = (a &lt; b);
 endmodule</code></pre></div>
-<h3>10.2 코드 10-34 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">comp_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module comp_if (
+<h3>10.2 코드 10-34 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">comp_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module comp_if (
     input [3:0] a,
     input [3:0] b,
-    output aeqb,
-    output agtb,
-    output altb
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg aeqb,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg agtb,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg altb
 );
-reg aeqb, agtb, altb;
 always @(a or b) begin
     aeqb = 1'b0;
     agtb = 1'b0;
@@ -639,15 +640,17 @@ always @(a or b) begin
 end
 endmodule</code></pre></div>
 <div class="note"><strong>래치 방지</strong><br/>세 출력에 기본값 0을 먼저 주고 조건에서 필요한 출력만 1로 덮어쓴다.</div>
-<h3>10.3 코드 10-35 — MSB 우선 for 비교</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">comp_for.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module comp_for (
+<h3>10.3 코드 10-35 — MSB 우선 for 비교</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">comp_for.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module comp_for (
     input [SIZE-1:0] a,
     input [SIZE-1:0] b,
-    output aeqb,
-    output agtb,
-    output altb
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg aeqb,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg agtb,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg altb
 );
 parameter SIZE = 4;
-reg aeqb, agtb, altb;
 integer i;
 always @(a or b) begin : Loop_Comp
     aeqb = 1'b1;
@@ -759,13 +762,13 @@ endmodule</code></pre></div>
 </section><section class="section" id="latch">
 <h2><span class="num">11</span> 10.6 case 문과 if 문의 합성</h2>
 <p>조합회로에서 일부 입력 조건에 대한 출력 할당이 빠지면 이전 값을 유지해야 하므로 latch가 합성된다.</p>
-<h3>12.1 코드 10-42 — 불완전한 case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_latch.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module case_latch (
+<h3>12.1 코드 10-42 — 불완전한 case</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_latch.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module case_latch (
     input [1:0] sel,
     input [7:0] in1,
     input [7:0] in2,
-    output [7:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] out
 );
-reg [7:0] out;
 always @(sel, in1, in2) begin
     case (sel)
         2'b01: out = in1;
@@ -773,25 +776,25 @@ always @(sel, in1, in2) begin
     endcase
 end
 endmodule</code></pre></div><div class="flow"><span>sel=01 → in1</span><span>sel=10 → in2</span><span>sel=00/11 → 할당 없음</span><span class="arrow">→</span><span>이전값 유지 → latch</span></div>
-<h3>12.2 코드 10-43 — else가 없는 if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_latch.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module if_latch (
+<h3>12.2 코드 10-43 — else가 없는 if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_latch.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_latch (
     input [1:0] sel,
     input [7:0] in1,
     input [7:0] in2,
-    output [7:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] out
 );
-reg [7:0] out;
 always @(sel, in1, in2) begin
     if (sel == 2'b01) out = in1;
     else if (sel == 2'b10) out = in2;
 end
 endmodule</code></pre></div>
-<h3>12.3 코드 10-44 — default로 완전 할당</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_no_latch.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module case_no_latch (
+<h3>12.3 코드 10-44 — default로 완전 할당</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_no_latch.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module case_no_latch (
     input [1:0] sel,
     input [7:0] in1,
     input [7:0] in2,
-    output [7:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] out
 );
-reg [7:0] out;
 always @(sel, in1, in2) begin
     case (sel)
         2'b01: out = in1;
@@ -800,13 +803,13 @@ always @(sel, in1, in2) begin
     endcase
 end
 endmodule</code></pre></div>
-<h3>12.4 코드 10-45 — full_case 속성</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_latch_attr.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module case_latch_attr (
+<h3>12.4 코드 10-45 — full_case 속성</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_latch_attr.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module case_latch_attr (
     input [1:0] sel,
     input [7:0] in1,
     input [7:0] in2,
-    output [7:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] out
 );
-reg [7:0] out;
 always @(sel, in1, in2) begin
     (* full_case *)
     case (sel)
@@ -815,13 +818,13 @@ always @(sel, in1, in2) begin
     endcase
 end
 endmodule</code></pre></div><div class="warn"><strong>속성 의존성</strong><br/><code>full_case</code>는 도구 의존적인 합성 힌트다. RTL 시뮬레이션에서 빠진 조건이 자동으로 해결되는 것은 아니므로 explicit default/기본값 방식이 더 명확할 수 있다.</div>
-<h3>12.5 코드 10-46 — case 앞 기본값</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_init.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module case_init (
+<h3>12.5 코드 10-46 — case 앞 기본값</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">case_init.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module case_init (
     input [1:0] sel,
     input [7:0] in1,
     input [7:0] in2,
-    output [7:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] out
 );
-reg [7:0] out;
 always @(sel, in1, in2) begin
     out = 8'h00;
     case (sel)
@@ -830,26 +833,27 @@ always @(sel, in1, in2) begin
     endcase
 end
 endmodule</code></pre></div>
-<h3>12.6 코드 10-47 — if 앞 기본값</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_init.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module if_init (
+<h3>12.6 코드 10-47 — if 앞 기본값</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_init.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_init (
     input mode,
     input [7:0] in1,
     input [7:0] in2,
-    output [7:0] out
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] out
 );
-reg [7:0] out;
 always @(mode, in1, in2) begin
     out = in1;
     if (mode) out = in2;
 end
 endmodule</code></pre></div>
-<h3>12.7 코드 10-48 — else가 있어도 latch가 생기는 예</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_latch2.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module if_latch2 (
+<h3>12.7 코드 10-48 — else가 있어도 latch가 생기는 예</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_latch2.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_latch2 (
     input mode,
     input [7:0] in1,
     input [7:0] in2,
-    output [7:0] out1,
-    output [7:0] out2
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] out1,
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [7:0] out2
 );
-reg [7:0] out1, out2;
 always @(mode, in1, in2) begin
     if (mode) out1 = in1;
     else      out2 = in2;
@@ -857,12 +861,12 @@ end
 endmodule</code></pre></div><div class="danger"><strong>핵심</strong><br/>mode=1일 때 out2는 할당되지 않고, mode=0일 때 out1은 할당되지 않는다. 따라서 각 출력별로 모든 경로에서 할당되는지 확인해야 한다.</div>
 </section><section class="section" id="multi-if">
 <h2><span class="num">12</span> 10.6.2 다중 if 문의 합성</h2>
-<h3>13.1 코드 10-49 — 독립 if의 연속 사용</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module if_if (
+<h3>13.1 코드 10-49 — 독립 if의 연속 사용</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_if (
     input selA, selB, selC, selD,
     input [3:0] dinA, dinB, dinC, dinD, dinE,
-    output [3:0] dout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] dout
 );
-reg [3:0] dout;
 always @(*) begin
     dout = dinE;
     if (selA) dout = dinA;
@@ -871,12 +875,12 @@ always @(*) begin
     if (selD) dout = dinD;
 end
 endmodule</code></pre></div><div class="note"><strong>기능 우선순위</strong><br/>여러 sel이 동시에 1이면 뒤의 할당이 앞의 값을 덮어쓰므로 기능적으로 <code>selD &gt; selC &gt; selB &gt; selA</code> 순의 우선순위를 갖는다.</div>
-<h3>13.2 코드 10-50 — if-else-if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_else_if.v</span><span>VERILOG</span><span>교재 예제</span><span class="state">미검증</span></span></div><pre><code>module if_else_if (
+<h3>13.2 코드 10-50 — if-else-if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">if_else_if.v</span><span>VERILOG</span><span>교재 예제 · 포트 선언 수정</span><span class="state pass">iverilog 컴파일 통과</span></span></div><pre><code>module if_else_if (
     input selA, selB, selC, selD,
     input [3:0] dinA, dinB, dinC, dinD, dinE,
-    output [3:0] dout
+    // (변경) ANSI 포트는 본문에서 reg로 다시 선언할 수 없어 output reg로 합쳤다.
+    output reg [3:0] dout
 );
-reg [3:0] dout;
 always @(*) begin
     if      (selA) dout = dinA;
     else if (selB) dout = dinB;
