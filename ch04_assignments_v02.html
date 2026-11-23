@@ -118,7 +118,7 @@ Verilog HDL의 기본 할당을
 <strong>추가 형태</strong><br/>
 기본적인 두 할당 외에
 <strong>절차형 연속 할당(Procedural Continuous Assignment, PCA)</strong>인
-<code>assign-deassign</code>과 <code>force-release</code>도 별도로 설명한다.
+<code>assign-deassign</code>과 <code>force-release</code>도 함께 다룬다.
 </div>
 <h3>1.1 할당문을 읽을 때 확인할 것</h3>
 <div class="flow">
@@ -198,7 +198,7 @@ endmodule</code></pre></div>
 <h2><span class="num">02</span> 함축적 연속 할당문</h2>
 <p>
 net 선언문과 연속 할당문을 한 문장에 함께 쓸 수 있으며,
-이를 <strong>함축적 연속 할당문</strong>이라고 설명한다.
+이를 <strong>함축적 연속 할당문</strong>이라고 한다.
 </p>
 <div class="example-title">예시 4-1</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>wire mynet = enable &amp; data;</code></pre></div>
@@ -318,7 +318,7 @@ endmodule</code></pre></div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>wire #10 wireA = a &amp; b;</code></pre></div>
 <div class="note">
 <strong>동작 기준</strong><br/>
-위 표현은 <strong>net 지연이 아니라 연속 할당문의 지연</strong>로 처리된다.
+위 표현은 <strong>net 지연이 아니라 연속 할당문의 지연</strong>으로 처리된다.
 즉, 이 선언 안에 포함된 특정 연속 할당에 적용된다.
 </div>
 <h3>5.2 net 지연</h3>
@@ -356,7 +356,7 @@ endmodule</code></pre></div>
 <strong>벡터 net의 지연</strong><br/>
 벡터 net에 대한 할당에서는 상승/하강지연이
 개별 비트마다 독립적으로 적용되는 것이 아니라
-벡터 전체 값의 천이에 대해 일괄 적용된다고 설명한다.
+벡터 전체 값의 천이에 대해 일괄 적용된다.
 </div>
 </section><section class="section" id="inertial">
 <h2><span class="num">05</span> 연속 할당문의 관성지연</h2>
@@ -515,7 +515,7 @@ endmodule</code></pre></div>
 </div>
 <div class="note">
 <strong>다루는 범위</strong><br/>
-이 장에서는 두 할당 형식을 소개한다. blocking/nonblocking의 상세 동작은 다음 장인 행위수준 모델링에서 설명한다.
+이 장에서는 두 할당 형식을 소개한다. blocking/nonblocking의 상세 동작은 다음 장(행위수준 모델링)에서 다룬다.
 </div>
 </section><section class="section" id="init">
 <h2><span class="num">08</span> 절차형 할당으로 시뮬레이션 입력 생성</h2>
@@ -558,7 +558,7 @@ end</code></pre></div>
 <h3>9.2 variable 선언과 초기값</h3>
 <div class="example-title">예시 4-6</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>reg [3:0] A_reg = 4'h4;</code></pre></div>
-<p>위 선언을 다음과 같은 초기화와 같은 효과로 설명한다.</p>
+<p>위 선언은 다음 초기화와 효과가 같다.</p>
 <div class="example-title">예시 4-7</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>reg [3:0] A_reg;
 
@@ -739,7 +739,7 @@ endmodule</code></pre></div>
 <strong>사용 관점</strong><br/>
 이 절의 <code>force/release</code>는 회로의 정상적인 데이터패스를 기술하기보다는
 시뮬레이션에서 신호를 강제로 덮어쓰거나 특정 상태를 검증할 때 이해하는 것이 중요하다.
-PCA를 일반 절차형 할당과 구분되는 예외적인 구문으로 설명한다.
+PCA는 일반 절차형 할당과 구분되는 예외적인 구문이다.
 </div>
 </section><section class="section" id="summary">
 <h2><span class="num">12</span> 최종 핵심 정리</h2>

@@ -283,7 +283,7 @@ end
 endfunction</code></pre></div><div class="note"><strong>주소 폭과 용량</strong><br/>n비트 주소는 최대 2^n개의 항목을 선택할 수 있다. 이 예는 4비트 주소이므로 최대 16개 항목이다.</div>
 <div class="task"><div class="title">설계과제 10-4</div><p>4비트 BCD 입력을 8비트 FND 데이터로 변환하는 진리표를 모델링하고 검증한다.</p></div>
 </section><section class="section" id="mux">
-<h2><span class="num">05</span> 10.2 멀티플렉서</h2><p>4개의 4비트 입력 중 하나를 2비트 <code>sel</code>로 선택한다. if, 조건 연산자, case 세 표현이 같은 MUX로 합성되는 것을 보여준다.</p>
+<h2><span class="num">05</span> 10.2 멀티플렉서</h2><p>4개의 4비트 입력 중 하나를 2비트 <code>sel</code>로 선택한다. if, 조건 연산자, case 세 표현은 모두 같은 MUX로 합성된다.</p>
 <h3>6.1 코드 10-14 — if</h3><div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux4to1_if.v</span><span>VERILOG</span></span></div><pre><code>module mux4to1_if (
     input [3:0] a, b, c, d,
     input [1:0] sel,
@@ -734,7 +734,7 @@ initial begin
     #20 $finish;
 end
 endmodule</code></pre></div>
-<div class="task"><div class="title">설계과제 10-9 — Multiplexed Bus Driver</div><p>10-18처럼 MUX로 신호원을 선택한 뒤 하나의 버스 드라이버를 사용하여 버스 부하를 줄이는 구조를 조건 연산자로 모델링한다.</p></div>
+<div class="task"><div class="title">설계과제 10-9 — Multiplexed Bus Driver</div><p>MUX로 신호원을 선택한 뒤 하나의 버스 드라이버를 사용하여 버스 부하를 줄이는 구조를 조건 연산자로 모델링한다.</p></div>
 </section><section class="section" id="latch">
 <h2><span class="num">11</span> 10.6 case 문과 if 문의 합성</h2>
 <p>조합회로에서 일부 입력 조건에 대한 출력 할당이 빠지면 이전 값을 유지해야 하므로 latch가 합성된다.</p>

@@ -157,7 +157,7 @@ end
 endmodule</code></pre></div>
 <h3>12.1.2 SIPO 8비트 Shift Register</h3>
 <p>직렬 입력 <code>sdin</code>이 LSB로 들어오고 기존 비트가 매 clock마다 MSB 방향으로 한 칸 이동한다.
-중요한 점은 모든 bit가 <strong>같은 edge 직전의 값</strong>을 기준으로 이동해야 하므로 nonblocking 할당을 사용해야 한다.</p>
+모든 bit가 <strong>같은 edge 직전의 값</strong>을 기준으로 이동해야 하므로 nonblocking 할당을 사용한다.</p>
 <div class="flow"><span>sdin</span><span class="arrow">→</span><span>q[0]</span><span class="arrow">→</span><span>q[1]</span><span class="arrow">→ … →</span><span>q[7]</span></div>
 <div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 시프트 연산자 방식</strong><span class="file">shift_reg8b_shop.v</span><span>VERILOG</span></span></div><pre><code>module shift_reg8b_shop (
     input        clk,
@@ -471,7 +471,7 @@ end
 
 endmodule</code></pre></div>
 <h3>12.1.6 8비트 LFSR 의사난수 발생기</h3>
-<p>12.1의 마지막 실습은 CHAPTER 11의 8비트 LFSR 그림을 바탕으로 한다. 아래는 최대길이 tap을 적용한 구현 예이다.</p>
+<p>12.1의 마지막 실습은 11장에서 살펴본 8비트 LFSR이다. 아래는 최대길이 tap을 적용한 구현 예이다.</p>
 <div class="danger"><strong>All-zero lock</strong><br/>XOR feedback LFSR은 <code>8'h00</code>으로 초기화하면 영원히 0에서 빠져나오지 못한다.
 따라서 non-zero seed를 사용한다.</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><strong>8비트 LFSR — 최대길이 계열 예시</strong><span class="file">lfsr8.v</span><span>VERILOG</span></span></div><div class="code-note">LFSR tap은 x^8 + x^6 + x^5 + x^4 + 1 기준으로 사용한다.</div><pre><code>module lfsr8 (
@@ -564,7 +564,7 @@ begin
         default: bcd_to_fnd = 8'b1111_1111;
     endcase
 end
-endfunction</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — BCD Counter + FND Top</strong><span class="file">bcd_cnt_fnd.v</span><span>VERILOG</span></span></div><div class="code-note">자료는 별도 함수 파일 include 방식이지만, 전체 코드 확인이 쉽도록 함수까지 모듈 내부에 넣은 단일 파일 형태다.</div><pre><code>module bcd_cnt_fnd (
+endfunction</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — BCD Counter + FND Top</strong><span class="file">bcd_cnt_fnd.v</span><span>VERILOG</span></span></div><div class="code-note">전체 흐름을 한눈에 볼 수 있도록 함수까지 모듈 안에 넣은 단일 파일 구성이다.</div><pre><code>module bcd_cnt_fnd (
     input        clk,
     input        rst,
     output [7:0] fnd_scan,
@@ -605,14 +605,14 @@ assign fnd_scan = 8'b1111_1110;
 
 endmodule</code></pre></div>
 <div class="note"><strong>FND 극성과 비트 순서</strong><br/>
-위 패턴은 <code>{DP,G,F,E,D,C,B,A}</code> 순서의 active-low segment를 가정한 기준 코드이다.
+위 패턴은 <code>{DP,G,F,E,D,C,B,A}</code> 순서의 active-low segment 기준이다.
 실제 실습장비의 공통 애노드/공통 캐소드 및 bit 순서가 다르면 segment table만 조정한다.</div>
 </section><section class="section" id="s123"><h2><span class="num">03</span> 12.3 주파수 분주기 설계</h2>
 <h3>12.3.1 1/10 Frequency Divider</h3>
 <p>10Hz 입력에서 1Hz, 50% duty cycle을 만들려면 출력 상태를 입력 clock 5주기마다 반전하면 된다.
 따라서 전체 출력 한 주기는 입력 clock 10주기가 된다.</p>
 <div class="flow"><span>mclk 5회</span><span class="arrow">→</span><span>clk_1hz toggle</span><span class="arrow">+ mclk 5회</span><span>다시 toggle</span></div>
-<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 1/10 분주기</strong><span class="file">frq_div10.v</span><span>VERILOG</span></span></div><div class="code-note">분주 출력 자체는 외부 관찰용 신호이므로 register로 생성한다. reset은 mclk에 동기화했다.</div><pre><code>module frq_div10 (
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 1/10 분주기</strong><span class="file">frq_div10.v</span><span>VERILOG</span></span></div><div class="code-note">분주 출력 자체는 외부 관찰용 신호이므로 register로 생성한다. reset은 mclk에 동기화한다.</div><pre><code>module frq_div10 (
     input        mclk,
     input        rst,
     output       mclk_out,
@@ -822,7 +822,7 @@ always @(posedge clk) begin
     end
 end
 
-endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Keypad Testbench</strong><span class="file">tb_keypad_scan.v</span><span>VERILOG</span></span></div><div class="code-note">실제 keypad matrix의 전기적 결합까지 모델링한 것은 아니며, scan state에 따른 row 자극으로 decode 동작을 확인하는 RTL 테스트벤치다.</div><pre><code>`timescale 1ns/1ps
+endmodule</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — Keypad Testbench</strong><span class="file">tb_keypad_scan.v</span><span>VERILOG</span></span></div><div class="code-note">scan state에 맞춰 row를 자극하며 decode 동작을 확인하는 테스트벤치다. keypad의 전기적 특성은 모델링하지 않는다.</div><pre><code>`timescale 1ns/1ps
 
 module tb_keypad_scan;
 
@@ -879,7 +879,7 @@ end
 endmodule</code></pre></div>
 <h3>12.4.2 Key 값 FND 표시</h3>
 <p>12비트 one-hot <code>key_data</code>를 7-segment pattern으로 변환한다.
-요구대로 <code>* → A</code>, <code># → b</code>로 표시한다.</p>
+<code>*</code> 키는 <code>A</code>, <code>#</code> 키는 <code>b</code>로 표시한다.</p>
 <div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 / — Keypad + FND</strong><span class="file">keypad_fnd.v</span><span>VERILOG</span></span></div><pre><code>module keypad_fnd (
     input        clk,
     input        rst,
@@ -1137,8 +1137,8 @@ end
 
 endmodule</code></pre></div></section><section class="section" id="s126"><h2><span class="num">06</span> 12.6 스텝 모터 구동회로 설계</h2>
 <h3>12.6.1 스텝 모터 구동 구조</h3>
-<p>자료는 1kHz→50Hz 분주 clock을 만들고, magnetic sensor 출력을 IBUFG에 넣어 별도 clock으로 사용한다.
-교육적으로 동작을 이해하기에는 쉽지만 실제 RTL에서는 <strong>sensor를 clock으로 사용하지 않고</strong> system clock으로 동기화한 뒤 edge detect하는 편이 안정적이다.</p>
+<p>이 회로는 1kHz→50Hz 분주 clock을 만들고, magnetic sensor 출력을 IBUFG에 넣어 별도 clock으로 사용한다.
+동작을 이해하기에는 쉬운 구조지만, 실무 RTL에서는 <strong>sensor를 clock으로 사용하지 않고</strong> system clock으로 동기화한 뒤 edge detect하는 편이 안정적이다.</p>
 <div class="danger"><strong>CDC/Clocking 문제</strong><br/>
 <code>mag_sen</code>은 외부 sensor이므로 FPGA clock과 비동기이다.
 이를 그대로 <code>always @(posedge mag_sen)</code>의 clock으로 사용하면 새로운 clock domain이 만들어지고 timing constraint와 metastability 관리가 어려워진다.</div>
@@ -1345,8 +1345,8 @@ assign piezo_out = mag_sync &amp; clk;
 
 endmodule</code></pre></div></section><section class="section" id="s127"><h2><span class="num">07</span> 12.7 Color LED 디스플레이 회로 설계</h2>
 <h3>12.7.1 RGB Toggle</h3>
-<p>자료는 red/green/blue button 자체를 각각 clock으로 사용해 toggle FF를 만든다.
-이 때문에 XDC에 <code>CLOCK_DEDICATED_ROUTE FALSE</code>를 추가하도록 설명한다.
+<p>이 회로는 red/green/blue 버튼을 각각 clock으로 사용해 toggle FF를 만든다.
+그래서 XDC에 <code>CLOCK_DEDICATED_ROUTE FALSE</code>를 추가해야 한다.
 아래에서는 system clock을 추가하고 button을 동기화한 뒤 rising-edge pulse로 toggle한다.</p>
 <div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — RGB Toggle 권장형</strong><span class="file">cled_sync.v</span><span>VERILOG</span></span></div><div class="code-note">버튼 bounce 제거는 별도 debounce module이 필요하다. 여기서는 clock-domain 동기화와 edge detection까지만 포함한다.</div><pre><code>module cled_sync (
     input        clk,       // 보드의 정상적인 system clock 사용
@@ -1767,7 +1767,7 @@ begin
         default: data_line2 = 8'h20;
     endcase
 end
-endfunction</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>Testbench — LCD state/timing 확인</strong><span class="file">tb_lcd_display.v</span><span>VERILOG</span></span></div><div class="code-note">실제 LCD analog timing을 모델링하는 것이 아니라 lcd_e/lcd_rs/lcd_data sequence가 예상대로 발생하는지 보는 RTL 테스트벤치다.</div><pre><code>`timescale 1us/1ns
+endfunction</code></pre></div><div class="codeblock"><div class="codebar"><span class="meta"><strong>Testbench — LCD state/timing 확인</strong><span class="file">tb_lcd_display.v</span><span>VERILOG</span></span></div><div class="code-note">lcd_e/lcd_rs/lcd_data가 예상한 순서대로 나오는지 확인하는 테스트벤치다. LCD의 아날로그 타이밍은 모델링하지 않는다.</div><pre><code>`timescale 1us/1ns
 
 module tb_lcd_display;
 
@@ -1805,10 +1805,10 @@ end
 
 endmodule</code></pre></div>
 <h3>12.8.2 2-Frame LCD Display</h3>
-<p>12.8.2는 첫 번째 frame을 2초 표시한 뒤 두 번째 frame으로 전환하고 다시 반복한다. 두 번째 frame은 "FPGA RTL DESIGN "과 "DIGITAL SYSTEM "을 16문자 예시 문자열로 사용한다.</p>
+<p>12.8.2에서는 첫 번째 frame을 2초 표시한 뒤 두 번째 frame으로 전환하기를 반복한다. 두 번째 frame은 "FPGA RTL DESIGN "과 "DIGITAL SYSTEM "을 16문자 예시 문자열로 사용한다.</p>
 <div class="flow"><span>초기화</span><span class="arrow">→</span><span>Frame 1 Line1/2</span><span class="arrow">→ 2s</span>
 <span>Frame 2 Line1/2</span><span class="arrow">→ 2s</span><span>Clear</span><span class="arrow">→</span><span>Frame 1 반복</span></div>
-<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 2-Frame LCD</strong><span class="file">lcd_2frame_disp.v</span><span>VERILOG</span></span></div><div class="code-note">두 번째 frame 문자열은 예시값이므로 필요하면 원하는 ASCII 문자열로 교체한다.</div><pre><code>module lcd_2frame_disp (
+<div class="codeblock"><div class="codebar"><span class="meta"><strong>코드 — 2-Frame LCD</strong><span class="file">lcd_2frame_disp.v</span><span>VERILOG</span></span></div><div class="code-note">두 번째 frame 문자열은 원하는 ASCII 문자열로 바꿔도 된다.</div><pre><code>module lcd_2frame_disp (
     input        clk,       // 1 kHz
     input        reset,
     output reg   lcd_e,
@@ -2136,7 +2136,7 @@ endfunction</code></pre></div>
 <p>✓ counter bit width가 terminal count를 표현하는가?</p>
 <p>✓ FND/LCD polarity와 pin order를 확인했는가?</p>
 <p>✓ Testbench와 Board pin constraint를 구분했는가?</p>
-<p>✓ 실제 timing/resource 결과를 추측하지 않았는가?</p>
+<p>✓ timing/resource는 구현 보고서로 확인했는가?</p>
 </div>
 </section>
 <div class="chapter-links" id="chapter-links"></div>

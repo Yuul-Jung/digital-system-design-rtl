@@ -68,7 +68,7 @@ code{background:#f6ede2}
 <main class="content" id="main-content">
 <section class="section" id="overview">
 <h2><span class="num">00</span> 전체 개요</h2>
-<p>Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)의 소스 코드는 여러 종류의 <strong>어휘 토큰(lexical token, 렉시컬 토큰)</strong>으로 구성된다. 이 절에서는 소스 코드에서 가장 기본이 되는 표현 규칙을 다룬다.</p>
+<p>Verilog HDL(하드웨어 기술 언어)의 소스 코드는 여러 종류의 <strong>어휘 토큰(lexical token)</strong>으로 구성된다. 이 절에서는 소스 코드에서 가장 기본이 되는 표현 규칙을 다룬다.</p>
 <div class="flow">
 <span>여백</span><span class="arrow">→</span>
 <span>주석</span><span class="arrow">→</span>
@@ -127,7 +127,7 @@ Verilog 코드를 읽을 때 먼저 “문자가 어떤 토큰으로 분해되�
 'h837FF   // size가 생략된 16진수
 'o7460    // size가 생략된 8진수
 4af       // 문법 오류: 16진수라면 'h가 필요하고, 10진수에는 a, f를 사용할 수 없음</code></pre></div>
-<p>비트 크기와 밑수 지정이 없는 단순 10진수를 signed 정수로 설명하며, 밑수만 지정하면 unsigned, <code>s</code>와 밑수를 함께 지정하면 signed로 취급된다고 설명한다.</p>
+<p>비트 크기와 밑수가 없는 단순 10진수는 signed 정수이다. 밑수만 지정하면 unsigned, <code>s</code>와 밑수를 함께 지정하면 signed로 취급된다.</p>
 <h3>3.3 Sized 상수 예</h3>
 <div class="example-title">예시 1-2</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>4'b1001   // 4비트 2진수 1001
@@ -155,7 +155,7 @@ Verilog 코드를 읽을 때 먼저 “문자가 어떤 토큰으로 분해되�
 -'d12     // 밑수만 지정 → unsigned 해석
 -'sd12    // s와 밑수 지정 → signed 해석</code></pre></div>
 <div class="tip"><strong>핵심 이해</strong><br/>
-<code>s</code>는 비트 패턴을 바꾸는 기호가 아니다. 동일한 비트열이라도 <strong>signed인지 unsigned인지에 따라 수치 해석이 달라진다.</strong> 음수는 2의 보수(two's complement, 투스 컴플리먼트) 형식으로 표현된다.</div>
+<code>s</code>는 비트 패턴을 바꾸는 기호가 아니다. 동일한 비트열이라도 <strong>signed인지 unsigned인지에 따라 수치 해석이 달라진다.</strong> 음수는 2의 보수(two's complement) 형식으로 표현된다.</div>
 <h3>3.5 밑줄을 이용한 가독성 향상</h3>
 <div class="example-title">예시 1-4</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>27_195_000
@@ -172,7 +172,7 @@ initial begin
     c = 'hz3;   // 상위 쪽에 z가 확장
     d = 'h0z3;  // 지정된 값 그대로 할당
 end</code></pre></div>
-<p>지정된 비트 수보다 값의 자릿수가 작을 때 상위 비트 쪽에 <code>0</code>, <code>x</code>, <code>z</code>가 상황에 맞게 채워지는 동작을 설명한다.</p>
+<p>값의 자릿수가 지정된 비트 수보다 작으면 상위 비트가 상황에 따라 <code>0</code>, <code>x</code>, <code>z</code>로 채워진다.</p>
 <h3>3.7 실수형 상수</h3>
 <p>실수형 상수는 10진 실수 또는 과학 표기법으로 표현한다. 지수는 <code>e</code> 또는 <code>E</code>를 사용할 수 있다. 소수점을 사용할 때는 소수점 좌우에 숫자가 있어야 한다.</p>
 <div class="example-title">예시 1-6: 유효한 실수형 표현</div>
@@ -189,10 +189,10 @@ end</code></pre></div>
 4.E3
 .2e-7</code></pre></div>
 <div class="warn"><strong>정수 객체에 실수 값을 넣을 때</strong><br/>
-실수 값이 정수형 객체에 할당되면 가장 가까운 정수로 반올림되어 변환된다고 설명한다. 예: 35.7 → 36, 35.5 → 36, -1.5 → -2.</div>
+실수 값이 정수형 객체에 할당되면 가장 가까운 정수로 반올림되어 변환된다. 예: 35.7 → 36, 35.5 → 36, -1.5 → -2.</div>
 </section><section class="section" id="string">
 <h2><span class="num">03</span> 문자열</h2>
-<p>두 개의 이중 인용부호(<code>" "</code>) 사이에 있는 문자들의 연속을 문자열(string, 스트링)이라고 한다. 문자열은 한 줄 안에 존재해야 하며, 여러 줄에 직접 걸친 문자열은 허용되지 않는다.</p>
+<p>두 개의 이중 인용부호(<code>" "</code>) 사이에 있는 문자들의 연속을 문자열(string)이라고 한다. 문자열은 한 줄 안에 존재해야 하며, 여러 줄에 직접 걸친 문자열은 허용되지 않는다.</p>
 <p>문자열을 <strong>각 문자당 8비트 ASCII 값의 연속</strong>으로 취급하며, 문자열을 저장하는 <code>reg</code> 변수의 폭은 필요한 문자 수 × 8비트로 계산한다.</p>
 <div class="example-title">예시 1-8: 12문자 문자열 저장</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>reg [8*12:1] string_var;
@@ -251,9 +251,9 @@ error_condition
 merge_ab
 _bus3
 n$657</code></pre></div>
-<div class="note">식별자의 최대 길이가 도구에 따라 제한될 수 있으며, 표준상 최대 1,024문자 이내라고 설명한다.</div>
+<div class="note">식별자의 최대 길이가 도구에 따라 제한될 수 있으며, 표준상 최대 1,024문자 이내이다.</div>
 <h3>5.2 키워드(keyword)</h3>
-<p>Verilog HDL 문법을 구성하기 위해 미리 정의된 식별자를 키워드라고 한다. <strong>모든 키워드가 소문자로 정의</strong>된다고 설명한다.</p>
+<p>Verilog HDL 문법을 구성하기 위해 미리 정의된 식별자를 키워드라고 한다. 키워드는 <strong>모두 소문자</strong>이다.</p>
 <div class="keyword-grid">
 <div>always</div><div>and</div><div>assign</div><div>automatic</div><div>begin</div><div>buf</div><div>bufif0</div><div>bufif1</div>
 <div>case</div><div>casex</div><div>casez</div><div>cell</div><div>cmos</div><div>config</div><div>deassign</div><div>default</div>
@@ -274,7 +274,7 @@ n$657</code></pre></div>
 </div>
 </section><section class="section" id="system">
 <h2><span class="num">05</span> 시스템 태스크와 시스템 함수</h2>
-<p>문자 <code>$</code>는 시스템 태스크(system task, 시스템 태스크)와 시스템 함수(system function, 시스템 함수)를 호출할 때 사용된다. <code>$</code> 뒤의 식별자는 시스템 태스크 또는 시스템 함수로 해석된다.</p>
+<p>문자 <code>$</code>는 시스템 태스크(system task)와 시스템 함수(system function)를 호출할 때 사용된다. <code>$</code> 뒤의 식별자는 시스템 태스크 또는 시스템 함수로 해석된다.</p>
 <div class="example-title">예시 1-11</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>$display("display a message");  // 문자열 출력
 $finish;                        // 시뮬레이션 종료</code></pre></div>
@@ -282,7 +282,7 @@ $finish;                        // 시뮬레이션 종료</code></pre></div>
 이 절의 예는 회로 자체의 데이터패스가 아니라 <strong>시뮬레이션 동작을 제어하거나 확인하는 코드</strong>의 대표적인 형태다.</div>
 </section><section class="section" id="directive">
 <h2><span class="num">06</span> 컴파일러 지시어</h2>
-<p>grave accent 또는 backtick(<code>`</code>)은 컴파일러 지시어(compiler directive, 컴파일러 디렉티브)를 지정할 때 사용된다. 지시어는 Verilog 소스의 컴파일 과정에 영향을 주며, 읽힌 시점부터 효력이 발생한다.</p>
+<p>grave accent 또는 backtick(<code>`</code>)은 컴파일러 지시어(compiler directive)를 지정할 때 사용된다. 지시어는 Verilog 소스의 컴파일 과정에 영향을 주며, 읽힌 시점부터 효력이 발생한다.</p>
 <div class="example-title">예시 1-12</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>`define wordsize 8</code></pre></div>
 <p>이 예에서 소스 코드 안의 <code>wordsize</code> 매크로는 <code>8</code>로 치환되어 컴파일된다.</p>
@@ -291,7 +291,7 @@ $finish;                        // 시뮬레이션 종료</code></pre></div>
 <p>속성은 Verilog HDL을 지원하는 시뮬레이터나 회로 합성 툴의 동작을 제어하기 위해 객체, 문장, 문장 그룹에 부가할 수 있다. 기본 형식은 다음과 같다.</p>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>(* attribute_name = value *)</code></pre></div>
 <div class="warn"><strong>주의</strong><br/>
-속성의 구체적인 의미와 지원 여부는 사용하는 EDA(Electronic Design Automation, 전자설계자동화) 툴의 설명서를 확인하도록 안내한다.</div>
+속성의 구체적인 의미와 지원 여부는 사용하는 EDA(Electronic Design Automation, 전자설계자동화) 툴의 설명서에서 확인한다.</div>
 <h3>8.1 case 문에 속성 부가</h3>
 <div class="example-title">예시 1-13</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>(* full_case, parallel_case *)
@@ -384,7 +384,7 @@ endmodule</code></pre></div>
 </section><section class="section" id="overview-2">
 <h2><span class="num">09</span> Verilog HDL 모델링 방법 전체 개요</h2>
 <p>
-Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)의 구문은 크게
+Verilog HDL(하드웨어 기술 언어)의 구문은 크게
 <strong>회로 합성용</strong>, <strong>시뮬레이션용</strong>,
 <strong>라이브러리 설계용</strong>의 세 유형으로 구분한다.
 </p>
@@ -493,7 +493,7 @@ Verilog HDL은 <strong>module(모듈)</strong>을 기본 설계 단위로 한다
 <strong>output 포트</strong><br/> 내부: net 또는 reg<br/> 외부: net으로 연결 </div>
 </div>
 <div class="note">
-<strong>의 내부 구성 그림이 강조하는 내용</strong><br/>
+<strong>모듈 내부 구성의 핵심</strong><br/>
 모듈 내부에서는 연결을 표현하는 <strong>net 자료형</strong>과,
 <code>always</code> 또는 <code>initial</code> 블록에서 값을 다루는
 <strong>variable 자료형</strong>이 서로 다른 역할을 한다.
@@ -505,7 +505,7 @@ Verilog HDL은 <strong>module(모듈)</strong>을 기본 설계 단위로 한다
 <strong>게이트 프리미티브 모델링</strong>,
 <strong>연속 할당 모델링</strong>,
 <strong>행위수준 모델링</strong>,
-<strong>하위모듈 인스턴스를 이용한 구조적 모델링</strong>을 소개한다.
+<strong>하위모듈 인스턴스를 이용한 구조적 모델링</strong>을 차례로 살펴본다.
 </p>
 <table class="compare">
 <thead>
@@ -536,7 +536,7 @@ Verilog HDL은 <strong>module(모듈)</strong>을 기본 설계 단위로 한다
 </table>
 </section><section class="section" id="gate">
 <h2><span class="num">12</span> 게이트 프리미티브를 이용한 모델링</h2>
-<p>의 반가산기(half adder, 하프 애더)는 입력 <code>a</code>, <code>b</code>와
+<p>반가산기(half adder)는 입력 <code>a</code>, <code>b</code>와
 출력 <code>sum</code>, <code>cout</code>으로 구성된다.
 XOR 게이트와 NAND → NOT 경로를 사용해 반가산기를 구성한다.
 </p>
@@ -556,7 +556,7 @@ XOR 게이트와 NAND → NOT 경로를 사용해 반가산기를 구성한다.
 <span>→</span>
 <span class="sig">cout</span>
 </div>
-<div class="example-title">그림 1-9(b)의 모델링 코드</div>
+<div class="example-title">반가산기 모델링 코드</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">half_adder.v</span><span>VERILOG</span></span></div><pre><code>module half_adder (
     input  a,
     input  b,
@@ -619,7 +619,7 @@ endmodule</code></pre></div>
 <p>
 행위수준 모델링은 조합회로와 순차회로를 모두 기술할 수 있으며,
 테스트벤치 작성에도 사용된다.
-2비트 2:1 멀티플렉서와 D 플립플롭을 예제로 제시한다.
+2비트 2:1 멀티플렉서와 D 플립플롭 예제로 살펴보자.
 </p>
 <h3>6.1 2비트 2:1 멀티플렉서</h3>
 <div class="logic">
@@ -631,7 +631,7 @@ endmodule</code></pre></div>
 <span>↗</span>
 <span class="sig">in1[1:0]</span>
 </div>
-<div class="example-title">그림 1-10(b)</div>
+<div class="example-title">2비트 2:1 멀티플렉서 코드</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">mux2b_if.v</span><span>VERILOG</span></span></div><pre><code>module mux2b_if (
     input  [1:0] in0,
     input  [1:0] in1,
@@ -668,7 +668,7 @@ endmodule</code></pre></div>
 <span>→</span>
 <span class="sig">q</span>
 </div>
-<div class="example-title">그림 1-11(b)</div>
+<div class="example-title">D 플립플롭 코드</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">D_ff.v</span><span>VERILOG</span></span></div><pre><code>module D_ff (
     input  clk,
     input  din,
@@ -705,7 +705,7 @@ D 플립플롭의 <code>q</code>는 <strong>클록 상승에지</strong>에서
 </div>
 </section><section class="section" id="structural">
 <h2><span class="num">15</span> 하위모듈 인스턴스를 이용한 구조적 모델링</h2>
-<p>에서는 1비트 전가산기(full adder, 풀 애더)를
+<p>여기서는 1비트 전가산기(full adder)를
 <strong>2개의 반가산기 + 1개의 OR 게이트</strong>로 구성한다.
 </p>
 <div class="logic">
@@ -811,12 +811,12 @@ endmodule</code></pre></div>
 </ol>
 <div class="note">
 <strong>테스트벤치는 실제 FPGA 회로가 아니다</strong><br/>
-테스트벤치를 회로 설계 모듈과 분리하여 별도 파일로 작성하는 것이 일반적이라고 설명한다.
+테스트벤치를 회로 설계 모듈과 분리하여 별도 파일로 작성하는 것이 일반적이다.
 <code>#delay</code>, <code>$finish</code>, <code>$monitor</code>,
 <code>$display</code>, <code>$write</code> 등은 시뮬레이션 검증에서 사용된다.
 </div>
 <h3>8.2 기본 테스트벤치 예</h3>
-<div class="example-title">그림 1-14(a)의 개념</div>
+<div class="example-title">기본 테스트벤치 구조</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">test_fix.v</span><span>VERILOG</span></span></div><pre><code>module test_fix();
 
 reg a, b, c;
@@ -878,7 +878,7 @@ endmodule</code></pre></div>
 즉, 가능한 입력 조건을 빠짐없이 자극하여 결과를 확인한다.
 </div>
 <h3>8.4 D 플립플롭 테스트벤치와 클록 생성</h3>
-<p>의 예는 <code>dff_sr</code> 모듈 검증을 위해
+<p>다음 예는 <code>dff_sr</code> 모듈 검증을 위해
 클록 생성용 <code>initial</code> 블록과
 <code>set</code>, <code>reset</code>, <code>din</code>을 만드는
 또 하나의 <code>initial</code> 블록을 사용한다.
@@ -926,13 +926,13 @@ endmodule</code></pre></div>
 <strong>클록 주기</strong><br/>
 클록은 10 time unit마다 반전되므로,
 LOW 10 + HIGH 10의 한 주기는 <strong>20 time unit</strong>이다.
-이를 20 ns 주기의 클록으로 설명한다.
+시간 단위가 1 ns라면 20 ns 주기의 클록이다.
 </div>
 <div class="warn">
 <strong>초기화가 필요한 이유</strong><br/>
 <code>reg</code>의 초기값이 기본적으로 <code>x</code>(unknown)이므로
 <code>clock = ~clock;</code> 방식으로 클록을 생성하려면
-먼저 <code>clock = 1'b0;</code>처럼 확정된 값으로 초기화해야 한다고 설명한다.
+먼저 <code>clock = 1'b0;</code>처럼 확정된 값으로 초기화해야 한다.
 </div>
 </section><section class="section" id="summary">
 <h2><span class="num">17</span> 최종 핵심 정리</h2>

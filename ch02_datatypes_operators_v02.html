@@ -84,7 +84,7 @@ code{background:#f6ede2}
 <section class="section" id="intro">
 <h2><span class="num">00</span> CHAPTER 02 개요</h2>
 <p>
-Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)은 일반적인 소프트웨어 프로그래밍 언어와 유사하게
+Verilog HDL(하드웨어 기술 언어)은 일반적인 소프트웨어 프로그래밍 언어와 유사하게
 자료형과 연산자를 제공하지만, 자료형은 단순히 “값을 담는 형식”만 의미하지 않는다.
 <strong>신호가 어떤 방식으로 구동되고, 값이 어떻게 유지되며, 어떤 하드웨어 구조를 표현하는지</strong>와 직접 연결된다.
 </p>
@@ -104,7 +104,7 @@ Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)은 일반적인 소프
 <strong>이 장핵심 관점</strong><br/>
 같은 “신호”처럼 보여도 <code>wire</code>와 <code>reg</code>는
 값을 받는 방식과 의미가 다르다.
-Verilog 소스는 논리합성(logic synthesis, 로직 신서시스)을 통해 실제 회로로 변환되므로
+Verilog 소스는 논리합성(logic synthesis)을 통해 실제 회로로 변환되므로
 자료형과 연산자를 코드 문법이 아니라 <strong>회로 구조</strong>와 연결해서 이해해야 한다.
 </div>
 <table>
@@ -210,8 +210,7 @@ tri [15:0] busa;</code></pre></div>
 <h3>3.3 wire와 tri</h3>
 <p>
 <code>wire</code>와 <code>tri</code>는 문법과 기본 기능이 유사하다.
-둘의 구분을 하드웨어에서 3상태(tri-state, 트라이스테이트)를
-명확히 나타내기 위한 표현상의 차이로 설명한다.
+tri는 하드웨어에서 3상태(tri-state)임을 드러내기 위한 표현이다.
 </p>
 <div class="note">
 <strong>다중 구동자 충돌</strong><br/>
@@ -239,9 +238,7 @@ tri [15:0] busa;</code></pre></div>
 </div>
 <div class="warn">
 <strong>기술적 배경</strong><br/>
-wired-AND는 open-collector 로직,
-wired-OR는 emitter-coupled 로직과 연계해서 설명되며,
-최신 CMOS 구현에서는 이러한 물리적 구조가 일반적이지 않다고 언급한다.
+wired-AND는 open-collector 로직, wired-OR는 emitter-coupled 로직에서 비롯된 구조로, 최신 CMOS 구현에서는 거의 쓰이지 않는다.
 </div>
 <div class="example-title">코드 2-1: wire와 wand 자료형의 차이</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">wand_ex.v</span><span>VERILOG</span></span></div><pre><code>module wand_ex;
@@ -284,8 +281,7 @@ endmodule</code></pre></div>
 <div class="note">
 <strong>시뮬레이션</strong><br/>
 <code>w_wire</code>와 <code>w_wand</code>가
-동일한 두 구동자를 갖더라도 자료형의 결정 규칙 때문에
-서로 다른 결과를 갖는 점을 보여준다.
+같은 두 구동자를 갖더라도 자료형의 결정 규칙에 따라 결과가 달라진다.
 </div>
 </section><section class="section" id="trireg">
 <h2><span class="num">04</span> trireg · tri0 · tri1 · supply0 · supply1</h2>
@@ -320,13 +316,13 @@ endmodule</code></pre></div>
 <h3>5.3 supply0 / supply1</h3>
 <p>
 <code>supply0</code>와 <code>supply1</code>은 각각 접지와 전원 연결을 모델링하는 net이며,
-이들이 supply 강도를 갖는다고 설명한다.
+supply 강도를 갖는다.
 </p>
 <h3>5.4 신호강도</h3>
 <p>
-net에서 charge strength와 drive strength를 설명하며,
+net에는 charge strength와 drive strength가 있으며,
 특히 <code>trireg</code>의 charge strength를
-<code>small</code>, <code>medium</code>, <code>large</code>로 지정할 수 있다고 설명한다.
+<code>small</code>, <code>medium</code>, <code>large</code>로 지정할 수 있다.
 </p>
 <div class="example-title">예시 2-2: 신호강도 지정</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>trireg a;
@@ -334,8 +330,8 @@ trireg (large) #(0,0,50) cap1;
 trireg (small) signed [3:0] cap2;</code></pre></div>
 <div class="warn">
 <strong>RTL 관점의 주의</strong><br/>
-신호강도가 대부분의 합성 툴에서 지원되지 않으므로
-RTL 수준 모델링에는 사용하지 않는 것이 좋다고 설명한다.
+신호강도는 대부분의 합성 툴에서 지원되지 않으므로
+RTL 수준 모델링에는 사용하지 않는 것이 좋다.
 즉, 이 부분은 주로 시뮬레이션 모델과 라이브러리 수준에서 이해하는 편이 적절하다.
 </div>
 </section><section class="section" id="variable">
@@ -366,7 +362,7 @@ variable절차형 할당문이 실행될 때 값이 바뀌며,
 variable에는 음의 값을 넣을 수 있지만,
 부호를 유지해서 해석하려면 <code>signed reg</code>, <code>integer</code>,
 <code>real</code>, <code>realtime</code>처럼 signed 성격을 갖는 자료형을 사용해야 한다.
-unsigned reg와 time을 unsigned 값으로 취급한다고 설명한다.
+unsigned reg와 time은 unsigned 값으로 취급된다.
 </div>
 </section><section class="section" id="reg">
 <h2><span class="num">06</span> reg 자료형</h2>
@@ -393,7 +389,6 @@ reg [4:0] x, y, z;</code></pre></div>
 </table>
 <h3>7.1 reg라고 해서 모두 플립플롭은 아니다</h3>
 <p>
-이 부분을 매우 중요하게 설명한다.
 <code>reg</code>는 플립플롭이나 래치 같은 저장소자를 모델링할 때 사용할 수 있지만,
 조합회로의 출력 변수에도 사용될 수 있다.
 따라서 <strong>reg 선언 자체가 하드웨어 레지스터를 의미하지 않는다.</strong>
@@ -446,18 +441,18 @@ endmodule</code></pre></div>
 <p>
 <code>integer</code>는 하드웨어 레지스터 자체를 표현하기보다
 범용 정수 변수로 사용된다.
-signed reg처럼 취급되며 연산 결과가 2의 보수 형태가 된다고 설명한다.
+signed reg처럼 동작하며 연산 결과는 2의 보수 형태이다.
 </p>
 <h3>8.2 time</h3>
 <p>
 <code>time</code>은 시뮬레이션 시간을 저장하거나 타이밍을 확인하는 데 사용되며,
 주로 시스템 태스크 <code>$time</code>과 함께 사용된다.
-64비트 unsigned reg와 유사하게 동작한다고 설명한다.
+64비트 unsigned reg처럼 동작한다.
 </p>
 <h3>8.3 real / realtime</h3>
 <p>
-<code>real</code>실수값을 저장하며,
-<code>realtime</code>은 real과 동일하게 취급되어 상호 교환 가능하다고 설명한다.
+<code>real</code>은 실수값을 저장하며,
+<code>realtime</code>은 real과 동일하게 취급되어 상호 교환 가능하다.
 다만 일부 연산은 real에 사용할 수 없으며,
 비트 선택이나 부분 선택도 사용할 수 없다.
 </p>
@@ -469,7 +464,7 @@ realtime rtime;</code></pre></div>
 <div class="warn">
 <strong>real 사용 제한</strong><br/>
 real 변수에 대해 edge 지시자를 사용할 수 없고,
-비트 참조(bit select)나 부분 참조(part select)를 할 수 없다고 설명한다.
+비트 참조(bit select)나 부분 참조(part select)를 할 수 없다.
 또한 실수값이 정수형으로 변환될 때 가장 가까운 정수로 반올림된다.
 </div>
 </section><section class="section" id="vector">
@@ -707,9 +702,9 @@ signed로 선언했는지,
 </section><section class="section" id="overview">
 <h2><span class="num">11</span> Verilog 연산자 전체 개요</h2>
 <p>
-Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)의 연산자는 C 언어와 비슷한 형태가 많지만,
+Verilog HDL(하드웨어 기술 언어)의 연산자는 C 언어와 비슷한 형태가 많지만,
 결과가 실제 논리회로로 합성될 수 있다는 점에서 단순한 프로그램 연산과는 다르게 보아야 한다.
-결합·반복, 산술, 관계, 논리, 등가, 비트, 축약, 시프트, 조건, event 관련 연산자들을 제시한다.
+결합·반복, 산술, 관계, 논리, 등가, 비트, 축약, 시프트, 조건, event 연산자를 차례로 살펴본다.
 </p>
 <div class="opgrid">
 <div class="opcard"><strong>결합·반복</strong><br/><span class="op">{ }, {{ }}</span></div>
@@ -729,7 +724,7 @@ Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)의 연산자는 C 언�
 </div>
 <h3>1.1 실수형 피연산자</h3>
 <p>
-일부 연산자만 real(실수형) 피연산자를 지원한다고 설명한다.
+일부 연산자만 real(실수형) 피연산자를 지원한다.
 실수형 값이 논리 또는 관계 연산자에 사용되면 결과는 1비트 값이 된다.
 </p>
 <table>
@@ -793,8 +788,8 @@ Verilog HDL(베릴로그 HDL, 하드웨어 기술 언어)의 연산자는 C 언�
 <li>sized, based 정수: <code>16'd12</code>, <code>16'sd12</code></li>
 </ul>
 <p>
-밑수 지정자가 없는 정수를 signed로, 밑수만 지정한 정수를 unsigned로,
-<code>s</code>가 함께 지정된 경우 signed로 해석하는 차이를 강조한다.
+밑수 지정자가 없는 정수는 signed, 밑수만 지정한 정수는 unsigned,
+<code>s</code>를 함께 지정한 정수는 signed로 해석한다.
 </p>
 <div class="example-title">예시 2-10: 수식에서 정수형 수의 처리</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>integer IntA, IntB, IntC, IntD;
@@ -833,7 +828,7 @@ RTL에서 상수 표기법은 단순한 문법 문제가 아니라 실제 연산
 <div class="note">
 <strong>x/z가 포함되면</strong><br/>
 산술 연산의 피연산자 비트에 <code>x</code> 또는 <code>z</code>가 포함되어 있으면
-결과를 <code>x</code>로 설명한다.
+결과는 <code>x</code>가 된다.
 </div>
 <h3>4.1 나누기와 나머지</h3>
 <ul>
@@ -909,7 +904,7 @@ E &lt;  F   // x</code></pre></div>
 <ul>
 <li>두 피연산자가 모두 signed integer 계열이면 signed 값으로 비교한다.</li>
 <li>한쪽이 real이면 다른 쪽도 실수형으로 변환한 뒤 비교한다.</li>
-<li>그 외의 경우 unsigned 비교로 설명한다.</li>
+<li>그 밖의 경우에는 unsigned로 비교한다.</li>
 </ul>
 <h3>5.2 산술 연산자와의 우선순위</h3>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>a &lt; b - 1
@@ -944,8 +939,8 @@ F === H   // 0
 G !== H   // 1</code></pre></div>
 <div class="warn">
 <strong>RTL 합성 주의</strong><br/>
-<code>===</code>, <code>!==</code>가 일부 EDA 툴에서 논리합성이 지원되지 않을 수 있으므로,
-합성용 RTL 수준 모델링에는 사용하지 않는 것이 좋다고 설명한다.
+<code>===</code>와 <code>!==</code>는 일부 EDA 툴에서 합성되지 않을 수 있으므로,
+합성용 RTL 수준 모델링에는 사용하지 않는 것이 좋다.
 테스트벤치에서는 x/z 상태까지 정확히 비교할 때 유용하다.
 </div>
 </section><section class="section" id="logic-2">
@@ -1184,7 +1179,7 @@ assign busa = drive_busa ? data : 16'bz;</code></pre></div>
 <span>busa = z</span>
 </div>
 <p class="small">
-drive_busa가 x일 때 조건의 모호성 때문에 busa의 각 비트가 비교 규칙에 따라 결정된다고 설명한다.
+drive_busa가 x일 때 조건의 모호성 때문에 busa의 각 비트가 비교 규칙에 따라 결정된다.
 </p>
 </section><section class="section" id="concat">
 <h2><span class="num">22</span> 2.2.9 결합 및 반복 연산자</h2>
@@ -1208,7 +1203,7 @@ assign addr_bus = {addr_h, addr_l};</code></pre></div>
 <div class="note">
 <strong>비트 폭</strong><br/>
 8비트 + 8비트를 결합하므로 결과는 16비트다.
-결합 연산자는 각 피연산자의 크기를 알 수 있어야 하므로 unsized 상수의 사용을 허용하지 않는다고 설명한다.
+결합 연산자는 각 피연산자의 크기를 알 수 있어야 하므로 unsized 상수의 사용을 허용하지 않는다.
 </div>
 <h3>12.2 결합 연산자를 좌변에 사용</h3>
 <div class="example-title">예시 2-24</div>

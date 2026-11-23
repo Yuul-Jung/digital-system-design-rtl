@@ -96,7 +96,7 @@ code{background:#f6ede2}
 <p>
 앞 장의 게이트 프리미티브, 연속 할당문, 구조적 모델링은
 회로의 <strong>구조</strong>를 직접 표현하는 성격이 강하다.
-반면 행위수준 모델링(behavioral modeling, 비헤이비어럴 모델링)은
+반면 행위수준 모델링(behavioral modeling)은
 회로가 “어떻게 동작해야 하는가”를 조건, 이벤트, 반복, 순차적 문장으로 표현한다.
 </p>
 <div class="grid">
@@ -145,7 +145,7 @@ Verilog를 C 언어처럼 소스 전체가 위에서 아래로 한 줄씩 실행
 <p>
 <code>always</code>는 행위수준 모델링의 대표적인 구문이다.
 조합회로, 순차회로, 테스트벤치에 폭넓게 사용할 수 있으며
-시뮬레이션 동안 반복적으로 실행되는 구조라고 설명한다.
+시뮬레이션 동안 반복적으로 실행되는 구조이다.
 </p>
 <div class="syntax">
 <code>always [@(sensitivity_list)] begin
@@ -212,7 +212,7 @@ endmodule</code></pre></div>
 <strong>Clock 기준 해석</strong><br/>
 <code>din</code>이 아무리 많이 변해도 <code>clk</code> 상승에지가 오기 전에는
 <code>qout</code>이 갱신되지 않는다.
-즉, 코드핵심은 “값”보다 <strong>언제 저장되는가</strong>이다.
+핵심은 값 자체보다 그 값이 <strong>언제 저장되는가</strong>이다.
 </div>
 </section><section class="section" id="sensitivity">
 <h2><span class="num">02</span> 조합회로와 감지신호목록</h2>
@@ -243,7 +243,7 @@ endmodule</code></pre></div>
 <code>sel</code>만 바뀌고 <code>a</code>, <code>b</code>는 그대로라면
 <code>always</code>가 다시 실행되지 않는다.
 따라서 RTL 시뮬레이션에서 출력이 즉시 바뀌지 않는다.
-이 경우 합성 전 RTL 시뮬레이션과 합성 후 결과가 달라질 수 있음을 지적한다.
+이 경우 합성 전 RTL 시뮬레이션과 합성 후 결과가 달라질 수 있다.
 </div>
 <h3>3.1 @(*) 사용</h3>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>always @(*) begin
@@ -303,7 +303,7 @@ endmodule</code></pre></div>
 end</code>
 </div>
 <p>
-<code>initial</code>을 시뮬레이션 동안 한 번 실행되는 구문으로 설명하며,
+<code>initial</code>은 시뮬레이션 동안 한 번만 실행되며,
 테스트벤치에서 초기화와 입력 파형 생성에 사용한다.
 </p>
 <div class="example-title">예시 5-3: 초기화</div>
@@ -321,7 +321,7 @@ end</code></pre></div>
     #10 din = 6'b011000;
     #10 din = 6'b001000;
 end</code></pre></div>
-<div class="warn">initial은 테스트벤치의 초기화와 입력 파형 생성에 사용하는 시뮬레이션 구문으로 다룬다.</div>
+<div class="warn">initial은 시뮬레이션 전용 구문이므로 합성 대상 회로에는 사용하지 않는다.</div>
 <h3>4.4 서로 다른 주기의 두 신호</h3>
 <div class="example-title">코드 5-5</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">periodic_sig_gen.v</span><span>VERILOG</span></span></div><pre><code>module periodic_sig_gen;
@@ -386,7 +386,7 @@ endmodule</code></pre></div>
 </ul>
 <div class="note">
 우변 비트 수가 좌변보다 작고 우변이 signed이면,
-좌변 폭에 맞춰 sign extension(부호 확장)이 이루어진다고 설명한다.
+좌변 폭에 맞춰 sign extension(부호 확장)이 이루어진다.
 </div>
 </section><section class="section" id="blocking">
 <h2><span class="num">05</span> 5.2.1 blocking 할당문</h2>
@@ -551,7 +551,7 @@ endmodule</code></pre></div>
 <p>
 두 문장이 동일한 지연 <code>#5</code>를 가지므로
 같은 시각에 같은 변수로 두 갱신이 예약되며,
-문장 순서에 의해 최종적으로 <code>a=0</code>이 된다고 설명한다.
+문장 순서에 의해 최종적으로 <code>a=0</code>이 된다.
 </p>
 </section><section class="section" id="if">
 <h2><span class="num">07</span> 5.3 if 조건문</h2>
@@ -905,8 +905,7 @@ LSB가 1일 때 <code>count</code>를 증가시킨다.
 </p>
 <div class="warn">
 <strong>Vivado 합성 예</strong><br/>
-이 형태가 반복 횟수를 합성 시점에 명확히 확정하기 어려워
-Vivado에서 loop convergence 오류로 합성 실패할 수 있다고 설명한다.
+이 형태는 합성 시점에 반복 횟수를 확정하기 어려워 Vivado에서 loop convergence 오류로 합성에 실패할 수 있다.
 </div>
 <h3>11.3 반복 횟수를 명확히 한 형태</h3>
 <div class="example-title">코드 5-16</div>
@@ -996,7 +995,7 @@ endmodule</code></pre></div>
 <h2><span class="num">11</span> 5.6 절차형 할당의 타이밍 제어</h2>
 <p>
 절차형 문장 실행을 제어하는 방법으로
-지연 제어(<code>#</code>), 이벤트 제어(<code>@</code>), <code>wait</code>를 설명한다.
+지연 제어(<code>#</code>), 이벤트 제어(<code>@</code>), <code>wait</code>가 있다.
 </p>
 <div class="grid">
 <div class="card"><span class="k"># delay</span><p>지정한 시간만큼 실행을 지연</p></div>
@@ -1012,7 +1011,7 @@ endmodule</code></pre></div>
 rega = regb;</code></pre></div>
 <p>
 <code>#</code>은 해당 문장의 실행을 지정 시간만큼 늦춘다.
-parameter나 수식으로 지연값을 표현할 수도 있다고 설명한다.
+parameter나 수식으로 지연값을 표현할 수도 있다.
 </p>
 <h3>12.2 이벤트 제어</h3>
 <div class="syntax">
@@ -1066,7 +1065,7 @@ Verilog의 <code>event</code> 자료형으로 선언된 named event는
 </div>
 <div class="warn">
 <strong>합성 범위</strong><br/>
-이벤트 트리거가 Vivado에서 합성되지 않는다고 설명한다.
+이벤트 트리거는 Vivado에서 합성되지 않는다.
 따라서 이 부분은 주로 시뮬레이션 프로세스 간 동기화 관점으로 이해한다.
 </div>
 <h3>13.1 named event를 이용한 D 플립플롭 형태</h3>
@@ -1128,7 +1127,7 @@ endmodule</code></pre></div>
 
 always @(posedge clk_a, posedge clk_b, trig)
     rega = regb;</code></pre></div>
-<p>위 두 표현을 같은 의미로 설명한다.</p>
+<p>위 두 표현은 같은 의미이다.</p>
 </section><section class="section" id="wait">
 <h2><span class="num">13</span> 5.6.5 wait와 5.6.6 intra-assignment 타이밍 제어</h2>
 <h3>14.1 wait</h3>
@@ -1138,7 +1137,7 @@ always @(posedge clk_a, posedge clk_b, trig)
 </div>
 <p>
 <code>wait</code>는 조건이 참이 될 때까지 실행을 멈추며,
-이를 level-sensitive 이벤트 제어로 설명한다.
+이를 level-sensitive 이벤트 제어라고 한다.
 </p>
 <div class="example-title">예시 5-15</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>begin
@@ -1163,12 +1162,12 @@ end</code></pre></div>
 <div class="card">
 <span class="k">문장 앞 지연</span>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>#5 q = b;</code></pre></div>
-<p>5시간 단위를 기다린 뒤 b를 평가하고 q에 할당한다.</p>
+<p>5 time unit를 기다린 뒤 b를 평가하고 q에 할당한다.</p>
 </div>
 <div class="card">
 <span class="k">intra-assignment</span>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>q = #5 b;</code></pre></div>
-<p>b를 먼저 평가해 보관하고, 5시간 단위 후 그 저장값을 q에 할당한다.</p>
+<p>b를 먼저 평가해 보관하고, 5 time unit 후 그 저장값을 q에 할당한다.</p>
 </div>
 </div>
 <h3>14.3 fork-join의 race와 data swap</h3>
@@ -1189,7 +1188,7 @@ join</code></pre></div>
 <div class="rtl">
 <strong>동작</strong><br/>
 두 문장 모두 현재 <code>a</code>, <code>b</code> 값을 먼저 읽어 임시 보관한 뒤
-5시간 단위 후 서로 반대 좌변에 기록한다.
+5 time unit 후 서로 반대 좌변에 기록한다.
 즉, 평가 시점과 갱신 시점을 분리한다.
 </div>
 <h3>14.4 이벤트 기반 intra-assignment</h3>

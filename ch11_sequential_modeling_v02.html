@@ -117,7 +117,7 @@ code{background:#f6ede2}
 </table>
 <p>
 이 장에서 대부분의 디지털 시스템 설계에 사용되는
-<strong>동기식 순차회로</strong>를 중심으로 설명한다.
+<strong>동기식 순차회로</strong>를 중심으로 살펴본다.
 </p>
 </section><section class="section" id="latch">
 <h2><span class="num">01</span> 11.1 래치와 플립플롭</h2>
@@ -135,7 +135,7 @@ code{background:#f6ede2}
 <p>
 positive D latch는 clock=1인 동안 입력 <code>din</code>이 출력 <code>qout</code>으로 전달되고,
 clock=0인 동안에는 이전 <code>qout</code> 값을 유지한다.
-11-1은 이 투명(transparent) 구간과 유지 구간을 파형으로 보여준다.
+앞의 구간을 투명(transparent) 구간, 뒤의 구간을 유지 구간이라고 한다.
 </p>
 <div class="logic">
 <span class="sig">din</span>
@@ -531,7 +531,7 @@ end
 endmodule</code></pre></div>
 <p>
 blocking이므로 m과 n의 새 값이 같은 always 실행 안에서 yout 계산에 바로 사용된다.
-11-11에서는 최종 yout만 FF에 저장되는 구조로 합성된다.
+그래서 최종 yout만 FF에 저장되는 구조로 합성된다.
 </p>
 <h4>코드 11-17 — Nonblocking</h4>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">seq_Nonblocking.v</span><span>VERILOG</span></span></div><pre><code>module seq_Nonblocking (
@@ -556,7 +556,7 @@ endmodule</code></pre></div>
 <p>
 nonblocking에서는 같은 clock edge에서 우변들이 이전 상태를 기준으로 평가되므로
 <code>m</code>, <code>n</code>, <code>yout</code>가 모두 상태로 저장된다.
-11-12는 3개의 FF가 생성되는 모습을 보여준다.
+그래서 FF 3개가 생성된다.
 </p>
 <h3>5.3 4단 Shift Register에서 순서의 영향</h3>
 <h4>코드 11-19(a) — Blocking, 앞에서 뒤로</h4>
@@ -741,7 +741,7 @@ endmodule</code></pre></div>
 </section><section class="section" id="divider">
 <h2><span class="num">07</span> 11.3.2 주파수 분주기</h2>
 <p>
-1MHz master clock에서 100kHz pulse를 만드는 1/10 분주기를 예로 든다.
+1MHz master clock으로 100kHz pulse를 만드는 1/10 분주기를 살펴보자.
 0~9까지 10개의 clock edge를 계수하고 cnt=9일 때 1 clock 동안 출력 pulse를 1로 만든다.
 </p>
 <h3>8.1 코드 11-25 — Duty 10% 1/10 분주</h3>
@@ -967,7 +967,7 @@ endmodule</code></pre></div>
 parallel load와 shift가 동시에 활성되지 않아야 하며,
 외부 장치가 data_io를 구동하는 동안 내부 parallel output도 동시에 구동되지 않아야 한다.
 </div>
-<h3>10.2 코드 11-30 — 테스트벤치핵심 구조</h3>
+<h3>10.2 코드 11-30 — 테스트벤치 핵심 구조</h3>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">tb_shifter_sp_io.v</span><span>VERILOG</span></span></div><pre><code>`define PERIOD 20
 
 module tb_shifter_sp_io;
@@ -1165,7 +1165,7 @@ endmodule</code></pre></div>
             &lt;= {q2, (q1 ^ q3), q3};</code></pre></div>
 <div class="task">
 <div class="title">설계과제 11-15</div>
-<p>11-24의 8비트 LFSR을 모델링하고 비동기식 active-low set/reset 조건으로 시뮬레이션한다.</p>
+<p>8비트 LFSR을 모델링하고 비동기식 active-low set/reset 조건으로 시뮬레이션한다.</p>
 </div>
 </section><section class="section" id="fsm">
 <h2><span class="num">11</span> 11.4 유한상태머신(FSM)</h2>
@@ -1223,7 +1223,7 @@ one-hot은 상태 수만큼 N개의 bit가 필요하다.
 </section><section class="section" id="moore">
 <h2><span class="num">12</span> 11.4.1 Moore FSM</h2>
 <p>
-11-28은 네 상태 <code>IDLE → READ → DLY → DONE</code>을 갖는 FSM을 보여준다.
+네 상태 <code>IDLE → READ → DLY → DONE</code>을 갖는 FSM을 살펴보자.
 <code>go</code>와 <code>ws</code>가 전이 조건으로 사용되며,
 출력 <code>rd</code>, <code>ds</code>는 현재 상태에 의해 결정된다.
 </p>

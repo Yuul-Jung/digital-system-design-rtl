@@ -168,7 +168,7 @@ Verilog 모듈을 크게
 <strong>몸체 부분</strong><br/> 모듈 인스턴스 · gate primitive · generate · assign · always · initial · function · task </div>
 <div class="title" style="border:0;margin:12px 0 0;padding:0">endmodule</div>
 </div>
-<div class="example-title">그림 6-1의 기본 구조</div>
+<div class="example-title">모듈의 기본 구조</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">module_name.v</span><span>VERILOG</span></span></div><pre><code>module module_name (port_list);
 
     // declarations
@@ -188,7 +188,7 @@ Verilog 모듈을 크게
 endmodule</code></pre></div>
 <div class="tip">
 <strong>이름 작성의 의미</strong><br/>
-모듈 이름이 기능을 함축적으로 나타내는 것이 좋다고 설명한다.
+모듈 이름이 기능을 함축적으로 나타내는 것이 좋다.
 예를 들어 <code>adder_8b</code>는 이름만 보고도
 “8비트 가산기 모듈”임을 예상할 수 있다.
 </div>
@@ -386,7 +386,7 @@ endmodule</code></pre></div>
 <div class="warn">
 <strong>모듈 인스턴스 이름은 생략할 수 없음</strong><br/>
 게이트 프리미티브와 달리
-모듈 인스턴스에는 반드시 고유한 인스턴스 이름이 필요하다고 설명한다.
+모듈 인스턴스에는 반드시 고유한 인스턴스 이름이 필요하다.
 </div>
 <h3>5.1 parameter 값 변경 형식</h3>
 <div class="syntax">
@@ -493,7 +493,7 @@ endmodule</code></pre></div>
 );</code></pre></div>
 <p>
 연결하지 않는 포트를
-<code>.port_name()</code>처럼 빈 괄호로 표현할 수 있다고 설명한다.
+<code>.port_name()</code>처럼 빈 괄호로 표현할 수 있다.
 </p>
 <h3>6.3 동일 포트 중복 연결 오류</h3>
 <div class="codeblock"><div class="codebar"><span class="meta"><span>VERILOG</span></span></div><pre><code>modX U0 (
@@ -724,7 +724,7 @@ endmodule</code></pre></div>
 <h2><span class="num">08</span> 6.2.2 실수형 값의 포트 연결</h2>
 <p>
 <code>real</code> 값을 모듈 포트에 직접 연결하지 않고
-64비트 비트 벡터로 변환한 뒤 전달하는 방법을 설명한다.
+64비트 벡터로 변환해 전달하는 방법을 알아본다.
 </p>
 <div class="example-title">코드 6-7: real → bits</div>
 <div class="codeblock"><div class="codebar"><span class="meta"><span class="file">driver.v</span><span>VERILOG</span></span></div><pre><code>module driver (
@@ -876,8 +876,7 @@ endmodule</code></pre></div>
 </div>
 <div class="rtl">
 <strong>합성 구조</strong><br/>
-6-4는 parameter 변경에 따라
-같은 <code>vdff</code> 정의에서 5비트와 10비트 크기의 서로 다른 하드웨어 인스턴스가 생성되는 모습을 보여준다.
+parameter만 바꾸면 같은 <code>vdff</code> 정의에서 5비트와 10비트 크기의 서로 다른 하드웨어 인스턴스가 생성된다.
 </div>
 </section><section class="section" id="paraminst">
 <h2><span class="num">11</span> 6.3.2 모듈 인스턴스에서 parameter 값 변경</h2>
@@ -950,9 +949,9 @@ dffn #(M) p [1:N] (
 endmodule</code></pre></div>
 <div class="rtl">
 <strong>합성 구조 해석</strong><br/>
-6-5는 M=3, N=4 조건에서
+M=3, N=4이면
 3비트 폭의 레지스터 단계가 깊이 4로 연결된 구조,
-즉 DFF의 2차원 배열 형태로 확장된 회로를 보여준다.
+즉 DFF의 2차원 배열 형태로 확장된 회로가 된다.
 </div>
 <h3>12.4 네 가지 parameter 적용 예</h3>
 <div class="example-title">코드 6-12</div>
@@ -1063,7 +1062,7 @@ endgenerate</code>
 <div class="warn">
 <strong>제한</strong><br/>
 generate 내부에서 <code>parameter</code>, <code>localparam</code>,
-<code>input</code>, <code>output</code>, <code>inout</code> 선언은 허용되지 않는다고 설명한다.
+<code>input</code>, <code>output</code>, <code>inout</code> 선언은 허용되지 않는다.
 또한 반복 generate 내부에서는 function/task 선언에 제한이 있다.
 </div>
 <h3>14.2 생성문의 주요 형태</h3>
@@ -1091,8 +1090,7 @@ elaboration 전용 정수 인덱스이다.
 </tbody>
 </table>
 <div class="note">
-<code>genvar</code>가 x, z, 음수 값을 가질 수 없고,
-반복 generate에 의해 값이 결정된다고 설명한다.
+<code>genvar</code>는 x, z, 음수 값을 가질 수 없으며, 반복 generate가 값을 정한다.
 </div>
 </section><section class="section" id="gray">
 <h2><span class="num">15</span> 6.4.2 반복 생성문 — Gray → Binary 변환기</h2>
@@ -1251,7 +1249,7 @@ endmodule</code></pre></div>
 <strong>두 코드의 차이</strong><br/>
 코드 6-15는 중간 net을 generate 밖의 2차원 배열로 선언하고,
 코드 6-16은 각 반복 블록 내부에 <code>t1,t2,t3</code>를 지역 net으로 생성한다.
-6-7은 두 코드가 동일한 4비트 리플 캐리 가산기 구조로 합성됨을 보여준다.
+두 코드는 모두 같은 4비트 리플 캐리 가산기 구조로 합성된다.
 </div>
 <h3>17.3 생성된 인스턴스 이름</h3>
 <p>
@@ -1394,7 +1392,7 @@ endgenerate</code></pre></div>
 </table>
 <p>
 선택된 경로의 계층 인스턴스 이름을
-<code>ADDER.U1</code>로 설명한다.
+<code>ADDER.U1</code>이다.
 </p>
 </section><section class="section" id="hiername">
 <h2><span class="num">19</span> 6.5 계층적 이름</h2>
@@ -1515,7 +1513,7 @@ generate_module_name.item_name</code>
 </div>
 <p>
 인스턴스 이름을 현재 범위에서 먼저 찾고,
-없으면 상위 계층으로 올라가며 같은 이름을 찾는 방식으로 설명한다.
+없으면 상위 계층으로 올라가며 같은 이름을 찾는다.
 </p>
 <h3>21.1 여러 복사본이 있는 계층에서 이름 참조</h3>
 <div class="example-title">코드 6-22</div>
